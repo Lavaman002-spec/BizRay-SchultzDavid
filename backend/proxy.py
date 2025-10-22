@@ -11,7 +11,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 # ── ENV ────────────────────────────────────────────────────────────────────────
-load_dotenv()  # loads registry-proxy/.env
+load_dotenv()  # loads backend/.env
 API_KEY = os.getenv("API_KEY")
 WSDL_URL = os.getenv("WSDL_URL")
 
