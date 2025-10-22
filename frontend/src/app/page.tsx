@@ -32,14 +32,14 @@ export default function Home() {
         </div>
       </section>
       {/* Data Table */}
-      <section className="container mx-auto px-4 py-16">
+      <section className="flex flex-col items-center w-[800px] mx-auto px-4 py-16">
         <div className="mb-8 text-center">
           <h2 className="mb-2 text-3xl font-bold">Explore Businesses</h2>
           <p className="text-muted-foreground">
-            Search and research businesses located in Austria
+            Research businesses located in Austria
           </p>
         </div>
-        <CompanyList showSearch={true} />
+        <CompanyList showSearch={true} autoLoad={true} defaultQuery="GmbH" />
       </section>
     </div>
   );

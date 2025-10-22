@@ -5,12 +5,10 @@ import Link from 'next/link';
 import {
   NavigationMenu,
   NavigationMenuContent,
-  NavigationMenuIndicator,
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
-  NavigationMenuViewport,
 } from '@/components/ui/navigation-menu';
 import Image from 'next/image';
 import { Button } from '../ui/button';
@@ -29,19 +27,27 @@ export function AppNav() {
         </Link>
         {/* Nav Menu */}
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-          <NavigationMenu>
-            <NavigationMenuLink>
-              <Link href="/dashboard">Dashbaord</Link>
-            </NavigationMenuLink>
-            <NavigationMenuLink>
-              <Link href="/explore">Explore</Link>
-            </NavigationMenuLink>
-            <NavigationMenuLink>
-              <Link href="/network">Network</Link>
-            </NavigationMenuLink>
-            <NavigationMenuLink>
-              <Link href="/settings">Settings</Link>
-            </NavigationMenuLink>
+          <NavigationMenu className="list-none">
+            <NavigationMenuItem>
+              <NavigationMenuLink asChild>
+                <Link href="/dashboard">Dashboard</Link>
+              </NavigationMenuLink>
+            </NavigationMenuItem>
+            <NavigationMenuItem>
+              <NavigationMenuLink asChild>
+                <Link href="/explore">Explore</Link>
+              </NavigationMenuLink>
+            </NavigationMenuItem>
+            <NavigationMenuItem>
+              <NavigationMenuLink asChild>
+                <Link href="/settings">Settings</Link>
+              </NavigationMenuLink>
+            </NavigationMenuItem>
+            <NavigationMenuItem>
+              <NavigationMenuLink asChild>
+                <Link href="/docs">Documentation</Link>
+              </NavigationMenuLink>
+            </NavigationMenuItem>
           </NavigationMenu>
         </div>
 
