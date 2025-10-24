@@ -288,3 +288,5 @@ def company(fnr: str):
         import traceback
         traceback.print_exc()
         raise HTTPException(status_code=502, detail=f"Company failed: {ex}")
+
+print("scrum 2")
