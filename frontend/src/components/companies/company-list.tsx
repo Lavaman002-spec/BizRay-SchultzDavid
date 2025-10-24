@@ -7,29 +7,37 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search } from 'lucide-react';
+import { Search, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface CompanyListProps {
   initialQuery?: string;
   autoLoad?: boolean;
   showSearch?: boolean;
+  defaultQuery?: string;
+  itemsPerPage?: number;
 }
 
 export function CompanyList({
   initialQuery = '',
   autoLoad = false,
   showSearch = true,
+  defaultQuery = 'GmbH',
+  itemsPerPage = 10,
 }: CompanyListProps) {
-  const [companies, setCompanies] = useState<Company[]>([]);
+  const [allCompanies, setAllCompanies] = useState<Company[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [query, setQuery] = useState(initialQuery);
 
   useEffect(() => {
-    if (autoLoad && initialQuery) {
-      fetchCompanies(initialQuery);
+    if (autoLoad) {
+      const searchQuery = initialQuery || defaultQuery;
+      if (searchQuery) {
+        fetchCompanies(searchQuery);
+      }
     }
-  }, [autoLoad, initialQuery]);
+  }, [autoLoad, initialQuery, defaultQuery]);
 
   const fetchCompanies = async (searchQuery: string) => {
     if (searchQuery.length < 2) {
@@ -50,7 +58,8 @@ export function CompanyList({
       }
 
       const data = await response.json();
-      setCompanies(data.results || []);
+      setAllCompanies(data.results || []);
+      setCurrentPage(1); // Reset to first page on new search
     } catch (err) {
       setError('Failed to load companies. Make sure the backend is running.');
       console.error(err);
@@ -64,8 +73,30 @@ export function CompanyList({
     fetchCompanies(query);
   };
 
+  // Pagination calculations
+  const totalPages = Math.ceil(allCompanies.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentCompanies = allCompanies.slice(startIndex, endIndex);
+
+  const goToNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const goToPreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const goToPage = (page: number) => {
+    setCurrentPage(page);
+  };
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 max-w-2xl">
       {showSearch && (
         <form onSubmit={handleSearch} className="flex gap-4">
           <div className="flex-1">
@@ -97,13 +128,84 @@ export function CompanyList({
           <Skeleton className="h-12 w-full" />
           <Skeleton className="h-12 w-full" />
         </div>
-      ) : companies.length > 0 ? (
+      ) : allCompanies.length > 0 ? (
         <div>
-          <div className="mb-4 text-sm text-muted-foreground">
-            Found {companies.length}{' '}
-            {companies.length === 1 ? 'company' : 'companies'}
+          <div className="mb-4 flex items-center justify-between">
+            <div className="text-sm text-muted-foreground">
+              Found {allCompanies.length}{' '}
+              {allCompanies.length === 1 ? 'company' : 'companies'} (showing{' '}
+              {startIndex + 1}-{Math.min(endIndex, allCompanies.length)})
+            </div>
+            {totalPages > 1 && (
+              <div className="text-sm text-muted-foreground">
+                Page {currentPage} of {totalPages}
+              </div>
+            )}
           </div>
-          <DataTable columns={companyColumns} data={companies} />
+          <DataTable columns={companyColumns} data={currentCompanies} />
+
+          {totalPages > 1 && (
+            <div className="mt-4 flex items-center justify-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={goToPreviousPage}
+                disabled={currentPage === 1}
+              >
+                <ChevronLeft className="h-4 w-4" />
+                Previous
+              </Button>
+
+              <div className="flex gap-1">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (page) => {
+                    // Show first page, last page, current page, and pages around current
+                    const showPage =
+                      page === 1 ||
+                      page === totalPages ||
+                      (page >= currentPage - 1 && page <= currentPage + 1);
+
+                    if (!showPage) {
+                      // Show ellipsis
+                      if (
+                        page === currentPage - 2 ||
+                        page === currentPage + 2
+                      ) {
+                        return (
+                          <span key={page} className="px-2 py-1 text-sm">
+                            ...
+                          </span>
+                        );
+                      }
+                      return null;
+                    }
+
+                    return (
+                      <Button
+                        key={page}
+                        variant={currentPage === page ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => goToPage(page)}
+                        className="min-w-[2.5rem]"
+                      >
+                        {page}
+                      </Button>
+                    );
+                  }
+                )}
+              </div>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={goToNextPage}
+                disabled={currentPage === totalPages}
+              >
+                Next
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
         </div>
       ) : query && !error ? (
         <div className="rounded-md border border-dashed p-8 text-center">
