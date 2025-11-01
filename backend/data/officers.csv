@@ -1,0 +1,8 @@
+
+company_register_id,person_id,person_name,role
+FN10001,P001,Anna Mayer,CEO
+FN10001,P002,Lukas Steiner,CTO
+FN10002,P003,Johann Leitner,Board Member
+FN10003,P004,Klara Schulz,Manager
+FN10004,P005,Peter Novak,Founder
+FN10005,P006,Sophia Bauer,Owner

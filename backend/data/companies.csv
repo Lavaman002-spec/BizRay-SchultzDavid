@@ -1,0 +1,6 @@
+register_id,name,legal_form,status,address_line,city,country
+FN10001,Alpha Innovations GmbH,GmbH,active,Industriestrasse 15,Vienna,AT
+FN10002,Beta Analytics AG,AG,active,Datahubgasse 3,Graz,AT
+FN10003,Creative Studio OG,OG,inactive,Designplatz 8,Linz,AT
+FN10004,Delta Robotics GmbH,GmbH,active,Robotergasse 42,Salzburg,AT
+FN10005,Echo Ventures e.U.,e.U.,active,Hauptstrasse 9,Innsbruck,AT

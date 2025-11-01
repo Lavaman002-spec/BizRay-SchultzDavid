@@ -4,11 +4,8 @@ import * as React from 'react';
 import Link from 'next/link';
 import {
   NavigationMenu,
-  NavigationMenuContent,
   NavigationMenuItem,
   NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
 } from '@/components/ui/navigation-menu';
 import Image from 'next/image';
 import { Button } from '../ui/button';
@@ -41,11 +38,6 @@ export function AppNav() {
             <NavigationMenuItem>
               <NavigationMenuLink asChild>
                 <Link href="/settings">Settings</Link>
-              </NavigationMenuLink>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <NavigationMenuLink asChild>
-                <Link href="/docs">Documentation</Link>
               </NavigationMenuLink>
             </NavigationMenuItem>
           </NavigationMenu>

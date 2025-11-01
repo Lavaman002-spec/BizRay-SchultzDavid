@@ -1,4 +1,10 @@
-fastapi==0.111.0
-uvicorn[standard]==0.30.0
-zeep==4.3.1
-python-dotenv==1.0.1
+fastapi>=0.115
+uvicorn>=0.30
+psycopg[binary]>=3.2
+pydantic>=2.8
+python-dotenv>=1.0
+requests>=2.32
+pandas>=2.2
+zeep>=4.2.1
+lxml>=4.9
+psycopg2-binary
