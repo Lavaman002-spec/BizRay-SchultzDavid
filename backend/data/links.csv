@@ -1,4 +1,1 @@
 from_register_id,to_register_id,link_type
-FN10002,FN10001,ownership
-FN10004,FN10002,partnership
-FN10005,FN10003,investment

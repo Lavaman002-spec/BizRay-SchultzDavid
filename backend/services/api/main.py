@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routers import search, companies  # Import search BEFORE companies
+from .routers import search, companies  # Import search BEFORE companies
 
 app = FastAPI(
     title="BizRay API",

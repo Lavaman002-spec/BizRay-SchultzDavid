@@ -10,9 +10,9 @@ import {
 import Image from 'next/image';
 import { Button } from '../ui/button';
 
-export function AppNav() {
+export default function AppNav() {
   return (
-    <header className="border-b fixed w-dvw bg-white z-10">
+    <header className="fixed w-dvw z-10">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <Link href="/" className="flex items-center gap-2 text-xl font-bold">
           <Image

@@ -4,14 +4,14 @@ from .db import get_connection
 
 
 def ingest_bulk_files():
-    """Ingest local CSV data from data/bulk/ or data/ into the database if available."""
+    """Ingest local CSV data from backend/data/ into the database if available."""
     
     # Try multiple possible locations for data files
     possible_data_dirs = [
-        os.path.join(os.path.dirname(__file__), "../../../data/bulk"),  # data/bulk/
-        os.path.join(os.path.dirname(__file__), "../../../data"),        # data/
-        "/app/data/bulk",  # Docker path
-        "/app/data",       # Docker path
+        os.path.join(os.path.dirname(__file__), "../../../data"),        # backend/data/
+        "/bizray/backend/data",  # Docker path
+        os.path.join(os.path.dirname(__file__), "../../../data/bulk"),  # data/bulk/ (fallback)
+        "/app/data",       # Docker path (fallback)
     ]
     
     data_dir = None

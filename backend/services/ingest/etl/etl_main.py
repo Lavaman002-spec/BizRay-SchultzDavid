@@ -3,6 +3,7 @@ import time
 import psycopg2
 from .db import ensure_schema, get_connection
 from .bulk_ingest import ingest_bulk_files
+from .bulk_api_ingest import bulk_ingest_from_api
 from .normalize import run_normalization
 from .api_fetch import fetch_company
 from .config import DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD
@@ -32,13 +33,15 @@ def wait_for_db(retries=10, delay=3):
     sys.exit(1)
 
 
-def run_etl(sample_companies=None):
+def run_etl(sample_companies=None, use_bulk_api=False, max_bulk_companies=100):
     """
     Run the complete ETL pipeline.
     
     Args:
         sample_companies: List of company register IDs to fetch. 
                          If None, uses default samples.
+        use_bulk_api: If True, use bulk API ingestion instead of sample companies
+        max_bulk_companies: Maximum number of companies to fetch in bulk mode
     """
     wait_for_db()
 
@@ -62,30 +65,46 @@ def run_etl(sample_companies=None):
         print(f"⚠️ Bulk ingestion failed (non-critical): {e}")
 
     # Step 3: Fetch data from API
-    print("\n[3/5] Fetching company data from API...")
-    if sample_companies is None:
-        sample_companies = [
-            "FN348406",
-            "FN10001",
-            "FN10002",
-        ]
-    
-    fetched_count = 0
-    failed_count = 0
-    
-    for company_id in sample_companies:
+    if use_bulk_api:
+        print("\n[3/5] Fetching company data from API (BULK MODE)...")
         try:
-            print(f"\n→ Fetching {company_id}...")
-            data = fetch_company(company_id)
-            if data:
-                fetched_count += 1
-                print(f"  ✓ Success: {data['name']} ({data['register_id']})")
-            else:
-                failed_count += 1
-                print(f"  ⚠️ No data returned for {company_id}")
+            stats = bulk_ingest_from_api(
+                company_list=sample_companies,
+                max_companies=max_bulk_companies,
+                delay_between_requests=1.0,
+                use_discovery=True
+            )
+            fetched_count = stats['successful']
+            failed_count = stats['failed']
         except Exception as e:
-            failed_count += 1
-            print(f"  ❌ Error fetching {company_id}: {e}")
+            print(f"❌ Bulk API ingestion failed: {e}")
+            fetched_count = 0
+            failed_count = 0
+    else:
+        print("\n[3/5] Fetching company data from API (SAMPLE MODE)...")
+        if sample_companies is None:
+            sample_companies = [
+                "FN348406",
+                "FN10001",
+                "FN10002",
+            ]
+        
+        fetched_count = 0
+        failed_count = 0
+        
+        for company_id in sample_companies:
+            try:
+                print(f"\n→ Fetching {company_id}...")
+                data = fetch_company(company_id)
+                if data:
+                    fetched_count += 1
+                    print(f"  ✓ Success: {data['name']} ({data['register_id']})")
+                else:
+                    failed_count += 1
+                    print(f"  ⚠️ No data returned for {company_id}")
+            except Exception as e:
+                failed_count += 1
+                print(f"  ❌ Error fetching {company_id}: {e}")
     
     print(f"\nAPI Fetch Summary: {fetched_count} succeeded, {failed_count} failed")
 

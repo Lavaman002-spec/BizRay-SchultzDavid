@@ -18,9 +18,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900">
-          {children}
-        </div>
+        <div>{children}</div>
         <Toaster position="top-right" richColors />
       </body>
     </html>

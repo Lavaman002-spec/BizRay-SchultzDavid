@@ -1,9 +1,16 @@
 import os
 import json
+import sys
 from datetime import date, datetime
 from zeep.helpers import serialize_object
-from .client import create_client
-from .db import get_connection
+
+# Add current directory to path
+current_dir = os.path.dirname(os.path.abspath(__file__))
+if current_dir not in sys.path:
+    sys.path.insert(0, current_dir)
+
+from client import create_client
+from db import get_connection
 
 
 class DateTimeEncoder(json.JSONEncoder):
