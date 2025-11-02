@@ -25,58 +25,25 @@ bizray/
 Install all dependencies at once:
 
 ```bash
-make install
-```
-
-Or install them separately:
-
-```bash
-# Backend
-cd backend && pip install -r requirements.txt
-
-# Frontend
-cd frontend && pnpm install
+cd backend && pip install -r requirment.txt
+cd frontend && npm i
 ```
 
 ### Running the Application
 
 #### Option 1: Use Make Commands (Easiest)
 
-```bash
-make dev          # Run both frontend and backend
-make backend      # Run backend only
-make frontend     # Run frontend only
-make clean        # Clean build artifacts
-```
-
-#### Option 2: Use the Development Script
+backend
 
 ```bash
-./dev.sh
+cd backend && python run.py
 ```
 
-This will start both the backend and frontend servers automatically.
-
-#### Option 3: Start Services Manually
-
-##### 1. Start the Backend
+frontend
 
 ```bash
-cd backend
-# Create .env file with API_KEY and WSDL_URL if not exists
-python server.py
+cd frontned && npm run dev
 ```
-
-The backend API will run on [http://localhost:8000](http://localhost:8000).
-
-##### 2. Start the Frontend
-
-```bash
-cd frontend
-pnpm dev
-```
-
-The frontend will run on [http://localhost:3000](http://localhost:3000).
 
 ## Architecture
 
@@ -96,14 +63,6 @@ See [frontend/README.md](./frontend/README.md) for detailed documentation.
 
 See [backend/README.md](./backend/README.md) for detailed documentation.
 
-## Features
-
-- 🔍 Search companies by name
-- 📊 View detailed company information
-- 🔒 Secure API proxy to Austrian Business Register
-- 🚀 Fast and responsive UI
-- 🎨 Modern design with Tailwind CSS
-
 ## Development
 
 Both frontend and backend can be developed independently. The frontend makes API calls to the backend at `http://localhost:8000`.
@@ -118,7 +77,3 @@ Create `backend/.env`:
 API_KEY=your_api_key_here
 WSDL_URL=https://justizonline.gv.at/jop/api/at.gv.justiz.fbw/ws?wsdl
 ```
-
-## License
-
-Private project for IMC Software Engineering.
