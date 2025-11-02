@@ -1,45 +1,73 @@
 'use client';
 
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { Search } from 'lucide-react';
-import { CompanyList } from '@/components/companies/company-list';
+import { useState } from 'react';
+import CompanySearchResults from '@/components/CompanySearchResults';
+import CompanyPreview from '@/components/CompanyPreview';
+import CompanySearch from '@/components/CompanySearch';
+import StatsCards from '@/components/StatsCards';
+import { searchCompanies, type Company } from '@/lib/api';
+import AppNav from '@/components/layout/AppNav';
+import Image from 'next/image';
 
 export default function Home() {
+  const [results, setResults] = useState<Company[]>([]);
+  const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
+
+  const handleResults = (companies: Company[], count: number) => {
+    setResults(companies);
+    setTotal(count);
+    setHasSearched(true);
+  };
+
   return (
-    <div>
-      {/* Hero Section */}
-      <section className="flex container mx-auto px-4 py-128 md:py-24">
-        <div className="mx-auto max-w-3xl text-center flex flex-col content-center">
-          <h1 className="mb-6 text-4xl font-bold tracking-tight md:text-6xl">
-            Welcome to Bizray - the Xray for Businesses
-          </h1>
-          <p className="text-muted-foreground mb-8 text-lg md:text-xl">
-            Comprehensive company data, network analysis, and business
-            intelligence to help you make informed decisions.
-          </p>
-          <div className="flex flex-col justify-center gap-4 sm:flex-row">
-            <Button asChild size="lg">
-              <Link href="/search">
-                <Search className="mr-2 h-4 w-4" />
-                Search Companies
-              </Link>
-            </Button>
-            <Button asChild variant="outline" size="lg">
-              <Link href="/dashboard">View Dashboard</Link>
-            </Button>
+    <div className="bg-zinc-100">
+      {/* Header */}
+      <AppNav />
+
+      <div className="min-h-screen flex flex-col place-items-center justify-center gap-16">
+        {/* Hero Section */}
+        <section className="flex flex-col w-full max-w-4xl">
+          <div className="flex flex-col gap-8 text-left items-left mx-auto">
+            <Image
+              src={'/Bizray-icon.svg'}
+              width={64}
+              height={64}
+              alt="Bizray Logo"
+            />
+            <h2 className="text-5xl font-medium text-zinc-950">
+              Welcome to Bizray.
+            </h2>
+            <p className="text-base text-zinc-700">
+              Aggregate Austrian register data into rich company profiles,
+              network graphs, and actionable risk indicators—fast.
+            </p>
+
+            {/* Search Box */}
+            <div className="w-full flex flex-col gap-4">
+              <CompanySearch onResults={handleResults} />
+              <StatsCards />
+            </div>
+
+            {/* Stats Cards - 16px gap (gap-4 = 16px in Tailwind) */}
           </div>
+        </section>
+      </div>
+
+      {/* Company Preview or Search Results */}
+      <section className="flex flex-col place-items-center justify-center py-24">
+        <div className="flex flex-col w-full max-w-4xl">
+          {hasSearched ? (
+            <CompanySearchResults
+              results={results}
+              total={total}
+              loading={loading}
+            />
+          ) : (
+            <CompanyPreview maxCompanies={12} />
+          )}
         </div>
-      </section>
-      {/* Data Table */}
-      <section className="flex flex-col items-center w-[800px] mx-auto px-4 py-16">
-        <div className="mb-8 text-center">
-          <h2 className="mb-2 text-3xl font-bold">Explore Businesses</h2>
-          <p className="text-muted-foreground">
-            Research businesses located in Austria
-          </p>
-        </div>
-        <CompanyList showSearch={true} autoLoad={true} defaultQuery="GmbH" />
       </section>
     </div>
   );

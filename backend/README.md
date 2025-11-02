@@ -1,93 +1,171 @@
 # BizRay Backend
 
-FastAPI backend service that provides a proxy to the Austrian Business Register (Firmenbuch) SOAP API.
+FastAPI backend for Austrian Business Register (Firmenbuch) data management.
 
-## Getting Started
+## Features
+
+- FastAPI framework with automatic API documentation
+- Supabase database integration
+- Company search functionality
+- Officer management
+- Company relationships tracking
+- RESTful API endpoints
+
+## Setup
 
 ### Prerequisites
 
-- Python 3.8+
-- pip or pipenv
+- Python 3.9+
+- Supabase account and database
+- pip or poetry for package management
 
 ### Installation
+
+1. Install dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### Environment Variables
-
-Create a `.env` file in the `backend` directory with the following variables:
-
-```env
-API_KEY=your_api_key_here
-WSDL_URL=https://justizonline.gv.at/jop/api/at.gv.justiz.fbw/ws?wsdl
-```
-
-### Development
-
-Run the development server:
+2. Create a `.env` file based on `.env.example`:
 
 ```bash
-python server.py
+cp .env.example .env
 ```
 
-The API will be available at [http://localhost:8000](http://localhost:8000).
+3. Update `.env` with your Supabase credentials:
+
+```
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_KEY=your-supabase-anon-key
+```
+
+4. Run database migrations in Supabase:
+   - Go to your Supabase dashboard
+   - Navigate to SQL Editor
+   - Copy and run the contents of `supabase/migrations/init.sql`
+
+### Running the Application
+
+#### Development Mode
+
+```bash
+cd backend
+uvicorn services.api.main:app --reload --port 8000
+```
+
+The API will be available at:
+
+- API: http://localhost:8000
+- Swagger UI: http://localhost:8000/docs
+- ReDoc: http://localhost:8000/redoc
+
+#### Production Mode
+
+```bash
+uvicorn services.api.main:app --host 0.0.0.0 --port 8000
+```
 
 ## API Endpoints
 
-### Health Check
+### Companies
 
-- `GET /healthz` - Health check endpoint
+- `GET /api/companies/` - List all companies
+- `GET /api/companies/{id}` - Get company by ID (includes officers)
+- `GET /api/companies/fn/{fn_number}` - Get company by Firmenbuch number
+- `POST /api/companies/` - Create new company
+- `PUT /api/companies/{id}` - Update company
+- `DELETE /api/companies/{id}` - Delete company
 
-### Debug Endpoints
+### Officers
 
-- `GET /debug` - Enhanced debug information
-- `GET /test-wsdl` - Test WSDL accessibility
-- `GET /inspect-endpoints` - Inspect SOAP service endpoints
-- `GET /test-soap-endpoint` - Test SOAP endpoint response
+- `GET /api/officers/` - List all officers
+- `GET /api/officers/{id}` - Get officer by ID
+- `GET /api/officers/company/{company_id}` - Get officers by company
+- `POST /api/officers/` - Create new officer
+- `PUT /api/officers/{id}` - Update officer
+- `DELETE /api/officers/{id}` - Delete officer
 
-### Business Registry
+### Search
 
-- `GET /search?q={query}` - Search for companies by name
+- `GET /api/search/?query={term}` - Search companies
+- `POST /api/search/` - Search with advanced options
 
-  - **Parameters:**
-    - `q` (required): Search query, minimum 2 characters
-  - **Returns:** List of companies with FNR and name
+### Health
 
-- `GET /company/{fnr}` - Get detailed company information
-  - **Parameters:**
-    - `fnr` (required): Company registration number (Firmenbuchnummer)
-  - **Returns:** Detailed company information
+- `GET /health` - Health check endpoint
+- `GET /` - API information
+
+## Database Schema
+
+### Tables
+
+- **companies**: Company information (FN number, name, address, etc.)
+- **officers**: Officer/director information
+- **company_officers**: Junction table linking companies and officers
+- **links**: Company relationships/connections
 
 ## Project Structure
 
 ```
 backend/
-├── proxy.py          # Main FastAPI application
-├── server.py         # Uvicorn server entry point
-├── requirements.txt  # Python dependencies
-├── test_env.py       # Environment testing utility
-└── .env             # Environment variables (not in git)
+├── services/
+│   ├── api/
+│   │   ├── main.py              # FastAPI application
+│   │   ├── dependencies.py      # Dependency injection
+│   │   └── routers/
+│   │       ├── companies.py     # Company endpoints
+│   │       ├── officers.py      # Officer endpoints
+│   │       └── search.py        # Search endpoints
+│   └── ingest/                  # Data ingestion services
+├── shared/
+│   ├── config.py                # Configuration
+│   ├── models.py                # Pydantic models
+│   └── utils.py                 # Utility functions
+├── supabase/
+│   ├── client.py                # Supabase client
+│   ├── queries.py               # Database queries
+│   └── migrations/
+│       └── init.sql             # Database schema
+└── requirements.txt             # Python dependencies
 ```
 
-## Tech Stack
+## Environment Variables
 
-- **Framework:** FastAPI 0.111
-- **ASGI Server:** Uvicorn 0.30
-- **SOAP Client:** Zeep 4.3
-- **Environment:** python-dotenv 1.0
+| Variable       | Description                        | Required |
+| -------------- | ---------------------------------- | -------- |
+| `SUPABASE_URL` | Supabase project URL               | Yes      |
+| `SUPABASE_KEY` | Supabase anon/public key           | Yes      |
+| `API_KEY`      | Austrian Business Register API key | No       |
+| `WSDL_URL`     | WSDL endpoint URL                  | No       |
 
-## CORS Configuration
+## Development
 
-The backend is configured to accept requests from:
+### Running Tests
 
-- `http://localhost:3000` (frontend development server)
+```bash
+pytest tests/
+```
 
-To modify allowed origins, edit the `allow_origins` parameter in `proxy.py`.
+### Code Formatting
 
-## Development Notes
+```bash
+black backend/
+```
 
-- The service caches the SOAP client after first initialization
-- WSDL endpoints are automatically rewritten from internal (`intra.gv.at`) to public (`justizonline.gv.at`) domains
-- All requests require a valid API key set in the `.env` file
+### Linting
+
+```bash
+flake8 backend/
+```
+
+## API Documentation
+
+Once the server is running, visit:
+
+- Swagger UI: http://localhost:8000/docs
+- ReDoc: http://localhost:8000/redoc
+
+## License
+
+MIT License

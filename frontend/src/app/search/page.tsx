@@ -1,15 +1,21 @@
 'use client';
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { CompanyList } from '@/components/companies/company-list';
+import { useState } from 'react';
+import CompanySearch from '@/components/CompanySearch';
+import CompanySearchResults from '@/components/CompanySearchResults';
+import type { Company } from '@/types/company';
 
 export default function SearchPage() {
+  const [results, setResults] = useState<Company[]>([]);
+  const [total, setTotal] = useState(0);
+  const [hasSearched, setHasSearched] = useState(false);
+
+  const handleResults = (companies: Company[], count: number) => {
+    setResults(companies);
+    setTotal(count);
+    setHasSearched(true);
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mx-auto max-w-6xl">
@@ -20,17 +26,13 @@ export default function SearchPage() {
           </p>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Company Search</CardTitle>
-            <CardDescription>
-              Enter a company name to search (minimum 2 characters)
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <CompanyList showSearch={true} />
-          </CardContent>
-        </Card>
+        <div className="mb-8">
+          <CompanySearch onResults={handleResults} />
+        </div>
+
+        {hasSearched && (
+          <CompanySearchResults results={results} total={total} />
+        )}
       </div>
     </div>
   );

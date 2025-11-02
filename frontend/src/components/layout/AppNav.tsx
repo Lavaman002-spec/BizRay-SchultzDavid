@@ -4,18 +4,15 @@ import * as React from 'react';
 import Link from 'next/link';
 import {
   NavigationMenu,
-  NavigationMenuContent,
   NavigationMenuItem,
   NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
 } from '@/components/ui/navigation-menu';
 import Image from 'next/image';
 import { Button } from '../ui/button';
 
-export function AppNav() {
+export default function AppNav() {
   return (
-    <header className="border-b fixed w-dvw bg-white z-10">
+    <header className="fixed w-dvw z-10">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <Link href="/" className="flex items-center gap-2 text-xl font-bold">
           <Image
@@ -41,11 +38,6 @@ export function AppNav() {
             <NavigationMenuItem>
               <NavigationMenuLink asChild>
                 <Link href="/settings">Settings</Link>
-              </NavigationMenuLink>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <NavigationMenuLink asChild>
-                <Link href="/docs">Documentation</Link>
               </NavigationMenuLink>
             </NavigationMenuItem>
           </NavigationMenu>

@@ -1,21 +1,13 @@
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
+import { Inter } from 'next/font/google';
 import './globals.css';
-import { AppNav } from '@/components/layout/AppNav';
+import { Toaster } from 'sonner';
 
-const geistSans = Geist({
-  variable: '--font-geist-sans',
-  subsets: ['latin'],
-});
-
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
-  subsets: ['latin'],
-});
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'BizRay',
-  description: 'Xray for businesses',
+  title: 'BizRay - Austrian Business Intelligence',
+  description: 'Search and analyze Austrian business register data',
 };
 
 export default function RootLayout({
@@ -25,11 +17,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <AppNav />
-        <main>{children}</main>
+      <body className={inter.className}>
+        <div>{children}</div>
+        <Toaster position="top-right" richColors />
       </body>
     </html>
   );
