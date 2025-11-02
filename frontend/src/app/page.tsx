@@ -10,31 +10,15 @@ import AppNav from '@/components/layout/AppNav';
 import Image from 'next/image';
 
 export default function Home() {
-  const [query, setQuery] = useState('');
   const [results, setResults] = useState<Company[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
-  const [fetchFromAPI] = useState(true);
 
-  const handleSearch = async (searchQuery: string) => {
-    setQuery(searchQuery);
-    setLoading(true);
+  const handleResults = (companies: Company[], count: number) => {
+    setResults(companies);
+    setTotal(count);
     setHasSearched(true);
-
-    try {
-      const data = await searchCompanies(searchQuery, 20, 0, {
-        fetchIfNotFound: fetchFromAPI,
-      });
-      setResults(data.items);
-      setTotal(data.total);
-    } catch (error) {
-      console.error('Search failed:', error);
-      setResults([]);
-      setTotal(0);
-    } finally {
-      setLoading(false);
-    }
   };
 
   return (
@@ -62,7 +46,7 @@ export default function Home() {
 
             {/* Search Box */}
             <div className="w-full flex flex-col gap-4">
-              <CompanySearch onSearch={handleSearch} loading={loading} />
+              <CompanySearch onResults={handleResults} />
               <StatsCards />
             </div>
 
@@ -72,14 +56,13 @@ export default function Home() {
       </div>
 
       {/* Company Preview or Search Results */}
-      <section className="min-h-screen flex flex-col place-items-center justify-center px-4">
+      <section className="flex flex-col place-items-center justify-center py-24">
         <div className="flex flex-col w-full max-w-4xl">
           {hasSearched ? (
             <CompanySearchResults
               results={results}
               total={total}
               loading={loading}
-              query={query}
             />
           ) : (
             <CompanyPreview maxCompanies={12} />

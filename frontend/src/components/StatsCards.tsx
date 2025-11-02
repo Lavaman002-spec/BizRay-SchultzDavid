@@ -1,34 +1,45 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Building2, Briefcase, Link2 } from 'lucide-react';
-import { listCompanies } from '@/lib/api';
+import { Building2, Users, TrendingUp, Database } from 'lucide-react';
+import { checkHealth, listCompanies, listOfficers } from '@/lib/api';
 
 export default function StatsCards() {
   const [stats, setStats] = useState({
-    companies: 0,
-    officers: 0,
-    links: 0,
+    totalCompanies: 0,
+    totalOfficers: 0,
+    activeCompanies: 0,
+    dbStatus: 'checking...',
     loading: true,
   });
 
   useEffect(() => {
     async function loadStats() {
       try {
-        // Fetch just one company to get the total count
-        const data = await listCompanies(1, 0);
+        const [health, companiesData, officersData] = await Promise.all([
+          checkHealth(),
+          listCompanies(1000, 0),
+          listOfficers(1000, 0),
+        ]);
+
+        const activeCount = companiesData.filter(
+          (c) => c.state === 'active'
+        ).length;
+
         setStats({
-          companies: data.total,
-          officers: 558, // This would ideally come from an API endpoint
-          links: 3, // This would ideally come from an API endpoint
+          totalCompanies: companiesData.length,
+          totalOfficers: officersData.length,
+          activeCompanies: activeCount,
+          dbStatus: health.database,
           loading: false,
         });
       } catch (error) {
         console.error('Failed to load stats:', error);
         setStats({
-          companies: 0,
-          officers: 0,
-          links: 0,
+          totalCompanies: 0,
+          totalOfficers: 0,
+          activeCompanies: 0,
+          dbStatus: 'error',
           loading: false,
         });
       }
@@ -39,19 +50,19 @@ export default function StatsCards() {
 
   const statItems = [
     {
-      label: 'Companies',
-      value: stats.companies,
+      label: 'Total Companies',
+      value: stats.totalCompanies,
       icon: Building2,
     },
     {
-      label: 'Offices',
-      value: stats.officers,
-      icon: Briefcase,
+      label: 'Active Companies',
+      value: stats.activeCompanies,
+      icon: TrendingUp,
     },
     {
-      label: 'Links',
-      value: stats.links,
-      icon: Link2,
+      label: 'Officers',
+      value: stats.totalOfficers,
+      icon: Users,
     },
   ];
 
@@ -69,9 +80,15 @@ export default function StatsCards() {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {statItems.map((stat) => {
         const Icon = stat.icon;
+        const displayValue = stat.isStatus
+          ? stat.value
+          : typeof stat.value === 'number'
+          ? stat.value.toLocaleString()
+          : stat.value;
+
         return (
           <div
             key={stat.label}
@@ -83,8 +100,16 @@ export default function StatsCards() {
                 <Icon className="w-4 h-4 text-zinc-700" />
               </div>
             </div>
-            <p className="text-3xl font-semibold text-zinc-950">
-              {stat.value.toLocaleString()}
+            <p
+              className={`text-3xl font-semibold ${
+                stat.isStatus && stat.value === 'connected'
+                  ? 'text-green-600'
+                  : stat.isStatus && stat.value === 'error'
+                  ? 'text-red-600'
+                  : 'text-zinc-950'
+              }`}
+            >
+              {displayValue}
             </p>
           </div>
         );

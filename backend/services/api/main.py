@@ -1,30 +1,86 @@
-from fastapi import FastAPI
+"""
+FastAPI main application for BizRay backend.
+Austrian Business Register (Firmenbuch) API.
+"""
+from fastapi import FastAPI, status
 from fastapi.middleware.cors import CORSMiddleware
-from .routers import search, companies  # Import search BEFORE companies
+from datetime import datetime
+import sys
+import os
 
+# Add parent directories to path for imports
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
+from shared.models import HealthCheck
+from database.client import get_db
+from database.queries import health_check
+from services.api.routers import companies, officers, search
+
+
+# Initialize FastAPI app
 app = FastAPI(
     title="BizRay API",
-    description="Austrian Business Register Data API",
-    version="1.0.0"
+    description="Austrian Business Register (Firmenbuch) API - Search and manage company data",
+    version="1.0.0",
+    docs_url="/docs",
+    redoc_url="/redoc",
 )
 
-# CORS middleware
+# Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=["*"],  # In production, replace with specific origins
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Include routers - search BEFORE companies (more specific routes first)
-app.include_router(search.router)
-app.include_router(companies.router)
 
-@app.get("/")
-def root():
-    return {"message": "BizRay API", "version": "1.0.0"}
+# Include routers
+app.include_router(companies.router, prefix="/api")
+app.include_router(officers.router, prefix="/api")
+app.include_router(search.router, prefix="/api")
 
-@app.get("/health")
-def health():
-    return {"status": "healthy"}
+
+@app.get("/", tags=["root"])
+async def root():
+    """Root endpoint - API information."""
+    return {
+        "message": "BizRay API is running",
+        "name": "BizRay API",
+        "version": "1.0.0",
+        "description": "Austrian Business Register (Firmenbuch) API",
+        "docs": "/docs",
+        "health": "/health"
+    }
+
+
+@app.get("/health", response_model=HealthCheck, tags=["health"])
+async def health():
+    """Health check endpoint."""
+    db = get_db()
+    db_status = "connected" if health_check(db) else "disconnected"
+    
+    return HealthCheck(
+        status="healthy" if db_status == "connected" else "unhealthy",
+        timestamp=datetime.now(),
+        database=db_status
+    )
+
+
+@app.get("/api", tags=["api"])
+async def api_info():
+    """API information and available endpoints."""
+    return {
+        "version": "1.0.0",
+        "endpoints": {
+            "companies": "/api/companies",
+            "officers": "/api/officers",
+            "search": "/api/search"
+        }
+    }
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)

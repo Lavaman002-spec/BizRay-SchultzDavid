@@ -1,94 +1,192 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+/**
+ * BizRay API Client
+ * Client for interacting with the FastAPI backend
+ */
 
-export interface Company {
-  id: string;
-  register_id: string;
-  name: string;
-  city: string | null;
-  status: string | null;
+import type {
+  Company,
+  CompanyWithDetails,
+  SearchResponse,
+  HealthCheck,
+  Officer,
+} from '@/types/company';
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+
+/**
+ * Handle API responses and errors
+ */
+async function handleResponse<T>(response: Response): Promise<T> {
+  if (!response.ok) {
+    const error = await response
+      .json()
+      .catch(() => ({ detail: response.statusText }));
+    throw new Error(error.detail || `API Error: ${response.status}`);
+  }
+  return response.json();
 }
 
-export interface SearchResponse {
-  total: number;
-  items: Company[];
+/**
+ * Health check endpoint
+ */
+export async function checkHealth(): Promise<HealthCheck> {
+  const response = await fetch(`${API_BASE_URL}/health`);
+  return handleResponse<HealthCheck>(response);
 }
 
-export interface CompanyIdentity {
-  id: string;
-  register_id: string;
-  name: string;
-  legal_form: string | null;
-  status: string | null;
-  address_line: string | null;
-  city: string | null;
-  country: string | null;
-}
-
-export interface Officer {
-  person_id: string | null;
-  person_name: string;
-  role: string;
-}
-
-export interface CompanyProfile {
-  identity: CompanyIdentity;
-  addresses: unknown[];
-  officers: Officer[];
-  owners: unknown[];
-  filings: unknown[];
-}
-
+/**
+ * Search companies by name or FNR
+ */
 export async function searchCompanies(
-  query: string = '',
-  limit: number = 20,
-  offset: number = 0,
-  filters?: { status?: string; city?: string; fetchIfNotFound?: boolean }
+  query: string,
+  limit: number = 50,
+  offset: number = 0
 ): Promise<SearchResponse> {
   const params = new URLSearchParams({
-    q: query,
+    query,
     limit: limit.toString(),
     offset: offset.toString(),
   });
 
-  if (filters?.status) params.append('status', filters.status);
-  if (filters?.city) params.append('city', filters.city);
-  if (filters?.fetchIfNotFound) params.append('fetch_if_not_found', 'true');
-
-  const response = await fetch(`${API_BASE_URL}/companies/search?${params}`);
-
-  if (!response.ok) {
-    throw new Error('Failed to search companies');
-  }
-
-  return response.json();
+  const response = await fetch(`${API_BASE_URL}/api/search/?${params}`);
+  return handleResponse<SearchResponse>(response);
 }
 
+/**
+ * Get all companies with pagination
+ */
 export async function listCompanies(
-  limit: number = 12,
+  limit: number = 100,
   offset: number = 0
-): Promise<SearchResponse> {
-  // List companies without search query (shows all)
-  return searchCompanies('', limit, offset);
-}
-
-export async function getCompany(id: string): Promise<CompanyProfile> {
-  const response = await fetch(`${API_BASE_URL}/companies/${id}`);
-
-  if (!response.ok) {
-    throw new Error('Failed to fetch company');
-  }
-
-  return response.json();
-}
-
-export async function exportCompanyCSV(id: string): Promise<Blob> {
-  const response = await fetch(`${API_BASE_URL}/companies/exports/${id}`, {
-    method: 'POST',
+): Promise<Company[]> {
+  const params = new URLSearchParams({
+    limit: limit.toString(),
+    offset: offset.toString(),
   });
 
-  if (!response.ok) {
-    throw new Error('Failed to export company');
-  }
+  const response = await fetch(`${API_BASE_URL}/api/companies/?${params}`);
+  return handleResponse<Company[]>(response);
+}
 
-  return response.blob();
+/**
+ * Get a specific company by ID with officers and addresses
+ */
+export async function getCompany(id: number): Promise<CompanyWithDetails> {
+  const response = await fetch(`${API_BASE_URL}/api/companies/${id}`);
+  return handleResponse<CompanyWithDetails>(response);
+}
+
+/**
+ * Get a company by Firmenbuch number (FNR)
+ */
+export async function getCompanyByFnr(fnr: string): Promise<Company> {
+  const response = await fetch(`${API_BASE_URL}/api/companies/fnr/${fnr}`);
+  return handleResponse<Company>(response);
+}
+
+/**
+ * Create a new company
+ */
+export async function createCompany(data: {
+  fnr: string;
+  name: string;
+  legal_form?: string;
+  state?: string;
+}): Promise<Company> {
+  const response = await fetch(`${API_BASE_URL}/api/companies/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  return handleResponse<Company>(response);
+}
+
+/**
+ * Update a company
+ */
+export async function updateCompany(
+  id: number,
+  data: Partial<{
+    fnr: string;
+    name: string;
+    legal_form: string;
+    state: string;
+  }>
+): Promise<Company> {
+  const response = await fetch(`${API_BASE_URL}/api/companies/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  return handleResponse<Company>(response);
+}
+
+/**
+ * Delete a company
+ */
+export async function deleteCompany(id: number): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/api/companies/${id}`, {
+    method: 'DELETE',
+  });
+  if (!response.ok) {
+    throw new Error('Failed to delete company');
+  }
+}
+
+/**
+ * Get all officers with pagination
+ */
+export async function listOfficers(
+  limit: number = 100,
+  offset: number = 0
+): Promise<Officer[]> {
+  const params = new URLSearchParams({
+    limit: limit.toString(),
+    offset: offset.toString(),
+  });
+
+  const response = await fetch(`${API_BASE_URL}/api/officers/?${params}`);
+  return handleResponse<Officer[]>(response);
+}
+
+/**
+ * Get officers by company ID
+ */
+export async function getOfficersByCompany(
+  companyId: number
+): Promise<Officer[]> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/officers/company/${companyId}`
+  );
+  return handleResponse<Officer[]>(response);
+}
+
+/**
+ * Get a specific officer by ID
+ */
+export async function getOfficer(id: number): Promise<Officer> {
+  const response = await fetch(`${API_BASE_URL}/api/officers/${id}`);
+  return handleResponse<Officer>(response);
+}
+
+/**
+ * Create a new officer
+ */
+export async function createOfficer(data: {
+  company_id: number;
+  title?: string;
+  first_name?: string;
+  last_name?: string;
+  full_name?: string;
+  role?: string;
+  birth_date?: string;
+  is_active?: boolean;
+  vnr?: string;
+}): Promise<Officer> {
+  const response = await fetch(`${API_BASE_URL}/api/officers/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  return handleResponse<Officer>(response);
 }

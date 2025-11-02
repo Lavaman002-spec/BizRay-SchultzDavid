@@ -1,18 +1,24 @@
 'use client';
 
-import { Building2, MapPin, AlertCircle } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Building2, AlertCircle, FileText } from 'lucide-react';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import Link from 'next/link';
-import type { Company } from '@/lib/api';
+import type { Company } from '@/types/company';
 
 interface CompanySearchResultsProps {
   results: Company[];
   total: number;
-  loading: boolean;
-  query: string;
+  loading?: boolean;
+  query?: string;
 }
 
 export default function CompanySearchResults({
@@ -74,25 +80,23 @@ export default function CompanySearchResults({
                       <Building2 className="h-5 w-5 text-blue-600" />
                       {company.name}
                     </CardTitle>
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      <span className="font-mono">{company.register_id}</span>
-                      {company.city && (
-                        <div className="flex items-center gap-1">
-                          <MapPin className="h-4 w-4" />
-                          {company.city}
-                        </div>
-                      )}
-                    </div>
+                    <CardDescription className="flex items-center gap-4">
+                      <span className="flex items-center gap-1">
+                        <FileText className="h-3 w-3" />
+                        FN {company.fnr}
+                      </span>
+                      {company.legal_form && <span>{company.legal_form}</span>}
+                    </CardDescription>
                   </div>
-                  <Badge
-                    variant={
-                      company.status === 'AKTIV' || company.status === 'active'
-                        ? 'default'
-                        : 'secondary'
-                    }
-                  >
-                    {company.status || 'Unknown'}
-                  </Badge>
+                  {company.state && (
+                    <Badge
+                      variant={
+                        company.state === 'active' ? 'default' : 'secondary'
+                      }
+                    >
+                      {company.state}
+                    </Badge>
+                  )}
                 </div>
               </CardHeader>
             </Card>
