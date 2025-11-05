@@ -5,6 +5,7 @@ export interface Company {
   name: string;
   legal_form: string | null;
   state: string | null;
+  city: string | null;
   created_at: string | null;
   updated_at: string | null;
   last_fetched_at: string | null;
@@ -45,11 +46,50 @@ export interface CompanyWithDetails extends Company {
   addresses: Address[];
 }
 
+export interface SearchFilters {
+  legal_forms?: string[];
+  states?: string[];
+  cities?: string[];
+}
+
+export interface PaginationParams {
+  limit?: number;
+  offset?: number;
+}
+
+export type SortDirection = 'asc' | 'desc';
+
+export interface SortParams {
+  field?: string;
+  direction?: SortDirection;
+}
+
+export interface SearchQuery {
+  q: string;
+  filters?: SearchFilters;
+  pagination?: PaginationParams;
+  sort?: SortParams;
+  include_relations?: boolean;
+}
+
 export interface SearchResponse {
   total: number;
-  results: Company[];
+  count: number;
+  results: CompanyWithDetails[];
   limit: number;
   offset: number;
+  next_offset?: number | null;
+  has_more: boolean;
+}
+
+export interface SearchSuggestion {
+  name: string;
+  fnr?: string | null;
+}
+
+export interface SearchSuggestionsResponse {
+  query: string;
+  suggestions: SearchSuggestion[];
 }
 
 export interface HealthCheck {
