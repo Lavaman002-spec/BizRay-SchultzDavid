@@ -6,7 +6,9 @@
 import type {
   Company,
   CompanyWithDetails,
+  SearchQuery,
   SearchResponse,
+  SearchSuggestionsResponse,
   HealthCheck,
   Officer,
 } from '@/types/company';
@@ -53,6 +55,36 @@ export async function searchCompanies(
 }
 
 /**
+ * Perform an advanced company search with filters and sorting
+ */
+export async function advancedSearchCompanies(
+  payload: SearchQuery
+): Promise<SearchResponse> {
+  const response = await fetch(`${API_BASE_URL}/api/search/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  return handleResponse<SearchResponse>(response);
+}
+
+/**
+ * Fetch autocomplete suggestions for a search query
+ */
+export async function getSearchSuggestions(
+  query: string,
+  limit: number = 10
+): Promise<SearchSuggestionsResponse> {
+  const params = new URLSearchParams({
+    query,
+    limit: limit.toString(),
+  });
+
+  const response = await fetch(`${API_BASE_URL}/api/search/suggest?${params}`);
+  return handleResponse<SearchSuggestionsResponse>(response);
+}
+
+/**
  * Get all companies with pagination
  */
 export async function listCompanies(
@@ -92,6 +124,7 @@ export async function createCompany(data: {
   name: string;
   legal_form?: string;
   state?: string;
+  city?: string;
 }): Promise<Company> {
   const response = await fetch(`${API_BASE_URL}/api/companies/`, {
     method: 'POST',
@@ -111,6 +144,7 @@ export async function updateCompany(
     name: string;
     legal_form: string;
     state: string;
+    city: string;
   }>
 ): Promise<Company> {
   const response = await fetch(`${API_BASE_URL}/api/companies/${id}`, {
