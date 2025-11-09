@@ -1,14 +1,34 @@
-"""Database queries for companies."""
 from typing import Optional, List
 from database.client import get_supabase_client
 from supabase import Client
 
-
 def get_all_companies(limit: int = 100, offset: int = 0) -> List[dict]:
-    """Get all companies with pagination."""
+    """Get all companies with pagination. Includes primary address for each company."""
     client = get_supabase_client()
     response = client.table('companies').select('*').range(offset, offset + limit - 1).execute()
-    return response.data
+    companies = response.data
+
+    if not companies:
+        return []
+
+    # Fetch all addresses in one query - more efficient than looping
+    company_ids = [c['id'] for c in companies]
+    addresses_response = client.table('company_addresses').select('*').in_(
+        'company_id', company_ids
+    ).eq('is_active', True).execute()
+
+    # Create a map of company_id to address (first address for each company)
+    address_map = {}
+    for addr in addresses_response.data:
+        company_id = addr['company_id']
+        if company_id not in address_map:
+            address_map[company_id] = addr
+
+    # Attach addresses to companies
+    for company in companies:
+        company['address'] = address_map.get(company['id'])
+
+    return companies
 
 
 def get_company_by_id(company_id: int) -> Optional[dict]:
@@ -46,14 +66,54 @@ def delete_company(company_id: int) -> bool:
     return True
 
 
-def search_companies(query: str, limit: int = 50) -> List[dict]:
-    """Search companies by name or FNR."""
+def search_companies(query: str, limit: int = 50, city: Optional[str] = None) -> List[dict]:
+    """Search companies by name or FNR, optionally filtered by city.
+    Returns companies with their primary address."""
     client = get_supabase_client()
-    # Search in both name and fnr fields using case-insensitive matching
-    response = client.table('companies').select('*').or_(
-        f'name.ilike.%{query}%,fnr.ilike.%{query}%'
-    ).limit(limit).execute()
-    return response.data
+
+    if city:
+        # When filtering by city, we need to join with company_addresses
+        # First get company IDs that match the city
+        addresses_response = client.table('company_addresses').select('company_id').ilike('city', city).execute()
+        company_ids = [addr['company_id'] for addr in addresses_response.data if addr.get('company_id')]
+
+        if not company_ids:
+            # No companies found in that city
+            return []
+
+        # Search in both name and fnr fields, filtered by company IDs
+        response = client.table('companies').select('*').or_(
+            f'name.ilike.%{query}%,fnr.ilike.%{query}%'
+        ).in_('id', company_ids).limit(limit).execute()
+    else:
+        # Search in both name and fnr fields using case-insensitive matching
+        response = client.table('companies').select('*').or_(
+            f'name.ilike.%{query}%,fnr.ilike.%{query}%'
+        ).limit(limit).execute()
+
+    companies = response.data
+
+    if not companies:
+        return []
+
+    # Fetch all addresses in one query - more efficient than looping
+    company_ids = [c['id'] for c in companies]
+    addresses_response = client.table('company_addresses').select('*').in_(
+        'company_id', company_ids
+    ).eq('is_active', True).execute()
+
+    # Create a map of company_id to address (first address for each company)
+    address_map = {}
+    for addr in addresses_response.data:
+        company_id = addr['company_id']
+        if company_id not in address_map:
+            address_map[company_id] = addr
+
+    # Attach addresses to companies
+    for company in companies:
+        company['address'] = address_map.get(company['id'])
+
+    return companies
 
 
 def get_company_with_details(company_id: int) -> Optional[dict]:
@@ -76,6 +136,45 @@ def get_company_with_details(company_id: int) -> Optional[dict]:
     company['addresses'] = addresses_response.data or []
     
     return company
+
+
+def get_unique_cities() -> List[str]:
+    """Get all unique cities from company_addresses table."""
+    client = get_supabase_client()
+
+    # Get all unique cities
+    response = client.table('company_addresses').select('city').execute()
+
+    # Extract unique cities and filter out nulls/empty strings
+    cities = set()
+    for row in response.data:
+        city = row.get('city')
+        if city and city.strip():
+            cities.add(city.strip())
+
+    # Return sorted list
+    return sorted(list(cities))
+
+
+def get_company_name_suggestions(query: str, limit: int = 10) -> List[str]:
+    """Get company name suggestions for autocomplete based on partial query."""
+    client = get_supabase_client()
+
+    # Search for company names that match the query
+    response = client.table('companies').select('name').ilike(
+        'name', f'%{query}%'
+    ).limit(limit).execute()
+
+    # Extract unique company names
+    suggestions = []
+    seen = set()
+    for row in response.data:
+        name = row.get('name')
+        if name and name not in seen:
+            suggestions.append(name)
+            seen.add(name)
+
+    return suggestions
 
 
 def health_check(db: Client) -> bool:

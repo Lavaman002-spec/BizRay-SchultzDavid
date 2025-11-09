@@ -1,0 +1,323 @@
+{
+    'FIRMA': {
+        'FI_DKZ02': [
+            {
+                'BEZEICHNUNG': [
+                    'SIGNA Prime Acht 2022 KG'
+                ],
+                'AUSLAND': None,
+                'VNR': '004',
+                'AUFRECHT': True,
+                'MIT_FIRMA_GELOESCHT_DURCH_VNR': None,
+                'MIT_ZWL_GELOESCHT_DURCH_VNR': None
+            }
+        ],
+        'FI_DKZ03': [
+            {
+                'STELLE': [],
+                'ZUSTELLANWEISUNG': None,
+                'STRASSE': 'Maria-Theresien-Straße',
+                'HAUSNUMMER': '31',
+                'STIEGE': None,
+                'TUERNUMMER': None,
+                'STAAT': 'AUT',
+                'PLZ': '6020',
+                'ORT': 'Innsbruck',
+                'ZUSTELLBAR': True,
+                'VNR': '001',
+                'AUFRECHT': True,
+                'MIT_FIRMA_GELOESCHT_DURCH_VNR': None,
+                'MIT_ZWL_GELOESCHT_DURCH_VNR': None
+            }
+        ],
+        'FI_DKZ04': [],
+        'FI_DKZ05': [
+            {
+                'TEXT': [
+                    'der Erwerb, der Besitz, die Verwertung, die Verwaltung,',
+                    'die Vermittlung, der Handel mit/von Immobilien'
+                ],
+                'VNR': '001',
+                'AUFRECHT': True,
+                'MIT_FIRMA_GELOESCHT_DURCH_VNR': None,
+                'MIT_ZWL_GELOESCHT_DURCH_VNR': None
+            }
+        ],
+        'FI_DKZ06': [
+            {
+                'ORTNR': {
+                    'CODE': '70101',
+                    'TEXT': 'Innsbruck'
+                },
+                'SITZ': 'Innsbruck',
+                'VNR': '001',
+                'AUFRECHT': True,
+                'MIT_FIRMA_GELOESCHT_DURCH_VNR': None,
+                'MIT_ZWL_GELOESCHT_DURCH_VNR': None
+            }
+        ],
+        'FI_DKZ07': [
+            {
+                'RECHTSFORM': {
+                    'CODE': 'KG',
+                    'TEXT': 'Kommanditgesellschaft'
+                },
+                'VNR': '001',
+                'AUFRECHT': True,
+                'MIT_FIRMA_GELOESCHT_DURCH_VNR': None,
+                'MIT_ZWL_GELOESCHT_DURCH_VNR': None
+            }
+        ],
+        'FI_DKZ09': [],
+        'FI_DKZ14': [],
+        'FI_DKZ15': [],
+        'FI_DKZ16': [],
+        'FI_DKZ17': [],
+        'FI_DKZ20': [],
+        'FI_DKZ21': [],
+        'FI_DKZ22': [],
+        'FI_DKZ25': [],
+        'FI_DKZ30': [],
+        'FI_DKZ31': [],
+        'FI_DKZ32': [],
+        'FI_DKZ33': [],
+        'FI_DKZ34': [],
+        'FI_DKZ40': [],
+        'FI_DKZ41': [],
+        'FI_DKZ42': [],
+        'FI_DKZ43': [],
+        'FI_DKZ44': [],
+        'FI_DKZ45': [],
+        'RECHTSTATSACHE': [
+            {
+                'RTS_DKZ50': [
+                    {
+                        'CODE': '0930',
+                        'DATUM_VOM': datetime.date(2025, 4, 11),
+                        'ZEICHEN': '6 S 51/25 d',
+                        'MULTI': [
+                            {
+                                'TXTZUS': None,
+                                'ABSCDE': 'BG007',
+                                'RTS_NAME': {
+                                    'BEZEICHNUNG': [
+                                        'Handelsgericht Wien'
+                                    ],
+                                    'TITELVOR': None,
+                                    'VORNAME': None,
+                                    'NACHNAME': None,
+                                    'TITELNACH': None,
+                                    'NAME_FORMATIERT': None,
+                                    'GEBURTSDATUM': None
+                                },
+                                'RTS_ADRESSE': None,
+                                'RTS': [],
+                                'AUSLHG': None,
+                                'AUSLFN': None,
+                                'BEHOERDE': None,
+                                'FORM': None
+                            }
+                        ],
+                        'TEXT': [
+                            'Beschluss des Gerichtes vom 11.04.2025 6 S 51/25 d',
+                            'Handelsgericht Wien',
+                            'KONKURS eröffnet'
+                        ],
+                        'VNR': '005',
+                        'AUFRECHT': True,
+                        'MIT_FIRMA_GELOESCHT_DURCH_VNR': None,
+                        'MIT_ZWL_GELOESCHT_DURCH_VNR': None
+                    }
+                ],
+                'UNR': '002'
+            },
+            {
+                'RTS_DKZ50': [
+                    {
+                        'CODE': '0938',
+                        'DATUM_VOM': None,
+                        'ZEICHEN': None,
+                        'MULTI': [],
+                        'TEXT': [
+                            'Die Gesellschaft ist infolge Eröffnung des',
+                            'Konkursverfahrens aufgelöst.'
+                        ],
+                        'VNR': '005',
+                        'AUFRECHT': True,
+                        'MIT_FIRMA_GELOESCHT_DURCH_VNR': None,
+                        'MIT_ZWL_GELOESCHT_DURCH_VNR': None
+                    }
+                ],
+                'UNR': '003'
+            }
+        ]
+    },
+    'FUN': [
+        {
+            'FU_DKZ10': [
+                {
+                    'DATVON': '20221221',
+                    'DATBIS': None,
+                    'WHR': None,
+                    'KAPITAL': None,
+                    'BEZUGSPERSON': None,
+                    'VART': {
+                        'CODE': 'E',
+                        'TEXT': 'Einzelvertretung'
+                    },
+                    'VSBEIDE': None,
+                    'TXTVERTR': [],
+                    'VERTRETUNGSBEFUGTNURFUER': [],
+                    'TEXT': [
+                        'vertritt seit 21.12.2022 selbständig'
+                    ],
+                    'VNR': '004',
+                    'AUFRECHT': True,
+                    'MIT_FIRMA_GELOESCHT_DURCH_VNR': None,
+                    'MIT_ZWL_GELOESCHT_DURCH_VNR': None
+                }
+            ],
+            'FU_DKZ11': [],
+            'FU_DKZ12': [],
+            'RECHTSTATSACHE': [],
+            'PNR': '  E',
+            'FKEN': 'KP',
+            'FKENTEXT': 'UNBESCHRÄNKT HAFTENDE/R GESELLSCHAFTER/IN'
+        },
+        {
+            'FU_DKZ10': [
+                {
+                    'DATVON': '20250412',
+                    'DATBIS': None,
+                    'WHR': None,
+                    'KAPITAL': None,
+                    'BEZUGSPERSON': None,
+                    'VART': None,
+                    'VSBEIDE': None,
+                    'TXTVERTR': [],
+                    'VERTRETUNGSBEFUGTNURFUER': [],
+                    'TEXT': [
+                        'seit 12.04.2025'
+                    ],
+                    'VNR': '005',
+                    'AUFRECHT': True,
+                    'MIT_FIRMA_GELOESCHT_DURCH_VNR': None,
+                    'MIT_ZWL_GELOESCHT_DURCH_VNR': None
+                }
+            ],
+            'FU_DKZ11': [],
+            'FU_DKZ12': [],
+            'RECHTSTATSACHE': [],
+            'PNR': '  F',
+            'FKEN': 'MW',
+            'FKENTEXT': 'MASSEVERWALTER/IN'
+        }
+    ],
+    'ZWL': [],
+    'PER': [
+        {
+            'PE_DKZ02': [
+                {
+                    'VNR': '004',
+                    'AUFRECHT': True,
+                    'MIT_FIRMA_GELOESCHT_DURCH_VNR': None,
+                    'MIT_ZWL_GELOESCHT_DURCH_VNR': None,
+                    'TITELVOR': 'Mag.',
+                    'VORNAME': 'Manuel',
+                    'NACHNAME': 'Pirolt',
+                    'TITELNACH': None,
+                    'NAME_FORMATIERT': [
+                        'Mag. Manuel Pirolt'
+                    ],
+                    'GEBURTSDATUM': '19831010',
+                    'BEZEICHNUNG': None
+                }
+            ],
+            'PE_DKZ03': [],
+            'PE_DKZ06': [],
+            'PE_DKZ09': [],
+            'PE_STAAT': [],
+            'RECHTSTATSACHE': [],
+            'PNR': '  E'
+        },
+        {
+            'PE_DKZ02': [
+                {
+                    'VNR': '005',
+                    'AUFRECHT': True,
+                    'MIT_FIRMA_GELOESCHT_DURCH_VNR': None,
+                    'MIT_ZWL_GELOESCHT_DURCH_VNR': None,
+                    'BEZEICHNUNG': [
+                        'Mag. Gerhard Bauer'
+                    ],
+                    'TITELVOR': None,
+                    'VORNAME': None,
+                    'NACHNAME': None,
+                    'TITELNACH': None,
+                    'NAME_FORMATIERT': None,
+                    'GEBURTSDATUM': None
+                }
+            ],
+            'PE_DKZ03': [],
+            'PE_DKZ06': [],
+            'PE_DKZ09': [],
+            'PE_STAAT': [],
+            'RECHTSTATSACHE': [],
+            'PNR': '  F'
+        }
+    ],
+    'VOLLZ': [
+        {
+            'VNR': '001',
+            'VOLLZUGSDATUM': datetime.date(2022, 2, 24),
+            'HG': {
+                'CODE': '818',
+                'TEXT': 'Landesgericht Innsbruck'
+            },
+            'AZ': '818 050 Fr 655/22 g',
+            'ANTRAGSTEXT': [
+                'Antrag auf Neueintragung einer Firma eingelangt am 04.02.2022'
+            ],
+            'EINGELANGTAM': datetime.date(2022, 2, 4)
+        },
+        {
+            'VNR': '004',
+            'VOLLZUGSDATUM': datetime.date(2023, 2, 4),
+            'HG': {
+                'CODE': '818',
+                'TEXT': 'Landesgericht Innsbruck'
+            },
+            'AZ': '818 050 Fr 601/23 k',
+            'ANTRAGSTEXT': [
+                'Antrag auf Änderung eingelangt am 30.01.2023'
+            ],
+            'EINGELANGTAM': datetime.date(2023, 1, 30)
+        },
+        {
+            'VNR': '005',
+            'VOLLZUGSDATUM': datetime.date(2025, 4, 15),
+            'HG': {
+                'CODE': '818',
+                'TEXT': 'Landesgericht Innsbruck'
+            },
+            'AZ': '818 050 Fr 1835/25 v',
+            'ANTRAGSTEXT': [
+                'Mitteilung des Insolvenzgerichtes eingelangt am 11.04.2025'
+            ],
+            'EINGELANGTAM': datetime.date(2025, 4, 11)
+        }
+    ],
+    'IDENT': [],
+    'KUR': None,
+    'EUID': [
+        {
+            'ZNR': '000',
+            'EUID': 'ATBRA.574278-000'
+        }
+    ],
+    'FNR': '574278 b',
+    'STICHTAG': datetime.date(2025, 11, 5),
+    'UMFANG': 'Kurzinformation',
+    'PRUEFSUMME': '9B3D48CF1C2348B2F21EAC5A64D0CA0E',
+    'ABFRAGEZEITPUNKT': datetime.datetime(2025, 11, 5, 12, 13, 31, 849000, tzinfo=<FixedOffset '+01:00'>)
+}

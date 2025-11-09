@@ -1,0 +1,93 @@
+{
+    'FIRMA': {
+        'FI_DKZ02': [
+            {
+                'BEZEICHNUNG': [
+                    'SIGNA Prime 2019 Drei AT GmbH in Liqu.'
+                ],
+                'AUSLAND': None,
+                'VNR': '010',
+                'AUFRECHT': True,
+                'MIT_FIRMA_GELOESCHT_DURCH_VNR': '010',
+                'MIT_ZWL_GELOESCHT_DURCH_VNR': None
+            }
+        ],
+        'FI_DKZ03': [],
+        'FI_DKZ04': [],
+        'FI_DKZ05': [],
+        'FI_DKZ06': [
+            {
+                'ORTNR': {
+                    'CODE': '90001',
+                    'TEXT': 'Wien'
+                },
+                'SITZ': 'Wien',
+                'VNR': '010',
+                'AUFRECHT': True,
+                'MIT_FIRMA_GELOESCHT_DURCH_VNR': '010',
+                'MIT_ZWL_GELOESCHT_DURCH_VNR': None
+            }
+        ],
+        'FI_DKZ07': [],
+        'FI_DKZ09': [],
+        'FI_DKZ14': [],
+        'FI_DKZ15': [],
+        'FI_DKZ16': [],
+        'FI_DKZ17': [],
+        'FI_DKZ20': [],
+        'FI_DKZ21': [],
+        'FI_DKZ22': [],
+        'FI_DKZ25': [],
+        'FI_DKZ30': [],
+        'FI_DKZ31': [],
+        'FI_DKZ32': [],
+        'FI_DKZ33': [],
+        'FI_DKZ34': [],
+        'FI_DKZ40': [],
+        'FI_DKZ41': [],
+        'FI_DKZ42': [],
+        'FI_DKZ43': [],
+        'FI_DKZ44': [],
+        'FI_DKZ45': [],
+        'RECHTSTATSACHE': []
+    },
+    'FUN': [],
+    'ZWL': [],
+    'PER': [],
+    'VOLLZ': [
+        {
+            'VNR': '001',
+            'VOLLZUGSDATUM': datetime.date(2019, 6, 6),
+            'HG': {
+                'CODE': '007',
+                'TEXT': 'Handelsgericht Wien'
+            },
+            'AZ': '007 074 Fr 6660/19 b',
+            'ANTRAGSTEXT': [
+                'Antrag auf Neueintragung einer Firma eingelangt am 27.05.2019'
+            ],
+            'EINGELANGTAM': datetime.date(2019, 5, 27)
+        },
+        {
+            'VNR': '010',
+            'VOLLZUGSDATUM': datetime.date(2025, 9, 17),
+            'HG': {
+                'CODE': '007',
+                'TEXT': 'Handelsgericht Wien'
+            },
+            'AZ': '007 073 Fr 38172/25 p',
+            'ANTRAGSTEXT': [
+                'Antrag auf Löschung eingelangt am 16.09.2025'
+            ],
+            'EINGELANGTAM': datetime.date(2025, 9, 16)
+        }
+    ],
+    'IDENT': [],
+    'KUR': None,
+    'EUID': [],
+    'FNR': '513534 y',
+    'STICHTAG': datetime.date(2025, 11, 5),
+    'UMFANG': 'Kurzinformation',
+    'PRUEFSUMME': '5A449DB2519CA099DB393AE9BEE3FE72',
+    'ABFRAGEZEITPUNKT': datetime.datetime(2025, 11, 5, 12, 13, 35, 619000, tzinfo=<FixedOffset '+01:00'>)
+}

@@ -1,10 +1,14 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Building2, Users, TrendingUp, Database } from 'lucide-react';
+import { Building2, Users, TrendingUp } from 'lucide-react';
 import { checkHealth, listCompanies, listOfficers } from '@/lib/api';
 
-export default function StatsCards() {
+interface StatsCardsProps {
+  className?: string;
+}
+
+export default function StatsCards({ className = '' }: StatsCardsProps) {
   const [stats, setStats] = useState({
     totalCompanies: 0,
     totalOfficers: 0,
@@ -68,7 +72,7 @@ export default function StatsCards() {
 
   if (stats.loading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className={`grid grid-cols-1 md:grid-cols-3 gap-4 ${className}`}>
         {[1, 2, 3].map((i) => (
           <div key={i} className="bg-zinc-200 rounded-2xl p-6 animate-pulse">
             <div className="h-4 bg-zinc-300 rounded w-20 mb-4"></div>
@@ -80,14 +84,12 @@ export default function StatsCards() {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div
+      className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 ${className}`}
+    >
       {statItems.map((stat) => {
         const Icon = stat.icon;
-        const displayValue = stat.isStatus
-          ? stat.value
-          : typeof stat.value === 'number'
-          ? stat.value.toLocaleString()
-          : stat.value;
+        const displayValue = stat.value;
 
         return (
           <div
@@ -100,17 +102,7 @@ export default function StatsCards() {
                 <Icon className="w-4 h-4 text-zinc-700" />
               </div>
             </div>
-            <p
-              className={`text-3xl font-semibold ${
-                stat.isStatus && stat.value === 'connected'
-                  ? 'text-green-600'
-                  : stat.isStatus && stat.value === 'error'
-                  ? 'text-red-600'
-                  : 'text-zinc-950'
-              }`}
-            >
-              {displayValue}
-            </p>
+            <p className={`text-3xl font-semibold`}>{displayValue}</p>
           </div>
         );
       })}

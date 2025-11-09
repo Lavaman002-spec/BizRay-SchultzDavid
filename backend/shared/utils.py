@@ -4,15 +4,6 @@ import re
 
 
 def normalize_fn_number(fn_number: str) -> str:
-    """
-    Normalize Firmenbuch number to standard format.
-    
-    Args:
-        fn_number: Raw FN number string
-        
-    Returns:
-        Normalized FN number
-    """
     # Remove whitespace and convert to uppercase
     normalized = fn_number.strip().upper()
     
@@ -24,43 +15,16 @@ def normalize_fn_number(fn_number: str) -> str:
 
 
 def validate_fn_number(fn_number: str) -> bool:
-    """
-    Validate Firmenbuch number format.
-    
-    Args:
-        fn_number: FN number to validate
-        
-    Returns:
-        True if valid, False otherwise
-    """
     # Austrian FN numbers typically follow pattern: 123456a or FN 123456a
     pattern = r'^(FN\s?)?\d{4,8}[a-z]?$'
     return bool(re.match(pattern, fn_number.strip(), re.IGNORECASE))
 
 
 def format_company_name(name: str) -> str:
-    """
-    Format company name for consistency.
-    
-    Args:
-        name: Raw company name
-        
-    Returns:
-        Formatted company name
-    """
     return name.strip()
 
 
 def parse_address(address: Optional[str]) -> Dict[str, Optional[str]]:
-    """
-    Parse address string into components.
-    
-    Args:
-        address: Full address string
-        
-    Returns:
-        Dictionary with address components
-    """
     if not address:
         return {
             "street": None,

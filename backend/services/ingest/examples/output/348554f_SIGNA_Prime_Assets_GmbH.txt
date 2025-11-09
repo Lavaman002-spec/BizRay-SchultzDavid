@@ -1,0 +1,242 @@
+{
+    'FIRMA': {
+        'FI_DKZ02': [
+            {
+                'BEZEICHNUNG': [
+                    'SIGNA Prime Assets GmbH'
+                ],
+                'AUSLAND': None,
+                'VNR': '005',
+                'AUFRECHT': True,
+                'MIT_FIRMA_GELOESCHT_DURCH_VNR': None,
+                'MIT_ZWL_GELOESCHT_DURCH_VNR': None
+            }
+        ],
+        'FI_DKZ03': [
+            {
+                'STELLE': [],
+                'ZUSTELLANWEISUNG': None,
+                'STRASSE': 'Herrengasse',
+                'HAUSNUMMER': '14',
+                'STIEGE': None,
+                'TUERNUMMER': '3. OG',
+                'STAAT': 'AUT',
+                'PLZ': '1010',
+                'ORT': 'Wien',
+                'ZUSTELLBAR': True,
+                'VNR': '024',
+                'AUFRECHT': True,
+                'MIT_FIRMA_GELOESCHT_DURCH_VNR': None,
+                'MIT_ZWL_GELOESCHT_DURCH_VNR': None
+            }
+        ],
+        'FI_DKZ04': [],
+        'FI_DKZ05': [
+            {
+                'TEXT': [
+                    'der Erwerb, der Besitz, die Verwertung, die Verwaltung,',
+                    'die Vermittlung, der Handel mit/von Immobilien, die',
+                    'Einbringung von Dienstleistungen im Rahmen der',
+                    'Immobilienbewirtschaftung, die Beratung auf dem Immo-',
+                    'biliensektor, die Finanzierung von Gesellschaften der',
+                    'SIGNA-Gruppe unter Ausschluss der anderen Berufs-',
+                    'gruppen vorbehaltenen Tätigkeiten sowie der Erwerb,',
+                    'der Besitz, die Verwaltung und Verwertung von Be-',
+                    'teiligungen an anderen Unternehmen jeder Rechtsform',
+                    'im In- und Ausland.'
+                ],
+                'VNR': '001',
+                'AUFRECHT': True,
+                'MIT_FIRMA_GELOESCHT_DURCH_VNR': None,
+                'MIT_ZWL_GELOESCHT_DURCH_VNR': None
+            }
+        ],
+        'FI_DKZ06': [
+            {
+                'ORTNR': {
+                    'CODE': '90001',
+                    'TEXT': 'Wien'
+                },
+                'SITZ': 'Wien',
+                'VNR': '001',
+                'AUFRECHT': True,
+                'MIT_FIRMA_GELOESCHT_DURCH_VNR': None,
+                'MIT_ZWL_GELOESCHT_DURCH_VNR': None
+            }
+        ],
+        'FI_DKZ07': [
+            {
+                'RECHTSFORM': {
+                    'CODE': 'GES',
+                    'TEXT': 'Gesellschaft mit beschränkter Haftung'
+                },
+                'VNR': '001',
+                'AUFRECHT': True,
+                'MIT_FIRMA_GELOESCHT_DURCH_VNR': None,
+                'MIT_ZWL_GELOESCHT_DURCH_VNR': None
+            }
+        ],
+        'FI_DKZ09': [],
+        'FI_DKZ14': [],
+        'FI_DKZ15': [],
+        'FI_DKZ16': [],
+        'FI_DKZ17': [],
+        'FI_DKZ20': [],
+        'FI_DKZ21': [],
+        'FI_DKZ22': [],
+        'FI_DKZ25': [],
+        'FI_DKZ30': [],
+        'FI_DKZ31': [],
+        'FI_DKZ32': [],
+        'FI_DKZ33': [],
+        'FI_DKZ34': [],
+        'FI_DKZ40': [],
+        'FI_DKZ41': [],
+        'FI_DKZ42': [],
+        'FI_DKZ43': [],
+        'FI_DKZ44': [],
+        'FI_DKZ45': [],
+        'RECHTSTATSACHE': []
+    },
+    'FUN': [
+        {
+            'FU_DKZ10': [
+                {
+                    'DATVON': '20250206',
+                    'DATBIS': None,
+                    'WHR': None,
+                    'KAPITAL': None,
+                    'BEZUGSPERSON': None,
+                    'VART': {
+                        'CODE': 'E',
+                        'TEXT': 'Einzelvertretung'
+                    },
+                    'VSBEIDE': None,
+                    'TXTVERTR': [],
+                    'VERTRETUNGSBEFUGTNURFUER': [],
+                    'TEXT': [
+                        'vertritt seit 06.02.2025 selbständig'
+                    ],
+                    'VNR': '028',
+                    'AUFRECHT': True,
+                    'MIT_FIRMA_GELOESCHT_DURCH_VNR': None,
+                    'MIT_ZWL_GELOESCHT_DURCH_VNR': None
+                }
+            ],
+            'FU_DKZ11': [],
+            'FU_DKZ12': [],
+            'RECHTSTATSACHE': [],
+            'PNR': '  J',
+            'FKEN': 'GF',
+            'FKENTEXT': 'GESCHÄFTSFÜHRER/IN (handelsrechtlich)'
+        }
+    ],
+    'ZWL': [],
+    'PER': [
+        {
+            'PE_DKZ02': [
+                {
+                    'VNR': '027',
+                    'AUFRECHT': True,
+                    'MIT_FIRMA_GELOESCHT_DURCH_VNR': None,
+                    'MIT_ZWL_GELOESCHT_DURCH_VNR': None,
+                    'TITELVOR': 'Mag.',
+                    'VORNAME': 'Bernhard',
+                    'NACHNAME': 'Chwátal',
+                    'TITELNACH': None,
+                    'NAME_FORMATIERT': [
+                        'Mag. Bernhard Chwátal'
+                    ],
+                    'GEBURTSDATUM': '19701012',
+                    'BEZEICHNUNG': None
+                }
+            ],
+            'PE_DKZ03': [],
+            'PE_DKZ06': [],
+            'PE_DKZ09': [],
+            'PE_STAAT': [],
+            'RECHTSTATSACHE': [],
+            'PNR': '  J'
+        }
+    ],
+    'VOLLZ': [
+        {
+            'VNR': '001',
+            'VOLLZUGSDATUM': datetime.date(2010, 7, 8),
+            'HG': {
+                'CODE': '007',
+                'TEXT': 'Handelsgericht Wien'
+            },
+            'AZ': '007 075 Fr 8053/10 d',
+            'ANTRAGSTEXT': [
+                'Antrag auf Neueintragung einer Firma eingelangt am 06.07.2010'
+            ],
+            'EINGELANGTAM': datetime.date(2010, 7, 6)
+        },
+        {
+            'VNR': '005',
+            'VOLLZUGSDATUM': datetime.date(2011, 11, 3),
+            'HG': {
+                'CODE': '007',
+                'TEXT': 'Handelsgericht Wien'
+            },
+            'AZ': '007 074 Fr 22793/11 g',
+            'ANTRAGSTEXT': [
+                'Antrag auf Änderung eingelangt am 25.10.2011'
+            ],
+            'EINGELANGTAM': datetime.date(2011, 10, 25)
+        },
+        {
+            'VNR': '024',
+            'VOLLZUGSDATUM': datetime.date(2024, 4, 9),
+            'HG': {
+                'CODE': '007',
+                'TEXT': 'Handelsgericht Wien'
+            },
+            'AZ': '007 073 Fr 12299/24 g',
+            'ANTRAGSTEXT': [
+                'Antrag auf Änderung eingelangt am 05.04.2024'
+            ],
+            'EINGELANGTAM': datetime.date(2024, 4, 5)
+        },
+        {
+            'VNR': '027',
+            'VOLLZUGSDATUM': datetime.date(2024, 12, 17),
+            'HG': {
+                'CODE': '007',
+                'TEXT': 'Handelsgericht Wien'
+            },
+            'AZ': '007 073 Fr 58650/24 w',
+            'ANTRAGSTEXT': [
+                'Antrag auf Änderung eingelangt am 09.12.2024'
+            ],
+            'EINGELANGTAM': datetime.date(2024, 12, 9)
+        },
+        {
+            'VNR': '028',
+            'VOLLZUGSDATUM': datetime.date(2025, 2, 12),
+            'HG': {
+                'CODE': '007',
+                'TEXT': 'Handelsgericht Wien'
+            },
+            'AZ': '007 073 Fr 4855/25 v',
+            'ANTRAGSTEXT': [
+                'Antrag auf Änderung eingelangt am 10.02.2025'
+            ],
+            'EINGELANGTAM': datetime.date(2025, 2, 10)
+        }
+    ],
+    'IDENT': [],
+    'KUR': None,
+    'EUID': [
+        {
+            'ZNR': '000',
+            'EUID': 'ATBRA.348554-000'
+        }
+    ],
+    'FNR': '348554 f',
+    'STICHTAG': datetime.date(2025, 11, 5),
+    'UMFANG': 'Kurzinformation',
+    'PRUEFSUMME': 'FEC61FD04CA940D3D554B2912771BC1D',
+    'ABFRAGEZEITPUNKT': datetime.datetime(2025, 11, 5, 12, 13, 32, 36000, tzinfo=<FixedOffset '+01:00'>)
+}

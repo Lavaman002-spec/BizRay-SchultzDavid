@@ -1,0 +1,277 @@
+{
+    'FIRMA': {
+        'FI_DKZ02': [
+            {
+                'BEZEICHNUNG': [
+                    'SIGNA Prime 2020 Eins AT GmbH'
+                ],
+                'AUSLAND': None,
+                'VNR': '001',
+                'AUFRECHT': True,
+                'MIT_FIRMA_GELOESCHT_DURCH_VNR': None,
+                'MIT_ZWL_GELOESCHT_DURCH_VNR': None
+            }
+        ],
+        'FI_DKZ03': [
+            {
+                'STELLE': [],
+                'ZUSTELLANWEISUNG': None,
+                'STRASSE': 'Museumstraße',
+                'HAUSNUMMER': '25',
+                'STIEGE': None,
+                'TUERNUMMER': None,
+                'STAAT': 'AUT',
+                'PLZ': '6020',
+                'ORT': 'Innsbruck',
+                'ZUSTELLBAR': True,
+                'VNR': '011',
+                'AUFRECHT': True,
+                'MIT_FIRMA_GELOESCHT_DURCH_VNR': None,
+                'MIT_ZWL_GELOESCHT_DURCH_VNR': None
+            }
+        ],
+        'FI_DKZ04': [],
+        'FI_DKZ05': [
+            {
+                'TEXT': [
+                    'Erwerb, Verwertung und Verwaltung von Immobilien sowie',
+                    'Dienstleistungen im Rahmen der Immobilienbewirtschaftung'
+                ],
+                'VNR': '001',
+                'AUFRECHT': True,
+                'MIT_FIRMA_GELOESCHT_DURCH_VNR': None,
+                'MIT_ZWL_GELOESCHT_DURCH_VNR': None
+            }
+        ],
+        'FI_DKZ06': [
+            {
+                'ORTNR': {
+                    'CODE': '70101',
+                    'TEXT': 'Innsbruck'
+                },
+                'SITZ': 'Innsbruck',
+                'VNR': '007',
+                'AUFRECHT': True,
+                'MIT_FIRMA_GELOESCHT_DURCH_VNR': None,
+                'MIT_ZWL_GELOESCHT_DURCH_VNR': None
+            }
+        ],
+        'FI_DKZ07': [
+            {
+                'RECHTSFORM': {
+                    'CODE': 'GES',
+                    'TEXT': 'Gesellschaft mit beschränkter Haftung'
+                },
+                'VNR': '001',
+                'AUFRECHT': True,
+                'MIT_FIRMA_GELOESCHT_DURCH_VNR': None,
+                'MIT_ZWL_GELOESCHT_DURCH_VNR': None
+            }
+        ],
+        'FI_DKZ09': [],
+        'FI_DKZ14': [],
+        'FI_DKZ15': [],
+        'FI_DKZ16': [],
+        'FI_DKZ17': [],
+        'FI_DKZ20': [],
+        'FI_DKZ21': [],
+        'FI_DKZ22': [],
+        'FI_DKZ25': [],
+        'FI_DKZ30': [],
+        'FI_DKZ31': [],
+        'FI_DKZ32': [],
+        'FI_DKZ33': [],
+        'FI_DKZ34': [],
+        'FI_DKZ40': [],
+        'FI_DKZ41': [],
+        'FI_DKZ42': [],
+        'FI_DKZ43': [],
+        'FI_DKZ44': [],
+        'FI_DKZ45': [],
+        'RECHTSTATSACHE': []
+    },
+    'FUN': [
+        {
+            'FU_DKZ10': [
+                {
+                    'DATVON': '20200218',
+                    'DATBIS': None,
+                    'WHR': None,
+                    'KAPITAL': None,
+                    'BEZUGSPERSON': None,
+                    'VART': {
+                        'CODE': 'E',
+                        'TEXT': 'Einzelvertretung'
+                    },
+                    'VSBEIDE': None,
+                    'TXTVERTR': [],
+                    'VERTRETUNGSBEFUGTNURFUER': [],
+                    'TEXT': [
+                        'vertritt seit 18.02.2020 selbständig'
+                    ],
+                    'VNR': '001',
+                    'AUFRECHT': True,
+                    'MIT_FIRMA_GELOESCHT_DURCH_VNR': None,
+                    'MIT_ZWL_GELOESCHT_DURCH_VNR': None
+                }
+            ],
+            'FU_DKZ11': [],
+            'FU_DKZ12': [],
+            'RECHTSTATSACHE': [],
+            'PNR': '  A',
+            'FKEN': 'GF',
+            'FKENTEXT': 'GESCHÄFTSFÜHRER/IN (handelsrechtlich)'
+        },
+        {
+            'FU_DKZ10': [
+                {
+                    'DATVON': '20250618',
+                    'DATBIS': None,
+                    'WHR': None,
+                    'KAPITAL': None,
+                    'BEZUGSPERSON': None,
+                    'VART': {
+                        'CODE': 'E',
+                        'TEXT': 'Einzelvertretung'
+                    },
+                    'VSBEIDE': None,
+                    'TXTVERTR': [],
+                    'VERTRETUNGSBEFUGTNURFUER': [],
+                    'TEXT': [
+                        'vertritt seit 18.06.2025 selbständig'
+                    ],
+                    'VNR': '009',
+                    'AUFRECHT': True,
+                    'MIT_FIRMA_GELOESCHT_DURCH_VNR': None,
+                    'MIT_ZWL_GELOESCHT_DURCH_VNR': None
+                }
+            ],
+            'FU_DKZ11': [],
+            'FU_DKZ12': [],
+            'RECHTSTATSACHE': [],
+            'PNR': '  E',
+            'FKEN': 'GF',
+            'FKENTEXT': 'GESCHÄFTSFÜHRER/IN (handelsrechtlich)'
+        }
+    ],
+    'ZWL': [],
+    'PER': [
+        {
+            'PE_DKZ02': [
+                {
+                    'VNR': '001',
+                    'AUFRECHT': True,
+                    'MIT_FIRMA_GELOESCHT_DURCH_VNR': None,
+                    'MIT_ZWL_GELOESCHT_DURCH_VNR': None,
+                    'TITELVOR': 'Mag.',
+                    'VORNAME': 'Manuel',
+                    'NACHNAME': 'Pirolt',
+                    'TITELNACH': None,
+                    'NAME_FORMATIERT': [
+                        'Mag. Manuel Pirolt'
+                    ],
+                    'GEBURTSDATUM': '19831010',
+                    'BEZEICHNUNG': None
+                }
+            ],
+            'PE_DKZ03': [],
+            'PE_DKZ06': [],
+            'PE_DKZ09': [],
+            'PE_STAAT': [],
+            'RECHTSTATSACHE': [],
+            'PNR': '  A'
+        },
+        {
+            'PE_DKZ02': [
+                {
+                    'VNR': '009',
+                    'AUFRECHT': True,
+                    'MIT_FIRMA_GELOESCHT_DURCH_VNR': None,
+                    'MIT_ZWL_GELOESCHT_DURCH_VNR': None,
+                    'TITELVOR': None,
+                    'VORNAME': 'Ralph Hartmut',
+                    'NACHNAME': 'Gotta',
+                    'TITELNACH': None,
+                    'NAME_FORMATIERT': [
+                        'Ralph Hartmut Gotta'
+                    ],
+                    'GEBURTSDATUM': '19580501',
+                    'BEZEICHNUNG': None
+                }
+            ],
+            'PE_DKZ03': [],
+            'PE_DKZ06': [],
+            'PE_DKZ09': [],
+            'PE_STAAT': [],
+            'RECHTSTATSACHE': [],
+            'PNR': '  E'
+        }
+    ],
+    'VOLLZ': [
+        {
+            'VNR': '001',
+            'VOLLZUGSDATUM': datetime.date(2020, 2, 18),
+            'HG': {
+                'CODE': '007',
+                'TEXT': 'Handelsgericht Wien'
+            },
+            'AZ': '007 074 Fr 1302/20 g',
+            'ANTRAGSTEXT': [
+                'Antrag auf Neueintragung einer Firma eingelangt am 12.02.2020'
+            ],
+            'EINGELANGTAM': datetime.date(2020, 2, 12)
+        },
+        {
+            'VNR': '007',
+            'VOLLZUGSDATUM': datetime.date(2024, 6, 13),
+            'HG': {
+                'CODE': '818',
+                'TEXT': 'Landesgericht Innsbruck'
+            },
+            'AZ': '818 050 Fr 2276/24 h',
+            'ANTRAGSTEXT': [
+                'Antrag auf Sitzverlegung eingelangt am 07.06.2024'
+            ],
+            'EINGELANGTAM': datetime.date(2024, 6, 7)
+        },
+        {
+            'VNR': '009',
+            'VOLLZUGSDATUM': datetime.date(2025, 7, 8),
+            'HG': {
+                'CODE': '818',
+                'TEXT': 'Landesgericht Innsbruck'
+            },
+            'AZ': '818 050 Fr 3140/25 m',
+            'ANTRAGSTEXT': [
+                'Antrag auf Änderung eingelangt am 27.06.2025'
+            ],
+            'EINGELANGTAM': datetime.date(2025, 6, 27)
+        },
+        {
+            'VNR': '011',
+            'VOLLZUGSDATUM': datetime.date(2025, 8, 13),
+            'HG': {
+                'CODE': '818',
+                'TEXT': 'Landesgericht Innsbruck'
+            },
+            'AZ': '818 050 Fr 3862/25 z',
+            'ANTRAGSTEXT': [
+                'Antrag auf Änderung eingelangt am 31.07.2025'
+            ],
+            'EINGELANGTAM': datetime.date(2025, 7, 31)
+        }
+    ],
+    'IDENT': [],
+    'KUR': None,
+    'EUID': [
+        {
+            'ZNR': '000',
+            'EUID': 'ATBRA.528560-000'
+        }
+    ],
+    'FNR': '528560 w',
+    'STICHTAG': datetime.date(2025, 11, 5),
+    'UMFANG': 'Kurzinformation',
+    'PRUEFSUMME': '5CE2DD951A4F2B590888A39D17F16C0C',
+    'ABFRAGEZEITPUNKT': datetime.datetime(2025, 11, 5, 12, 13, 37, 142000, tzinfo=<FixedOffset '+01:00'>)
+}

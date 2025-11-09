@@ -2,15 +2,6 @@
 
 FastAPI backend for Austrian Business Register (Firmenbuch) data management.
 
-## Features
-
-- FastAPI framework with automatic API documentation
-- Supabase database integration
-- Company search functionality
-- Officer management
-- Company relationships tracking
-- RESTful API endpoints
-
 ## Setup
 
 ### Prerequisites

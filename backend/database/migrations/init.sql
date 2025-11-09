@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS company_addresses (
     door_number TEXT,
     postal_code TEXT,
     city TEXT,
+    state TEXT,  -- Austrian federal state (Bundesland)
     country TEXT,
     is_deliverable BOOLEAN DEFAULT TRUE,
     is_active BOOLEAN DEFAULT TRUE,
@@ -22,6 +23,7 @@ CREATE TABLE IF NOT EXISTS company_addresses (
 );
 
 CREATE INDEX idx_addresses_company_id ON company_addresses(company_id);
+CREATE INDEX IF NOT EXISTS idx_addresses_state ON company_addresses(state);
 
 
 -- Officers Table

@@ -1,0 +1,342 @@
+{
+    'FIRMA': {
+        'FI_DKZ02': [
+            {
+                'BEZEICHNUNG': [
+                    'SIGNA Prime GmbH & Co OG',
+                    'in Liquidation'
+                ],
+                'AUSLAND': None,
+                'VNR': '013',
+                'AUFRECHT': True,
+                'MIT_FIRMA_GELOESCHT_DURCH_VNR': None,
+                'MIT_ZWL_GELOESCHT_DURCH_VNR': None
+            }
+        ],
+        'FI_DKZ03': [
+            {
+                'STELLE': [],
+                'ZUSTELLANWEISUNG': None,
+                'STRASSE': 'Herrengasse',
+                'HAUSNUMMER': '14',
+                'STIEGE': None,
+                'TUERNUMMER': '3. OG',
+                'STAAT': 'AUT',
+                'PLZ': '1010',
+                'ORT': 'Wien',
+                'ZUSTELLBAR': True,
+                'VNR': '011',
+                'AUFRECHT': True,
+                'MIT_FIRMA_GELOESCHT_DURCH_VNR': None,
+                'MIT_ZWL_GELOESCHT_DURCH_VNR': None
+            }
+        ],
+        'FI_DKZ04': [],
+        'FI_DKZ05': [
+            {
+                'TEXT': [
+                    'Beteilligungsverwaltung'
+                ],
+                'VNR': '001',
+                'AUFRECHT': True,
+                'MIT_FIRMA_GELOESCHT_DURCH_VNR': None,
+                'MIT_ZWL_GELOESCHT_DURCH_VNR': None
+            }
+        ],
+        'FI_DKZ06': [
+            {
+                'ORTNR': {
+                    'CODE': '90001',
+                    'TEXT': 'Wien'
+                },
+                'SITZ': 'Wien',
+                'VNR': '001',
+                'AUFRECHT': True,
+                'MIT_FIRMA_GELOESCHT_DURCH_VNR': None,
+                'MIT_ZWL_GELOESCHT_DURCH_VNR': None
+            }
+        ],
+        'FI_DKZ07': [
+            {
+                'RECHTSFORM': {
+                    'CODE': 'OG',
+                    'TEXT': 'Offene Gesellschaft'
+                },
+                'VNR': '001',
+                'AUFRECHT': True,
+                'MIT_FIRMA_GELOESCHT_DURCH_VNR': None,
+                'MIT_ZWL_GELOESCHT_DURCH_VNR': None
+            }
+        ],
+        'FI_DKZ09': [],
+        'FI_DKZ14': [],
+        'FI_DKZ15': [],
+        'FI_DKZ16': [],
+        'FI_DKZ17': [],
+        'FI_DKZ20': [],
+        'FI_DKZ21': [],
+        'FI_DKZ22': [],
+        'FI_DKZ25': [],
+        'FI_DKZ30': [],
+        'FI_DKZ31': [],
+        'FI_DKZ32': [],
+        'FI_DKZ33': [],
+        'FI_DKZ34': [],
+        'FI_DKZ40': [],
+        'FI_DKZ41': [],
+        'FI_DKZ42': [],
+        'FI_DKZ43': [],
+        'FI_DKZ44': [],
+        'FI_DKZ45': [],
+        'RECHTSTATSACHE': [
+            {
+                'RTS_DKZ50': [
+                    {
+                        'CODE': 'U580',
+                        'DATUM_VOM': None,
+                        'ZEICHEN': None,
+                        'MULTI': [
+                            {
+                                'TXTZUS': None,
+                                'ABSCDE': None,
+                                'RTS_NAME': None,
+                                'RTS_ADRESSE': None,
+                                'RTS': [
+                                    'vom 16.06.2025'
+                                ],
+                                'AUSLHG': None,
+                                'AUSLFN': None,
+                                'BEHOERDE': None,
+                                'FORM': None
+                            }
+                        ],
+                        'TEXT': [
+                            'Auflösungsbeschluss',
+                            'vom 16.06.2025'
+                        ],
+                        'VNR': '013',
+                        'AUFRECHT': True,
+                        'MIT_FIRMA_GELOESCHT_DURCH_VNR': None,
+                        'MIT_ZWL_GELOESCHT_DURCH_VNR': None
+                    }
+                ],
+                'UNR': '002'
+            }
+        ]
+    },
+    'FUN': [
+        {
+            'FU_DKZ10': [
+                {
+                    'DATVON': None,
+                    'DATBIS': None,
+                    'WHR': None,
+                    'KAPITAL': None,
+                    'BEZUGSPERSON': None,
+                    'VART': {
+                        'CODE': 'X',
+                        'TEXT': 'keine Vertretungsbefugnis'
+                    },
+                    'VSBEIDE': None,
+                    'TXTVERTR': [],
+                    'VERTRETUNGSBEFUGTNURFUER': [],
+                    'TEXT': [
+                        'nicht vertretungsbefugt'
+                    ],
+                    'VNR': '013',
+                    'AUFRECHT': True,
+                    'MIT_FIRMA_GELOESCHT_DURCH_VNR': None,
+                    'MIT_ZWL_GELOESCHT_DURCH_VNR': None
+                }
+            ],
+            'FU_DKZ11': [],
+            'FU_DKZ12': [],
+            'RECHTSTATSACHE': [],
+            'PNR': '  A',
+            'FKEN': 'KP',
+            'FKENTEXT': 'UNBESCHRÄNKT HAFTENDE/R GESELLSCHAFTER/IN'
+        },
+        {
+            'FU_DKZ10': [
+                {
+                    'DATVON': None,
+                    'DATBIS': None,
+                    'WHR': None,
+                    'KAPITAL': None,
+                    'BEZUGSPERSON': None,
+                    'VART': {
+                        'CODE': 'X',
+                        'TEXT': 'keine Vertretungsbefugnis'
+                    },
+                    'VSBEIDE': None,
+                    'TXTVERTR': [],
+                    'VERTRETUNGSBEFUGTNURFUER': [],
+                    'TEXT': [
+                        'nicht vertretungsbefugt'
+                    ],
+                    'VNR': '001',
+                    'AUFRECHT': True,
+                    'MIT_FIRMA_GELOESCHT_DURCH_VNR': None,
+                    'MIT_ZWL_GELOESCHT_DURCH_VNR': None
+                }
+            ],
+            'FU_DKZ11': [],
+            'FU_DKZ12': [],
+            'RECHTSTATSACHE': [],
+            'PNR': '  B',
+            'FKEN': 'KP',
+            'FKENTEXT': 'UNBESCHRÄNKT HAFTENDE/R GESELLSCHAFTER/IN'
+        },
+        {
+            'FU_DKZ10': [
+                {
+                    'DATVON': '20250616',
+                    'DATBIS': None,
+                    'WHR': None,
+                    'KAPITAL': None,
+                    'BEZUGSPERSON': None,
+                    'VART': {
+                        'CODE': 'E',
+                        'TEXT': 'Einzelvertretung'
+                    },
+                    'VSBEIDE': None,
+                    'TXTVERTR': [],
+                    'VERTRETUNGSBEFUGTNURFUER': [],
+                    'TEXT': [
+                        'vertritt seit 16.06.2025 selbständig'
+                    ],
+                    'VNR': '013',
+                    'AUFRECHT': True,
+                    'MIT_FIRMA_GELOESCHT_DURCH_VNR': None,
+                    'MIT_ZWL_GELOESCHT_DURCH_VNR': None
+                }
+            ],
+            'FU_DKZ11': [],
+            'FU_DKZ12': [],
+            'RECHTSTATSACHE': [],
+            'PNR': '  B',
+            'FKEN': 'AB',
+            'FKENTEXT': 'ABWICKLER/IN, LIQUIDATOR/IN'
+        }
+    ],
+    'ZWL': [],
+    'PER': [
+        {
+            'PE_DKZ02': [
+                {
+                    'VNR': '001',
+                    'AUFRECHT': True,
+                    'MIT_FIRMA_GELOESCHT_DURCH_VNR': None,
+                    'MIT_ZWL_GELOESCHT_DURCH_VNR': None,
+                    'BEZEICHNUNG': [
+                        'SIGNA Prime Selection AG'
+                    ],
+                    'TITELVOR': None,
+                    'VORNAME': None,
+                    'NACHNAME': None,
+                    'TITELNACH': None,
+                    'NAME_FORMATIERT': None,
+                    'GEBURTSDATUM': None
+                }
+            ],
+            'PE_DKZ03': [],
+            'PE_DKZ06': [],
+            'PE_DKZ09': [],
+            'PE_STAAT': [],
+            'RECHTSTATSACHE': [],
+            'PNR': '  A'
+        },
+        {
+            'PE_DKZ02': [
+                {
+                    'VNR': '003',
+                    'AUFRECHT': True,
+                    'MIT_FIRMA_GELOESCHT_DURCH_VNR': None,
+                    'MIT_ZWL_GELOESCHT_DURCH_VNR': None,
+                    'BEZEICHNUNG': [
+                        'SIGNA Prime Assets GmbH'
+                    ],
+                    'TITELVOR': None,
+                    'VORNAME': None,
+                    'NACHNAME': None,
+                    'TITELNACH': None,
+                    'NAME_FORMATIERT': None,
+                    'GEBURTSDATUM': None
+                }
+            ],
+            'PE_DKZ03': [],
+            'PE_DKZ06': [],
+            'PE_DKZ09': [],
+            'PE_STAAT': [],
+            'RECHTSTATSACHE': [],
+            'PNR': '  B'
+        }
+    ],
+    'VOLLZ': [
+        {
+            'VNR': '001',
+            'VOLLZUGSDATUM': datetime.date(2010, 11, 11),
+            'HG': {
+                'CODE': '007',
+                'TEXT': 'Handelsgericht Wien'
+            },
+            'AZ': '007 074 Fr 12894/10 s',
+            'ANTRAGSTEXT': [
+                'Antrag auf Neueintragung einer Firma eingelangt am 04.11.2010'
+            ],
+            'EINGELANGTAM': datetime.date(2010, 11, 4)
+        },
+        {
+            'VNR': '003',
+            'VOLLZUGSDATUM': datetime.date(2011, 11, 9),
+            'HG': {
+                'CODE': '007',
+                'TEXT': 'Handelsgericht Wien'
+            },
+            'AZ': '007 074 Fr 23235/11 g',
+            'ANTRAGSTEXT': [
+                'Antrag auf Änderung eingelangt am 03.11.2011'
+            ],
+            'EINGELANGTAM': datetime.date(2011, 11, 3)
+        },
+        {
+            'VNR': '011',
+            'VOLLZUGSDATUM': datetime.date(2024, 4, 9),
+            'HG': {
+                'CODE': '007',
+                'TEXT': 'Handelsgericht Wien'
+            },
+            'AZ': '007 073 Fr 12416/24 d',
+            'ANTRAGSTEXT': [
+                'Antrag auf Änderung eingelangt am 08.04.2024'
+            ],
+            'EINGELANGTAM': datetime.date(2024, 4, 8)
+        },
+        {
+            'VNR': '013',
+            'VOLLZUGSDATUM': datetime.date(2025, 7, 25),
+            'HG': {
+                'CODE': '007',
+                'TEXT': 'Handelsgericht Wien'
+            },
+            'AZ': '007 073 Fr 24571/25 m',
+            'ANTRAGSTEXT': [
+                'Antrag auf Änderung eingelangt am 02.07.2025'
+            ],
+            'EINGELANGTAM': datetime.date(2025, 7, 2)
+        }
+    ],
+    'IDENT': [],
+    'KUR': None,
+    'EUID': [
+        {
+            'ZNR': '000',
+            'EUID': 'ATBRA.354064-000'
+        }
+    ],
+    'FNR': '354064 h',
+    'STICHTAG': datetime.date(2025, 11, 5),
+    'UMFANG': 'Kurzinformation',
+    'PRUEFSUMME': 'DB66E76993ADB63264E6DEB7203FCCE5',
+    'ABFRAGEZEITPUNKT': datetime.datetime(2025, 11, 5, 12, 13, 33, 297000, tzinfo=<FixedOffset '+01:00'>)
+}
