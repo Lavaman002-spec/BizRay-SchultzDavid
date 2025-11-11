@@ -12,6 +12,7 @@ import { getCompany } from '@/lib/api';
 import type { CompanyWithDetails } from '@/types/company';
 import CompanyHeader from '@/components/company/CompanyHeader';
 import RiskIndicators from '@/components/company/risk/RiskIndicators';
+import ReportingPanel from '@/components/company/reporting/ReportingPanel';
 
 export default function CompanyPage() {
   const params = useParams();
@@ -198,9 +199,7 @@ export default function CompanyPage() {
           </TabsContent>
 
           <TabsContent value="reporting">
-            <Card className="bg-white border border-gray-200 rounded-2xl p-6">
-              <p className="text-gray-500">Reporting content coming soon...</p>
-            </Card>
+            <ReportingPanel company={company} />
           </TabsContent>
 
           <TabsContent value="graph">
