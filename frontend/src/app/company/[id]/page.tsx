@@ -13,6 +13,7 @@ import type { CompanyWithDetails } from '@/types/company';
 import CompanyHeader from '@/components/company/CompanyHeader';
 import RiskIndicators from '@/components/company/risk/RiskIndicators';
 import ReportingPanel from '@/components/company/reporting/ReportingPanel';
+import NetworkTab from '@/components/company/network/NetworkTab';
 
 export default function CompanyPage() {
   const params = useParams();
@@ -93,10 +94,10 @@ export default function CompanyPage() {
               Reporting
             </TabsTrigger>
             <TabsTrigger
-              value="graph"
+              value="network"
               className="rounded-2xl px-3 py-1 text-sm font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm"
             >
-              Node Graph
+              Network
             </TabsTrigger>
           </TabsList>
 
@@ -202,12 +203,8 @@ export default function CompanyPage() {
             <ReportingPanel company={company} />
           </TabsContent>
 
-          <TabsContent value="graph">
-            <Card className="bg-white border border-gray-200 rounded-2xl p-6">
-              <p className="text-gray-500">
-                Node graph visualization coming soon...
-              </p>
-            </Card>
+          <TabsContent value="network">
+            <NetworkTab company={company} />
           </TabsContent>
         </Tabs>
       </div>
