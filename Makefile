@@ -1,6 +1,6 @@
 .PHONY: backend frontend dev
 
-VENV := .venv
+VENV := backend/.venv
 PYTHON := $(VENV)/bin/python
 
 venv:

@@ -73,14 +73,14 @@ export async function getCompanySuggestions(
 export async function listCompanies(
   limit: number = 100,
   offset: number = 0
-): Promise<Company[]> {
+): Promise<CompanyWithDetails[]> {
   const params = new URLSearchParams({
     limit: limit.toString(),
     offset: offset.toString(),
   });
 
   const response = await fetch(`${API_BASE_URL}/api/companies/?${params}`);
-  return handleResponse<Company[]>(response);
+  return handleResponse<CompanyWithDetails[]>(response);
 }
 
 // Get a specific company by ID with officers and addresses

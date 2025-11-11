@@ -1,18 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import {
-  Building2,
-  MapPin,
-  Calendar,
-  Globe,
-  TrendingUp,
-  Users2,
-  Share2,
-  Download,
-  AlertCircle,
-} from 'lucide-react';
+import { useParams } from 'next/navigation';
+import { TrendingUp, Users2, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -21,6 +11,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { getCompany } from '@/lib/api';
 import type { CompanyWithDetails } from '@/types/company';
 import CompanyHeader from '@/components/company/CompanyHeader';
+import RiskIndicators from '@/components/company/risk/RiskIndicators';
 
 export default function CompanyPage() {
   const params = useParams();
@@ -203,11 +194,7 @@ export default function CompanyPage() {
           </TabsContent>
 
           <TabsContent value="risk">
-            <Card className="bg-white border border-gray-200 rounded-2xl p-6">
-              <p className="text-gray-500">
-                Risk indicators content coming soon...
-              </p>
-            </Card>
+            <RiskIndicators company={company} />
           </TabsContent>
 
           <TabsContent value="reporting">

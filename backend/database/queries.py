@@ -24,9 +24,38 @@ def get_all_companies(limit: int = 100, offset: int = 0) -> List[dict]:
         if company_id not in address_map:
             address_map[company_id] = addr
 
-    # Attach addresses to companies
+    officers_response = client.table('company_officers').select('*').in_('company_id', company_ids).execute()
+    
+    officers_map = {}
+    for officer in officers_response.data:
+        company_id = officer['company_id']
+        if company_id not in officers_map:
+            officers_map[company_id] = []
+        officers_map[company_id].append(officer)
+
+
+    activities_response = client.table('company_activities').select('*').in_('company_id', company_ids).execute()
+    
+    activity_map = {}
+    for activity in activities_response.data:
+        company_id = activity['company_id']
+        if company_id not in activity_map:
+            activity_map[company_id] = []
+        activity_map[company_id].append(activity)
+
+    # Attach everything to companies
     for company in companies:
-        company['address'] = address_map.get(company['id'])
+        company_id = company['id']
+        company['address'] = address_map.get(company_id)
+        company['officers'] = officers_map.get(company_id, [])
+        company['activities'] = activity_map.get(company_id, [])
+
+        # Get *all* active addresses for the 'addresses' array
+        all_addresses = [addr for addr in addresses_response.data if addr['company_id'] == company_id]
+        company['addresses'] = all_addresses
+        
+        # And keep the single 'address' field for the basic 'Company' type
+        company['address'] = address_map.get(company_id)
 
     return companies
 
@@ -117,7 +146,7 @@ def search_companies(query: str, limit: int = 50, city: Optional[str] = None) ->
 
 
 def get_company_with_details(company_id: int) -> Optional[dict]:
-    """Get a company with its officers and addresses."""
+    """Get a company with its officers, addresses, and activities."""
     client = get_supabase_client()
     
     # Get the company
@@ -131,9 +160,13 @@ def get_company_with_details(company_id: int) -> Optional[dict]:
     # Get addresses
     addresses_response = client.table('company_addresses').select('*').eq('company_id', company_id).execute()
     
+    # Get activities
+    activities_response = client.table('company_activities').select('*').eq('company_id', company_id).execute()
+
     # Combine the data
     company['officers'] = officers_response.data or []
     company['addresses'] = addresses_response.data or []
+    company['activities'] = activities_response.data or [] # <-- ADD THIS LINE
     
     return company
 

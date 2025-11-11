@@ -43,9 +43,19 @@ export interface Address {
   created_at: string | null;
 }
 
+export interface Activities {
+  id: number;
+  company_id: number;
+  description: string;
+  is_active: boolean;
+  vnr: string | null;
+  created_at: string | null;
+}
+
 export interface CompanyWithDetails extends Company {
   officers: Officer[];
   addresses: Address[];
+  activities: Activities[];
 }
 
 export interface SearchResponse {

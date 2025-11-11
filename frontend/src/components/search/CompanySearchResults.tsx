@@ -5,7 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import type { Company } from '@/types/company';
-import CompanyCard from '../company/CompanyCard';
+import CompanyCard from '../CompanyCard';
 
 interface CompanySearchResultsProps {
   results: Company[];

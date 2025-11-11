@@ -101,12 +101,28 @@ class Address(AddressBase):
     model_config = ConfigDict(from_attributes=True)
 
 
+# Activity Models (from company_activities table)
+class ActivitiesBase(BaseModel):
+    """Base model for activities data."""
+    company_id: int
+    description: str
+    is_active: bool = Field(default=True)
+    vnr: Optional[str] = None
+
+class Activities(ActivitiesBase):
+    """Complete activities model with ID."""
+    id: int
+    created_at: Optional[datetime] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
 
 # Combined Response Models
 class CompanyWithDetails(Company):
     """Company model with associated officers and addresses."""
     officers: List[Officer] = []
     addresses: List[Address] = []
+    activities: List[Activities] = []
 
     model_config = ConfigDict(from_attributes=True)
 
