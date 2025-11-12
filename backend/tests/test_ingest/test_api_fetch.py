@@ -170,6 +170,59 @@ def test_fetch_uses_company_name_alias(monkeypatch: pytest.MonkeyPatch) -> None:
     assert captured_company["name"] == "Alias GmbH"
 
 
+def test_fetch_extracts_name_from_firmenwortlaut(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Case-insensitive Firmenbuch keys with nested wrappers should produce a name."""
+
+    monkeypatch.setattr(
+        api_fetch.db_queries,
+        "get_company_with_details_by_fnr",
+        lambda _: None,
+    )
+
+    captured_company: Dict[str, Any] = {}
+
+    def fake_create_company_with_relations(company_data: Dict[str, Any], **_: Any) -> Dict[str, Any]:
+        captured_company.update(company_data)
+        return {"id": 9, **company_data}
+
+    monkeypatch.setattr(
+        api_fetch.db_queries,
+        "create_company_with_relations",
+        fake_create_company_with_relations,
+    )
+
+    api_payload = {
+        "company": {
+            "registerId": "789012C",
+            "firmenWortlaut": {"text": "Wrapper GmbH"},
+        }
+    }
+
+    dummy_client = DummyClient(payload=api_payload)
+
+    result = api_fetch.fetch_company_profile_if_missing("FN 789012c", client=dummy_client)
+
+    assert result["name"] == "Wrapper GmbH"
+    assert captured_company["name"] == "Wrapper GmbH"
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        "Case GmbH",
+        {"text": "Case GmbH"},
+        {"value": {"text": "Case GmbH"}},
+        [{"name": "Case GmbH"}],
+    ],
+)
+def test_extract_company_name_handles_wrappers(value: Any) -> None:
+    """The helper should locate a string within nested wrappers regardless of case."""
+
+    payload = {"firmenWortlaut": value}
+
+    assert api_fetch._extract_company_name(payload) == "Case GmbH"
+
+
 def test_raises_when_not_found(monkeypatch: pytest.MonkeyPatch) -> None:
     """A missing record raises a descriptive error."""
 
