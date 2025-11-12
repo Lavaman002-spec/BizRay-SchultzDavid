@@ -1,14 +1,16 @@
 import logging
 from functools import lru_cache
-import os
 import sys
+from pathlib import Path
 
 from supabase import Client, create_client
 
-# Add parent directory to path for imports
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+backend_dir = Path(__file__).resolve().parent
+repo_root = backend_dir.parent
+if str(repo_root) not in sys.path:
+    sys.path.insert(0, str(repo_root))
 
-from shared.config import SUPABASE_KEY, SUPABASE_URL
+from backend.shared.config import SUPABASE_KEY, SUPABASE_URL
 
 
 logger = logging.getLogger(__name__)

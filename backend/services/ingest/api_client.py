@@ -8,7 +8,7 @@ from typing import Any, Dict, List, Optional
 
 import requests
 
-from shared.config import API_KEY, FIRMENBUCH_BASE_URL
+from backend.shared.config import API_KEY, FIRMENBUCH_BASE_URL
 
 logger = logging.getLogger(__name__)
 

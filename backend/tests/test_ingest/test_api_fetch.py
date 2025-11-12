@@ -6,7 +6,7 @@ from typing import Any, Dict, List
 
 import pytest
 
-from services.ingest import api_fetch
+from backend.services.ingest import api_fetch
 
 
 class DummyClient:
@@ -170,6 +170,169 @@ def test_fetch_uses_company_name_alias(monkeypatch: pytest.MonkeyPatch) -> None:
     assert captured_company["name"] == "Alias GmbH"
 
 
+def test_fetch_extracts_name_from_firmenwortlaut(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Case-insensitive Firmenbuch keys with nested wrappers should produce a name."""
+
+    monkeypatch.setattr(
+        api_fetch.db_queries,
+        "get_company_with_details_by_fnr",
+        lambda _: None,
+    )
+
+    captured_company: Dict[str, Any] = {}
+
+    def fake_create_company_with_relations(company_data: Dict[str, Any], **_: Any) -> Dict[str, Any]:
+        captured_company.update(company_data)
+        return {"id": 9, **company_data}
+
+    monkeypatch.setattr(
+        api_fetch.db_queries,
+        "create_company_with_relations",
+        fake_create_company_with_relations,
+    )
+
+    api_payload = {
+        "company": {
+            "registerId": "789012C",
+            "firmenWortlaut": {"text": "Wrapper GmbH"},
+        }
+    }
+
+    dummy_client = DummyClient(payload=api_payload)
+
+    result = api_fetch.fetch_company_profile_if_missing("FN 789012c", client=dummy_client)
+
+    assert result["name"] == "Wrapper GmbH"
+    assert captured_company["name"] == "Wrapper GmbH"
+
+
+def test_fetch_handles_company_list_wrapper(monkeypatch: pytest.MonkeyPatch) -> None:
+    """A list-wrapped company payload should still resolve the Firmenbuch name."""
+
+    monkeypatch.setattr(
+        api_fetch.db_queries,
+        "get_company_with_details_by_fnr",
+        lambda _: None,
+    )
+
+    captured_company: Dict[str, Any] = {}
+
+    def fake_create_company_with_relations(company_data: Dict[str, Any], **_: Any) -> Dict[str, Any]:
+        captured_company.update(company_data)
+        return {"id": 11, **company_data}
+
+    monkeypatch.setattr(
+        api_fetch.db_queries,
+        "create_company_with_relations",
+        fake_create_company_with_relations,
+    )
+
+    api_payload = {
+        "company": [
+            {
+                "registerId": "135790D",
+                "firmenwortlaut": {"#text": "List Wrapper GmbH"},
+            }
+        ]
+    }
+
+    dummy_client = DummyClient(payload=api_payload)
+
+    result = api_fetch.fetch_company_profile_if_missing("135790d", client=dummy_client)
+
+    assert result["name"] == "List Wrapper GmbH"
+    assert captured_company["name"] == "List Wrapper GmbH"
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        "Case GmbH",
+        {"text": "Case GmbH"},
+        {"value": {"text": "Case GmbH"}},
+        [{"name": "Case GmbH"}],
+        {"#text": "Case GmbH"},
+        {"@text": "Case GmbH"},
+        {"$": "Case GmbH"},
+        {"valueText": "Case GmbH"},
+    ],
+)
+def test_extract_company_name_handles_wrappers(value: Any) -> None:
+    """The helper should locate a string within nested wrappers regardless of case."""
+
+    payload = {"firmenWortlaut": value}
+
+    assert api_fetch._extract_company_name(payload) == "Case GmbH"
+
+
+def test_extract_company_name_handles_company_list() -> None:
+    """The company payload may be wrapped in a list before containing the name."""
+
+    payload = {"company": [{"firmenwortlaut": {"#text": "List GmbH"}}]}
+
+    assert api_fetch._extract_company_name(payload["company"]) == "List GmbH"
+    assert api_fetch._extract_company_name(payload) == "List GmbH"
+
+
+def test_fetch_company_suggestions_caches_profiles(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Suggestion lookups should fetch Firmenbuch profiles for discovered FNRs."""
+
+    dummy_client = DummyClient(
+        search_results=[
+            {"registerId": "123456A", "name": "AEP-OBB GmbH"},
+            {"registerId": "987654b", "companyName": {"text": "Other Wrapper GmbH"}},
+        ]
+    )
+
+    captured_fnrs: List[str] = []
+
+    def fake_fetch_company_profile_if_missing(
+        fnr: str, *, client: Any | None = None
+    ) -> Dict[str, Any]:
+        captured_fnrs.append(fnr)
+        assert client is dummy_client
+        return {"fnr": fnr}
+
+    monkeypatch.setattr(
+        api_fetch,
+        "fetch_company_profile_if_missing",
+        fake_fetch_company_profile_if_missing,
+    )
+
+    suggestions = api_fetch.fetch_company_suggestions_from_firmenbuch(
+        "obb", client=dummy_client, limit=3
+    )
+
+    assert suggestions == [
+        {"name": "AEP-OBB GmbH", "fnr": "123456A"},
+        {"name": "Other Wrapper GmbH", "fnr": "987654B"},
+    ]
+    assert captured_fnrs == ["123456A", "987654B"]
+
+
+def test_fetch_company_suggestions_raises_when_empty(monkeypatch: pytest.MonkeyPatch) -> None:
+    """No Firmenbuch matches should propagate a not-found error."""
+
+    dummy_client = DummyClient(search_results=[])
+
+    with pytest.raises(api_fetch.FirmenbuchCompanyNotFound):
+        api_fetch.fetch_company_suggestions_from_firmenbuch("missing", client=dummy_client)
+
+
+def test_fetch_company_suggestions_wraps_client_configuration(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Client configuration issues should surface as fetch errors."""
+
+    def failing_client() -> None:
+        raise ValueError("missing base url")
+
+    monkeypatch.setattr(api_fetch, "FirmenbuchAPIClient", failing_client)
+
+    with pytest.raises(api_fetch.FirmenbuchFetchError) as excinfo:
+        api_fetch.fetch_company_suggestions_from_firmenbuch("obb")
+
+    assert "missing base url" in str(excinfo.value).lower()
+
+
 def test_raises_when_not_found(monkeypatch: pytest.MonkeyPatch) -> None:
     """A missing record raises a descriptive error."""
 
@@ -198,6 +361,26 @@ def test_wraps_api_errors(monkeypatch: pytest.MonkeyPatch) -> None:
 
     with pytest.raises(api_fetch.FirmenbuchFetchError):
         api_fetch.fetch_company_profile_if_missing("123456A", client=dummy_client)
+
+
+def test_fetch_profile_wraps_client_configuration(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Missing Firmenbuch client configuration bubbles up as a fetch error."""
+
+    monkeypatch.setattr(
+        api_fetch.db_queries,
+        "get_company_with_details_by_fnr",
+        lambda _: None,
+    )
+
+    def failing_client() -> None:
+        raise ValueError("configure base url")
+
+    monkeypatch.setattr(api_fetch, "FirmenbuchAPIClient", failing_client)
+
+    with pytest.raises(api_fetch.FirmenbuchFetchError) as excinfo:
+        api_fetch.fetch_company_profile_if_missing("123456a")
+
+    assert "base url" in str(excinfo.value).lower()
 
 
 def test_fetch_by_name_prefers_exact_match(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -271,3 +454,17 @@ def test_fetch_by_name_wraps_search_errors(monkeypatch: pytest.MonkeyPatch) -> N
 
     with pytest.raises(api_fetch.FirmenbuchFetchError):
         api_fetch.fetch_company_profile_by_name_if_missing("Example GmbH", client=dummy_client)
+
+
+def test_fetch_by_name_wraps_client_configuration(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Misconfigured clients should raise consistent fetch errors for name lookups."""
+
+    def failing_client() -> None:
+        raise ValueError("set firmenbuch base url")
+
+    monkeypatch.setattr(api_fetch, "FirmenbuchAPIClient", failing_client)
+
+    with pytest.raises(api_fetch.FirmenbuchFetchError) as excinfo:
+        api_fetch.fetch_company_profile_by_name_if_missing("Example GmbH")
+
+    assert "firmenbuch" in str(excinfo.value).lower()

@@ -1,8 +1,10 @@
 """API routes for officers."""
 from typing import List
+
 from fastapi import APIRouter, HTTPException, Query
-from shared.models import Officer, OfficerCreate, OfficerUpdate
-from database.client import get_supabase_client
+
+from backend.database.client import get_supabase_client
+from backend.shared.models import Officer, OfficerCreate, OfficerUpdate
 
 router = APIRouter(prefix="/officers", tags=["officers"])
 
