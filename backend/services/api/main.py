@@ -73,7 +73,8 @@ async def api_info():
         "endpoints": {
             "companies": "/api/companies",
             "officers": "/api/officers",
-            "search": "/api/search"
+            "search": "/api/search",
+            "exprots": "/api/exports"
         }
     }
 
