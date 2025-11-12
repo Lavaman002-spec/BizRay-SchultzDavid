@@ -47,9 +47,20 @@ def fetch_company_profile_if_missing(
         logger.warning("Firmenbuch record %s not found", normalized_fnr)
         raise FirmenbuchCompanyNotFound(f"Company with FNR {normalized_fnr} not found")
 
-    company_data, addresses, officers, activities = _normalise_company_payload(
-        payload, normalized_fnr
-    )
+    try:
+        (
+            company_data,
+            addresses,
+            officers,
+            activities,
+        ) = _normalise_company_payload(payload, normalized_fnr)
+    except ValueError as exc:
+        logger.warning(
+            "Firmenbuch payload for %s missing company name: %s",
+            normalized_fnr,
+            exc,
+        )
+        raise FirmenbuchFetchError(str(exc)) from exc
 
     try:
         saved_company = db_queries.create_company_with_relations(
@@ -151,9 +162,13 @@ def _normalise_company_payload(
 
     company_payload = payload.get("company") or payload
 
+    company_name = _extract_company_name(company_payload)
+    if not company_name:
+        raise ValueError("Company payload missing a valid name")
+
     company_data = {
         "fnr": fnr,
-        "name": _clean_string(company_payload.get("name")),
+        "name": company_name,
         "legal_form": _extract_legal_form(company_payload),
         "state": _clean_string(
             company_payload.get("status")
@@ -174,6 +189,14 @@ def _normalise_company_payload(
     activities = _extract_activities(company_payload)
 
     return company_data, addresses, officers, activities
+
+
+def _extract_company_name(company_payload: Dict[str, Any]) -> Optional[str]:
+    for key in ("name", "companyName", "company_name", "firmenwortlaut"):
+        cleaned = _clean_string(company_payload.get(key))
+        if cleaned:
+            return cleaned
+    return None
 
 
 def _extract_legal_form(company_payload: Dict[str, Any]) -> Optional[str]:
