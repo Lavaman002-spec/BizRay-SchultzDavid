@@ -1,4 +1,35 @@
-fastapi==0.111.0
-uvicorn[standard]==0.30.0
-zeep==4.3.1
-python-dotenv==1.0.1
+# Core API framework
+fastapi>=0.115
+uvicorn>=0.30
+pydantic>=2.8
+
+# Supabase client (Primary database)
+supabase>=2.23
+
+# Environment and configuration
+python-dotenv>=1.1.1
+
+# Austrian Business Register API client
+zeep>=4.3.2
+lxml>=6.0.2
+requests>=2.32.5
+requests-file==2.1.0
+requests-toolbelt==1.0.0
+
+# Data processing
+pandas>=2.2
+
+# Dependencies
+attrs==25.3.0
+certifi==2025.8.3
+charset-normalizer==3.4.3
+idna==3.10
+isodate==0.7.2
+platformdirs==4.4.0
+pytz==2025.2
+urllib3==2.5.0
+
+# Tests
+pytest>=8.4.2
+pytest-asyncio>=0.23.0
+httpx>=0.27.0

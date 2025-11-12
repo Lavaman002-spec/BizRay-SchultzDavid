@@ -51,8 +51,9 @@ backend/.venv
 backend/dist/
 backend/build/
 backend/*.egg-info/
+backend/data
 
-# ── Global ─────────────────────────────────────────────────────────────────────
+
 # misc
 .DS_Store
 *.pem
@@ -66,3 +67,6 @@ backend/*.egg-info/
 .idea/
 *.swp
 *.swo
+CLAUDE.md
+.mcp.json
+/.claude
