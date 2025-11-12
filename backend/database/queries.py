@@ -267,9 +267,23 @@ def search_companies(
     response = query_builder.range(offset, offset + limit - 1).execute()
 
     companies = response.data or []
-    for company in companies:
-        company.setdefault("officers", [])
-        company.setdefault("addresses", [])
+
+    # Attach related officers, addresses, and activities to each company
+    if companies:
+        companies = _attach_company_relations(companies, client)
+        # Also fetch activities for each company
+        company_ids = [c['id'] for c in companies if c.get('id')]
+        if company_ids:
+            activities_response = client.table('company_activities').select('*').in_('company_id', company_ids).execute()
+            activities_by_company = {}
+            for activity in activities_response.data or []:
+                company_id = activity.get('company_id')
+                if company_id not in activities_by_company:
+                    activities_by_company[company_id] = []
+                activities_by_company[company_id].append(activity)
+
+            for company in companies:
+                company['activities'] = activities_by_company.get(company['id'], [])
 
     total = response.count or 0
     return companies, total

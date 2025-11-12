@@ -30,11 +30,13 @@ async def search_companies(
     query: str = Query(..., min_length=1, description="Search query for company name or FNR"),
     limit: int = Query(50, ge=1, le=100),
     offset: int = Query(0, ge=0),
-    city: Optional[str] = Query(None, description="Filter by city")
+    city: Optional[str] = Query(None, description="Filter by city"),
+    fetch_missing: bool = Query(False, description="Fetch missing companies from Firmenbuch (slower)")
 ):
     """
     Search for companies by name or Firmenbuch number (FNR).
     Optionally filter by city.
+    Set fetch_missing=true to enable external API fallback (slower).
     """
     try:
         if city is None:
@@ -46,7 +48,8 @@ async def search_companies(
                 query.strip(), limit=limit, offset=offset, city=city
             )
 
-        if not companies and offset == 0:
+        # Only fetch from external API if explicitly requested
+        if not companies and offset == 0 and fetch_missing:
             fetched_company = None
             if validate_fn_number(query):
                 fnr = normalize_fn_number(query)

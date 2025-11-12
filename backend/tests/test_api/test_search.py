@@ -15,7 +15,7 @@ def test_search_fallback_fetches_missing_company(monkeypatch, test_client):
         return [], 0
 
     def fake_fetch_company(fnr: str):
-        assert fnr == "123456A"
+        assert fnr == "123456a"  # normalize_fn_number converts to lowercase
         return {"fnr": fnr}
 
     def fake_get_company(fnr: str):
@@ -32,13 +32,13 @@ def test_search_fallback_fetches_missing_company(monkeypatch, test_client):
     monkeypatch.setattr(search_router, "fetch_company_profile_if_missing", fake_fetch_company)
     monkeypatch.setattr(search_router.db_queries, "get_company_with_details_by_fnr", fake_get_company)
 
-    response = test_client.get("/api/search/?query=FN%20123456a")
+    response = test_client.get("/api/search/?query=FN%20123456a&fetch_missing=true")
     assert response.status_code == 200
 
     payload = response.json()
     assert payload["total"] == 1
     assert payload["count"] == 1
-    assert payload["results"][0]["fnr"] == "123456A"
+    assert payload["results"][0]["fnr"] == "123456a"  # normalize_fn_number converts to lowercase
     assert payload["results"][0]["name"] == "Fetched Company"
     assert search_calls == ["FN 123456a"]
 
@@ -58,14 +58,14 @@ def test_search_fallback_handles_missing_remote_record(monkeypatch, test_client)
     monkeypatch.setattr(search_router.db_queries, "search_companies", fake_search_companies)
     monkeypatch.setattr(search_router, "fetch_company_profile_if_missing", fake_fetch_company)
 
-    response = test_client.get("/api/search/?query=123456a")
+    response = test_client.get("/api/search/?query=123456a&fetch_missing=true")
     assert response.status_code == 200
 
     payload = response.json()
     assert payload["total"] == 0
     assert payload["count"] == 0
     assert payload["results"] == []
-    assert fetch_calls == ["123456A"]
+    assert fetch_calls == ["123456a"]  # normalize_fn_number converts to lowercase
 
 
 def test_search_name_fallback_fetches_missing_company(monkeypatch, test_client):
@@ -79,7 +79,7 @@ def test_search_name_fallback_fetches_missing_company(monkeypatch, test_client):
         assert name == "Example GmbH"
         return {
             "id": 7,
-            "fnr": "123456A",
+            "fnr": "123456a",  # Use lowercase for consistency
             "name": "Example GmbH",
             "addresses": [],
             "officers": [],
@@ -87,7 +87,7 @@ def test_search_name_fallback_fetches_missing_company(monkeypatch, test_client):
         }
 
     def fake_get_company(fnr: str):
-        assert fnr == "123456A"
+        assert fnr == "123456a"  # normalize_fn_number converts to lowercase
         return {
             "id": 7,
             "fnr": fnr,
@@ -105,13 +105,13 @@ def test_search_name_fallback_fetches_missing_company(monkeypatch, test_client):
     )
     monkeypatch.setattr(search_router.db_queries, "get_company_with_details_by_fnr", fake_get_company)
 
-    response = test_client.get("/api/search/?query=Example%20GmbH")
+    response = test_client.get("/api/search/?query=Example%20GmbH&fetch_missing=true")
     assert response.status_code == 200
 
     payload = response.json()
     assert payload["total"] == 1
     assert payload["count"] == 1
-    assert payload["results"][0]["fnr"] == "123456A"
+    assert payload["results"][0]["fnr"] == "123456a"  # normalize_fn_number converts to lowercase
     assert payload["results"][0]["name"] == "Example GmbH"
 
 
