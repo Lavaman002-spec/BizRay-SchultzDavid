@@ -1,7 +1,11 @@
 """API routes for search functionality."""
 from typing import Optional, List
 from fastapi import APIRouter, HTTPException, Query
-from shared.models import SearchResponse
+from shared.models import (
+    SearchQuery,
+    SearchResponse,
+    SearchSuggestionsResponse,
+)
 from database import queries as db_queries
 
 router = APIRouter(prefix="/search", tags=["search"])
@@ -19,34 +23,59 @@ async def search_companies(
     Optionally filter by city.
     """
     try:
-        results = db_queries.search_companies(
-            query.strip(),
-            limit=limit,
-            city=city.strip() if city else None
-        )
+        companies, total = db_queries.search_companies(query.strip(), limit=limit, offset=offset)
+
+        has_more = offset + len(companies) < total
+        next_offset = offset + len(companies) if has_more else None
 
         return SearchResponse(
-            total=len(results),
-            results=results,
+            total=total,
+            count=len(companies),
+            results=companies,
             limit=limit,
-            offset=offset
+            offset=offset,
+            next_offset=next_offset,
+            has_more=has_more,
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Search failed: {str(e)}")
 
 
-@router.get("/suggestions", response_model=List[str])
-async def get_suggestions(
-    query: str = Query(..., min_length=1, description="Partial company name for autocomplete"),
-    limit: int = Query(10, ge=1, le=20)
-):
-    """
-    Get company name suggestions for autocomplete.
-    Returns a list of company names that match the partial query.
-    """
+@router.post("/", response_model=SearchResponse)
+async def search_companies_advanced(payload: SearchQuery):
+    """Perform an advanced search that supports filters, sorting and pagination."""
+
     try:
-        suggestions = db_queries.get_company_name_suggestions(query.strip(), limit=limit)
-        return suggestions
+        companies, total = db_queries.search_companies_advanced(payload)
+
+        limit = payload.pagination.limit
+        offset = payload.pagination.offset
+        has_more = offset + len(companies) < total
+        next_offset = offset + len(companies) if has_more else None
+
+        return SearchResponse(
+            total=total,
+            count=len(companies),
+            results=companies,
+            limit=limit,
+            offset=offset,
+            next_offset=next_offset,
+            has_more=has_more,
+        )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to fetch suggestions: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Advanced search failed: {str(e)}")
+
+
+@router.get("/suggest", response_model=SearchSuggestionsResponse)
+async def search_suggestions(
+    query: str = Query(..., min_length=1, description="Prefix used to suggest matching companies"),
+    limit: int = Query(10, ge=1, le=25),
+):
+    """Return autocomplete suggestions for the provided query prefix."""
+
+    try:
+        suggestions = db_queries.get_search_suggestions(query, limit=limit)
+        return SearchSuggestionsResponse(query=query, suggestions=suggestions)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Suggestion lookup failed: {str(e)}")
 

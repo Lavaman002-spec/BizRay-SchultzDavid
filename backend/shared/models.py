@@ -1,4 +1,5 @@
-from typing import Optional, List
+"""Pydantic models for API request/response validation."""
+from typing import Optional, List, Literal
 from datetime import datetime
 from pydantic import BaseModel, Field, ConfigDict
 
@@ -10,6 +11,7 @@ class CompanyBase(BaseModel):
     name: str = Field(..., description="Company name")
     legal_form: Optional[str] = None
     state: Optional[str] = Field(None, description="Company state (active, inactive, etc.)")
+    city: Optional[str] = Field(None, description="Primary city associated with the company")
 
 
 class CompanyCreate(CompanyBase):
@@ -128,20 +130,88 @@ class CompanyWithDetails(Company):
 
 
 
-# Search Models
-class SearchQuery(BaseModel):
-    """Model for search requests."""
-    query: str = Field(..., min_length=1, description="Search query string")
+class SearchFilters(BaseModel):
+    """Filter options for search queries."""
+
+    legal_forms: Optional[List[str]] = Field(
+        default=None,
+        description="Limit results to companies that match one of the provided legal forms.",
+    )
+    states: Optional[List[str]] = Field(
+        default=None,
+        description="Limit results to companies that match one of the provided states.",
+    )
+    cities: Optional[List[str]] = Field(
+        default=None,
+        description="Limit results to companies that match one of the provided cities.",
+    )
+
+
+class PaginationParams(BaseModel):
+    """Pagination parameters for search queries."""
+
     limit: int = Field(default=50, ge=1, le=100)
     offset: int = Field(default=0, ge=0)
 
 
+class SortParams(BaseModel):
+    """Sorting parameters for search queries."""
+
+    field: str = Field(default="name", description="Database column to sort by")
+    direction: Literal["asc", "desc"] = Field(default="asc")
+
+
+class SearchQuery(BaseModel):
+    """Model for search requests."""
+
+    q: str = Field(..., min_length=1, description="Search query string")
+    filters: Optional[SearchFilters] = Field(
+        default=None, description="Optional filters to apply to the search query."
+    )
+    pagination: PaginationParams = Field(
+        default_factory=PaginationParams,
+        description="Pagination options for the search query.",
+    )
+    sort: Optional[SortParams] = Field(
+        default=None, description="Optional sorting options for the search query."
+    )
+    include_relations: bool = Field(
+        default=False,
+        description="When True, includes officers and addresses with each company.",
+    )
+
+
 class SearchResponse(BaseModel):
     """Model for search results."""
-    total: int
-    results: List[Company]
-    limit: int
-    offset: int
+
+    total: int = Field(..., description="Total number of matching companies.")
+    count: int = Field(..., description="Number of companies returned in this response.")
+    results: List[CompanyWithDetails]
+    limit: int = Field(..., description="Limit that was used when fetching the results.")
+    offset: int = Field(..., description="Offset that was used when fetching the results.")
+    next_offset: Optional[int] = Field(
+        default=None,
+        description="Offset for the next page of results, if there are more results.",
+    )
+    has_more: bool = Field(
+        default=False, description="Whether additional pages of results are available."
+    )
+
+
+class SearchSuggestion(BaseModel):
+    """Individual search suggestion entry."""
+
+    name: str = Field(..., description="Suggested company name")
+    fnr: Optional[str] = Field(
+        default=None, description="Firmenbuch number associated with the suggestion"
+    )
+
+
+class SearchSuggestionsResponse(BaseModel):
+    """Response model for autocomplete suggestions."""
+
+    query: str
+    suggestions: List[SearchSuggestion] = Field(default_factory=list)
 
 
 # Health Check Model

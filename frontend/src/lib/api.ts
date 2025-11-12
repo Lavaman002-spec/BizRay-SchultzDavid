@@ -1,7 +1,9 @@
 import type {
   Company,
   CompanyWithDetails,
+  SearchQuery,
   SearchResponse,
+  SearchSuggestionsResponse,
   HealthCheck,
   Officer,
 } from '@/types/company';
@@ -47,29 +49,39 @@ export async function searchCompanies(
   return handleResponse<SearchResponse>(response);
 }
 
-// Get all unique cities from the database
-export async function getCities(): Promise<string[]> {
-  const response = await fetch(`${API_BASE_URL}/api/locations/cities`);
-  return handleResponse<string[]>(response);
+/**
+ * Perform an advanced company search with filters and sorting
+ */
+export async function advancedSearchCompanies(
+  payload: SearchQuery
+): Promise<SearchResponse> {
+  const response = await fetch(`${API_BASE_URL}/api/search/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  return handleResponse<SearchResponse>(response);
 }
 
-// Get company name suggestions for autocomplete
-export async function getCompanySuggestions(
+/**
+ * Fetch autocomplete suggestions for a search query
+ */
+export async function getSearchSuggestions(
   query: string,
   limit: number = 10
-): Promise<string[]> {
+): Promise<SearchSuggestionsResponse> {
   const params = new URLSearchParams({
     query,
     limit: limit.toString(),
   });
 
-  const response = await fetch(
-    `${API_BASE_URL}/api/search/suggestions?${params}`
-  );
-  return handleResponse<string[]>(response);
+  const response = await fetch(`${API_BASE_URL}/api/search/suggest?${params}`);
+  return handleResponse<SearchSuggestionsResponse>(response);
 }
 
-// Get all companies with pagination
+/**
+ * Get all companies with pagination
+ */
 export async function listCompanies(
   limit: number = 100,
   offset: number = 0
@@ -101,6 +113,7 @@ export async function createCompany(data: {
   name: string;
   legal_form?: string;
   state?: string;
+  city?: string;
 }): Promise<Company> {
   const response = await fetch(`${API_BASE_URL}/api/companies/`, {
     method: 'POST',
@@ -118,6 +131,7 @@ export async function updateCompany(
     name: string;
     legal_form: string;
     state: string;
+    city: string;
   }>
 ): Promise<Company> {
   const response = await fetch(`${API_BASE_URL}/api/companies/${id}`, {
