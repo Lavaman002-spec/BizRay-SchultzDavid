@@ -136,6 +136,40 @@ def test_fetches_and_stores_company(monkeypatch: pytest.MonkeyPatch) -> None:
     assert captured_args["activities"][0]["description"] == "IT Services"
 
 
+def test_fetch_uses_company_name_alias(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Payloads using alternative name keys should still populate the company name."""
+
+    monkeypatch.setattr(
+        api_fetch.db_queries,
+        "get_company_with_details_by_fnr",
+        lambda _: None,
+    )
+
+    captured_company: Dict[str, Any] = {}
+
+    def fake_create_company_with_relations(company_data: Dict[str, Any], **_: Any) -> Dict[str, Any]:
+        captured_company.update(company_data)
+        return {"id": 1, **company_data}
+
+    monkeypatch.setattr(
+        api_fetch.db_queries,
+        "create_company_with_relations",
+        fake_create_company_with_relations,
+    )
+
+    api_payload = {
+        "registerId": "654321B",
+        "companyName": "Alias GmbH",
+    }
+
+    dummy_client = DummyClient(payload=api_payload)
+
+    result = api_fetch.fetch_company_profile_if_missing("654321b", client=dummy_client)
+
+    assert result["name"] == "Alias GmbH"
+    assert captured_company["name"] == "Alias GmbH"
+
+
 def test_raises_when_not_found(monkeypatch: pytest.MonkeyPatch) -> None:
     """A missing record raises a descriptive error."""
 
