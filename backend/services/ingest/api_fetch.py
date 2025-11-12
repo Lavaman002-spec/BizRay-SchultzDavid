@@ -1,0 +1,209 @@
+"""High-level helpers for fetching and persisting Firmenbuch company data."""
+
+from __future__ import annotations
+
+import logging
+from datetime import datetime
+from typing import Any, Dict, List, Optional, Tuple
+
+from database import queries as db_queries
+from services.ingest.api_client import FirmenbuchAPIClient, FirmenbuchAPIError
+from shared.utils import normalize_fn_number
+
+logger = logging.getLogger(__name__)
+
+
+class FirmenbuchCompanyNotFound(Exception):
+    """Raised when the Firmenbuch API does not have a record for the requested company."""
+
+
+class FirmenbuchFetchError(Exception):
+    """Raised when fetching or persisting Firmenbuch data fails."""
+
+
+def fetch_company_profile_if_missing(
+    fnr: str,
+    *,
+    client: Optional[FirmenbuchAPIClient] = None,
+) -> Dict[str, Any]:
+    """Return a company record, fetching it from Firmenbuch if not yet cached."""
+
+    normalized_fnr = normalize_fn_number(fnr)
+    existing = db_queries.get_company_with_details_by_fnr(normalized_fnr)
+    if existing:
+        logger.debug("Company %s returned from local cache", normalized_fnr)
+        return existing
+
+    client = client or FirmenbuchAPIClient()
+    logger.info("Fetching company %s from Firmenbuch API", normalized_fnr)
+
+    try:
+        payload = client.get_company_profile(normalized_fnr)
+    except FirmenbuchAPIError as exc:
+        logger.exception("Firmenbuch API error while fetching %s", normalized_fnr)
+        raise FirmenbuchFetchError(str(exc)) from exc
+
+    if not payload:
+        logger.warning("Firmenbuch record %s not found", normalized_fnr)
+        raise FirmenbuchCompanyNotFound(f"Company with FNR {normalized_fnr} not found")
+
+    company_data, addresses, officers, activities = _normalise_company_payload(
+        payload, normalized_fnr
+    )
+
+    try:
+        saved_company = db_queries.create_company_with_relations(
+            company_data,
+            addresses=addresses,
+            officers=officers,
+            activities=activities,
+        )
+    except Exception as exc:  # pragma: no cover - defensive logging
+        logger.exception("Failed to persist Firmenbuch company %s", normalized_fnr)
+        raise FirmenbuchFetchError(f"Failed to save company data: {exc}") from exc
+
+    logger.info("Company %s stored in local database", normalized_fnr)
+    return saved_company
+
+
+def _normalise_company_payload(
+    payload: Dict[str, Any], fnr: str
+) -> Tuple[Dict[str, Any], List[Dict[str, Any]], List[Dict[str, Any]], List[Dict[str, Any]]]:
+    """Convert Firmenbuch payload into structures suitable for persistence."""
+
+    company_payload = payload.get("company") or payload
+
+    company_data = {
+        "fnr": fnr,
+        "name": _clean_string(company_payload.get("name")),
+        "legal_form": _extract_legal_form(company_payload),
+        "state": _clean_string(
+            company_payload.get("status")
+            or company_payload.get("state")
+            or company_payload.get("companyStatus")
+        ),
+        "city": None,
+        "last_fetched_at": datetime.utcnow().isoformat(),
+    }
+
+    addresses = _extract_addresses(company_payload)
+    if addresses:
+        company_data["city"] = addresses[0].get("city")
+        if not company_data.get("state"):
+            company_data["state"] = addresses[0].get("state")
+
+    officers = _extract_officers(company_payload)
+    activities = _extract_activities(company_payload)
+
+    return company_data, addresses, officers, activities
+
+
+def _extract_legal_form(company_payload: Dict[str, Any]) -> Optional[str]:
+    legal_form = company_payload.get("legalForm") or company_payload.get("legal_form")
+    if isinstance(legal_form, dict):
+        return _clean_string(legal_form.get("text") or legal_form.get("name"))
+    return _clean_string(legal_form)
+
+
+def _extract_addresses(company_payload: Dict[str, Any]) -> List[Dict[str, Any]]:
+    raw_addresses: List[Dict[str, Any]] = []
+
+    if isinstance(company_payload.get("addresses"), list):
+        raw_addresses = list(company_payload.get("addresses") or [])
+    elif company_payload.get("address"):
+        raw_addresses = [company_payload.get("address")]
+    elif company_payload.get("registeredOffice"):
+        raw_addresses = [company_payload.get("registeredOffice")]
+
+    addresses: List[Dict[str, Any]] = []
+    for entry in raw_addresses:
+        if not isinstance(entry, dict):
+            continue
+        address = {
+            "street": _clean_string(
+                entry.get("street")
+                or entry.get("streetName")
+                or entry.get("street_name")
+            ),
+            "house_number": _clean_string(entry.get("houseNumber") or entry.get("house_number")),
+            "stairway": _clean_string(entry.get("stairway")),
+            "door_number": _clean_string(entry.get("doorNumber") or entry.get("door_number")),
+            "postal_code": _clean_string(entry.get("postalCode") or entry.get("postal_code")),
+            "city": _clean_string(
+                entry.get("city")
+                or entry.get("municipality")
+                or entry.get("town")
+            ),
+            "state": _clean_string(entry.get("state") or entry.get("province")),
+            "country": _clean_string(entry.get("country")) or "Austria",
+            "is_deliverable": entry.get("isDeliverable", True),
+            "is_active": entry.get("isActive", True),
+            "vnr": _clean_string(entry.get("vnr") or entry.get("version")),
+        }
+        addresses.append(address)
+
+    return addresses
+
+
+def _extract_officers(company_payload: Dict[str, Any]) -> List[Dict[str, Any]]:
+    raw_officers = company_payload.get("officers") or company_payload.get("persons") or []
+    officers: List[Dict[str, Any]] = []
+
+    for entry in raw_officers:
+        if not isinstance(entry, dict):
+            continue
+
+        first_name = _clean_string(entry.get("firstName") or entry.get("first_name"))
+        last_name = _clean_string(entry.get("lastName") or entry.get("last_name"))
+        full_name = _clean_string(entry.get("fullName") or entry.get("full_name"))
+
+        if not full_name:
+            full_name = " ".join(filter(None, [entry.get("title"), first_name, last_name])).strip() or None
+
+        officer = {
+            "title": _clean_string(entry.get("title")),
+            "first_name": first_name,
+            "last_name": last_name,
+            "full_name": full_name,
+            "role": _clean_string(entry.get("role") or entry.get("function")),
+            "birth_date": _clean_string(entry.get("birthDate") or entry.get("birth_date")),
+            "is_active": entry.get("isActive", True),
+            "vnr": _clean_string(entry.get("vnr") or entry.get("version")),
+        }
+        officers.append(officer)
+
+    return officers
+
+
+def _extract_activities(company_payload: Dict[str, Any]) -> List[Dict[str, Any]]:
+    raw_activities = company_payload.get("activities") or []
+    activities: List[Dict[str, Any]] = []
+
+    for entry in raw_activities:
+        if not isinstance(entry, dict):
+            continue
+        activity = {
+            "description": _clean_string(
+                entry.get("description") or entry.get("text") or entry.get("activity")
+            ),
+            "is_active": entry.get("isActive", True),
+            "vnr": _clean_string(entry.get("vnr") or entry.get("version")),
+        }
+        activities.append(activity)
+
+    return activities
+
+
+def _clean_string(value: Any) -> Optional[str]:
+    if value is None:
+        return None
+    value_str = str(value).strip()
+    return value_str or None
+
+
+__all__ = [
+    "FirmenbuchCompanyNotFound",
+    "FirmenbuchFetchError",
+    "fetch_company_profile_if_missing",
+]
+
