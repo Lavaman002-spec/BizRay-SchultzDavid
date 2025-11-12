@@ -160,9 +160,12 @@ def _normalise_company_payload(
 ) -> Tuple[Dict[str, Any], List[Dict[str, Any]], List[Dict[str, Any]], List[Dict[str, Any]]]:
     """Convert Firmenbuch payload into structures suitable for persistence."""
 
-    company_payload = payload.get("company") or payload
+    container = payload.get("company") if isinstance(payload, dict) else payload
+    if not container:
+        container = payload
+    company_payload = container if isinstance(container, dict) else _ensure_mapping(container)
 
-    company_name = _extract_company_name(company_payload)
+    company_name = _extract_company_name(container or company_payload)
     if not company_name:
         raise ValueError("Company payload missing a valid name")
 
@@ -191,11 +194,106 @@ def _normalise_company_payload(
     return company_data, addresses, officers, activities
 
 
-def _extract_company_name(company_payload: Dict[str, Any]) -> Optional[str]:
-    for key in ("name", "companyName", "company_name", "firmenwortlaut"):
-        cleaned = _clean_string(company_payload.get(key))
+def _ensure_mapping(value: Any) -> Dict[str, Any]:
+    if isinstance(value, dict):
+        return value
+    if isinstance(value, (list, tuple, set)):
+        for item in value:
+            mapping = _ensure_mapping(item)
+            if mapping:
+                return mapping
+    return {}
+
+
+def _normalise_lookup_key(key: Any) -> str:
+    """Return a normalised representation suitable for fuzzy key lookups."""
+
+    return "".join(char for char in str(key).lower() if char.isalnum())
+
+
+def _extract_company_name(company_payload: Any) -> Optional[str]:
+    if isinstance(company_payload, str):
+        return _clean_string(company_payload)
+
+    if isinstance(company_payload, dict):
+        normalised_items = [
+            (_normalise_lookup_key(key), value) for key, value in company_payload.items()
+        ]
+        candidate_keys = (
+            "name",
+            "companyName",
+            "company_name",
+            "firmenwortlaut",
+        )
+
+        for key in candidate_keys:
+            normalised_key = _normalise_lookup_key(key)
+            for item_key, value in normalised_items:
+                if item_key == normalised_key or item_key.endswith(normalised_key):
+                    cleaned = _extract_string_value(value)
+                    if cleaned:
+                        return cleaned
+
+        for value in company_payload.values():
+            cleaned = _extract_company_name(value)
+            if cleaned:
+                return cleaned
+
+        return None
+
+    if isinstance(company_payload, (list, tuple, set)):
+        for item in company_payload:
+            cleaned = _extract_company_name(item)
+            if cleaned:
+                return cleaned
+        return None
+
+    return _clean_string(company_payload)
+
+
+def _extract_string_value(value: Any) -> Optional[str]:
+    """Return the first usable string contained within value."""
+
+    if isinstance(value, str) or not isinstance(value, (dict, list, tuple, set)):
+        return _clean_string(value)
+
+    if isinstance(value, dict):
+        normalised_items = [
+            (_normalise_lookup_key(key), inner) for key, inner in value.items()
+        ]
+        candidate_keys = (
+            "text",
+            "value",
+            "value_text",
+            "name",
+            "companyname",
+            "company_name",
+            "label",
+            "title",
+            "description",
+            "content",
+            "$",
+        )
+        for key in candidate_keys:
+            normalised_key = _normalise_lookup_key(key)
+            for item_key, inner_value in normalised_items:
+                if item_key == normalised_key or item_key.endswith(normalised_key):
+                    cleaned = _extract_string_value(inner_value)
+                    if cleaned:
+                        return cleaned
+
+        for inner_value in value.values():
+            cleaned = _extract_string_value(inner_value)
+            if cleaned:
+                return cleaned
+
+        return None
+
+    for item in value:
+        cleaned = _extract_string_value(item)
         if cleaned:
             return cleaned
+
     return None
 
 
