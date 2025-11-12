@@ -7,10 +7,12 @@ import os
 # Add parent directories to path for imports
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from shared.models import HealthCheck
-from database.client import get_db
-from database.queries import health_check
-from services.api.routers import companies, officers, search, locations
+
+
+from backend.shared.models import HealthCheck
+from backend.database.client import get_db
+from backend.database.queries import health_check
+from backend.services.api.routers import companies, officers, search, locations
 
 
 # Initialize FastAPI app

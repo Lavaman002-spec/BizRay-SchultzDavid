@@ -1,10 +1,11 @@
 """API routes for companies."""
 from typing import List
 from fastapi import APIRouter, HTTPException, Query
-from shared.models import Company, CompanyCreate, CompanyUpdate, CompanyWithDetails
-from shared.utils import normalize_fn_number, validate_fn_number
-from database import queries as db_queries
-from services.ingest.api_fetch import (
+
+from ....shared.models import Company, CompanyCreate, CompanyUpdate, CompanyWithDetails
+from ....shared.utils import normalize_fn_number, validate_fn_number
+from ....database import queries as db_queries
+from ...ingest.api_fetch import (
     FirmenbuchCompanyNotFound,
     FirmenbuchFetchError,
     fetch_company_profile_if_missing,

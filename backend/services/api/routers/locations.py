@@ -1,7 +1,8 @@
 """API routes for location functionality."""
 from typing import List
 from fastapi import APIRouter, HTTPException
-from database import queries as db_queries
+from ....database import queries as db_queries
+
 
 router = APIRouter(prefix="/locations", tags=["locations"])
 

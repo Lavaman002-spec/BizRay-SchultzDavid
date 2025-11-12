@@ -8,7 +8,7 @@ from supabase import Client, create_client
 # Add parent directory to path for imports
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from shared.config import SUPABASE_KEY, SUPABASE_URL
+from backend.shared.config import SUPABASE_KEY, SUPABASE_URL
 
 
 logger = logging.getLogger(__name__)
