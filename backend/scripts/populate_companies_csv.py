@@ -1,16 +1,15 @@
-"""
-Script to populate Supabase companies table from companies.csv
-"""
+"""Script to populate Supabase companies table from companies.csv."""
 import csv
-import os
 import sys
 from pathlib import Path
 
-# Add parent directory to path for imports
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+backend_dir = Path(__file__).resolve().parent.parent
+repo_root = backend_dir.parent
+if str(repo_root) not in sys.path:
+    sys.path.insert(0, str(repo_root))
 
-from database.client import get_supabase_client
-from shared.models import CompanyCreate
+from backend.database.client import get_supabase_client
+from backend.shared.models import CompanyCreate
 
 
 def normalize_fnr(fnr: str) -> str:

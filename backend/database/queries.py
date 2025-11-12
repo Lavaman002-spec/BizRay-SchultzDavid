@@ -1,9 +1,14 @@
 """Database queries for companies."""
-from typing import Optional, List, Tuple, Dict
+import logging
+from datetime import datetime
+from typing import Any, Optional, List, Tuple, Dict
 
-from database.client import get_supabase_client
+from backend.database.client import get_supabase_client
 from supabase import Client
-from shared.models import SearchQuery
+from backend.shared.models import SearchQuery
+
+
+logger = logging.getLogger(__name__)
 
 def get_all_companies(limit: int = 100, offset: int = 0) -> List[dict]:
     """Get all companies with pagination. Includes primary address for each company."""
@@ -84,6 +89,52 @@ def create_company(company_data: dict) -> dict:
     return response.data[0] if response.data else None
 
 
+def create_company_with_relations(
+    company_data: Dict[str, Any],
+    *,
+    addresses: Optional[List[Dict[str, Any]]] = None,
+    officers: Optional[List[Dict[str, Any]]] = None,
+    activities: Optional[List[Dict[str, Any]]] = None,
+) -> Dict[str, Any]:
+    """Create or update a company alongside its related records."""
+
+    client = get_supabase_client()
+
+    payload = dict(company_data)
+    payload.setdefault("last_fetched_at", datetime.utcnow().isoformat())
+
+    response = (
+        client.table("companies")
+        .upsert(payload, on_conflict="fnr")
+        .execute()
+    )
+    if not response.data:
+        raise ValueError("Failed to insert or update company record")
+
+    company = response.data[0]
+    company_id = company.get("id")
+    if company_id is None:
+        raise ValueError("Company record missing ID after upsert")
+
+    _sync_related_records(
+        client,
+        company_id,
+        addresses=addresses or [],
+        officers=officers or [],
+        activities=activities or [],
+    )
+
+    detailed_company = get_company_with_details(company_id)
+    if detailed_company:
+        return detailed_company
+
+    # Fall back to returning the upsert result if detailed fetch failed.
+    company.setdefault("officers", officers or [])
+    company.setdefault("addresses", addresses or [])
+    company.setdefault("activities", activities or [])
+    return company
+
+
 def update_company(company_id: int, company_data: dict) -> Optional[dict]:
     """Update a company."""
     client = get_supabase_client()
@@ -96,6 +147,52 @@ def delete_company(company_id: int) -> bool:
     client = get_supabase_client()
     response = client.table('companies').delete().eq('id', company_id).execute()
     return True
+
+
+def _sync_related_records(
+    client: Client,
+    company_id: int,
+    *,
+    addresses: List[Dict[str, Any]],
+    officers: List[Dict[str, Any]],
+    activities: List[Dict[str, Any]],
+) -> None:
+    """Replace related records for a company with new data."""
+
+    _replace_records(client, "company_addresses", company_id, addresses)
+    _replace_records(client, "company_officers", company_id, officers)
+    _replace_records(client, "company_activities", company_id, activities)
+
+
+def _replace_records(
+    client: Client,
+    table: str,
+    company_id: int,
+    records: List[Dict[str, Any]],
+) -> None:
+    if not records:
+        # Ensure we clear stale records even when no data is provided.
+        try:
+            client.table(table).delete().eq("company_id", company_id).execute()
+        except Exception as exc:  # pragma: no cover - depends on Supabase configuration
+            logger.debug("Skipping cleanup for %s: %s", table, exc)
+        return
+
+    try:
+        client.table(table).delete().eq("company_id", company_id).execute()
+    except Exception as exc:  # pragma: no cover
+        logger.debug("Unable to clear %s for company %s: %s", table, company_id, exc)
+
+    payload = []
+    for record in records:
+        item = dict(record)
+        item["company_id"] = company_id
+        payload.append(item)
+
+    try:
+        client.table(table).insert(payload).execute()
+    except Exception as exc:  # pragma: no cover
+        logger.warning("Failed to insert %s for company %s: %s", table, company_id, exc)
 
 
 def _attach_company_relations(
@@ -253,7 +350,7 @@ def get_search_stats() -> dict:
 def get_company_with_details(company_id: int) -> Optional[dict]:
     """Get a company with its officers, addresses, and activities."""
     client = get_supabase_client()
-    
+
     # Get the company
     company = get_company_by_id(company_id)
     if not company:
@@ -272,8 +369,20 @@ def get_company_with_details(company_id: int) -> Optional[dict]:
     company['officers'] = officers_response.data or []
     company['addresses'] = addresses_response.data or []
     company['activities'] = activities_response.data or [] # <-- ADD THIS LINE
-    
+
     return company
+
+
+def get_company_with_details_by_fnr(fnr: str) -> Optional[dict]:
+    """Get a company and relations by Firmenbuch number."""
+
+    company = get_company_by_fnr(fnr)
+    if not company:
+        return None
+    company_id = company.get('id')
+    if company_id is None:
+        return company
+    return get_company_with_details(company_id)
 
 
 def get_unique_cities() -> List[str]:

@@ -1,8 +1,21 @@
 """API routes for companies."""
 from typing import List
+
 from fastapi import APIRouter, HTTPException, Query
-from shared.models import Company, CompanyCreate, CompanyUpdate, CompanyWithDetails
-from database import queries as db_queries
+
+from backend.database import queries as db_queries
+from backend.services.ingest.api_fetch import (
+    FirmenbuchCompanyNotFound,
+    FirmenbuchFetchError,
+    fetch_company_profile_if_missing,
+)
+from backend.shared.models import (
+    Company,
+    CompanyCreate,
+    CompanyUpdate,
+    CompanyWithDetails,
+)
+from backend.shared.utils import normalize_fn_number, validate_fn_number
 
 router = APIRouter(prefix="/companies", tags=["companies"])
 
@@ -34,12 +47,20 @@ async def get_company(company_id: int):
         raise HTTPException(status_code=500, detail=f"Failed to fetch company: {str(e)}")
 
 
-@router.get("/fnr/{fnr}", response_model=Company)
+@router.get("/fnr/{fnr}", response_model=CompanyWithDetails)
 async def get_company_by_fnr(fnr: str):
-    """Get a company by its Firmenbuch number."""
-    company = db_queries.get_company_by_fnr(fnr)
-    if not company:
-        raise HTTPException(status_code=404, detail=f"Company with FNR {fnr} not found")
+    """Get a company by its Firmenbuch number, fetching remotely when needed."""
+    normalized_fnr = normalize_fn_number(fnr)
+    if not validate_fn_number(fnr):
+        raise HTTPException(status_code=400, detail="Invalid Firmenbuch number")
+
+    try:
+        company = fetch_company_profile_if_missing(normalized_fnr)
+    except FirmenbuchCompanyNotFound:
+        raise HTTPException(status_code=404, detail=f"Company with FNR {normalized_fnr} not found")
+    except FirmenbuchFetchError as exc:
+        raise HTTPException(status_code=502, detail=str(exc))
+
     return company
 
 
