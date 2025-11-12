@@ -66,6 +66,84 @@ def fetch_company_profile_if_missing(
     return saved_company
 
 
+def fetch_company_profile_by_name_if_missing(
+    name: str,
+    *,
+    client: Optional[FirmenbuchAPIClient] = None,
+    limit: int = 5,
+) -> Dict[str, Any]:
+    """Search Firmenbuch by name and ensure the best match is cached locally."""
+
+    search_query = (name or "").strip()
+    if not search_query:
+        raise ValueError("name must be provided")
+
+    client = client or FirmenbuchAPIClient()
+
+    logger.info("Searching Firmenbuch for company name '%s'", search_query)
+
+    try:
+        matches = client.search_companies(search_query, limit=limit)
+    except FirmenbuchAPIError as exc:
+        logger.exception(
+            "Firmenbuch search failed for '%s'", search_query
+        )
+        raise FirmenbuchFetchError(str(exc)) from exc
+
+    if not matches:
+        logger.info("No Firmenbuch matches found for '%s'", search_query)
+        raise FirmenbuchCompanyNotFound(
+            f"No Firmenbuch match found for query '{search_query}'"
+        )
+
+    # Prefer exact (case-insensitive) matches but fall back to the first entry.
+    def _candidate_key(candidate: Dict[str, Any]) -> int:
+        candidate_name = _clean_string(
+            candidate.get("name")
+            or candidate.get("companyName")
+            or candidate.get("company_name")
+            or candidate.get("firmenwortlaut")
+        )
+        if candidate_name and candidate_name.lower() == search_query.lower():
+            return 0
+        return 1
+
+    ordered_matches = sorted(matches, key=_candidate_key)
+
+    for candidate in ordered_matches:
+        fnr = _extract_candidate_fnr(candidate)
+        if not fnr:
+            logger.debug("Skipping Firmenbuch candidate without FNR: %s", candidate)
+            continue
+
+        try:
+            fetched_company = fetch_company_profile_if_missing(fnr, client=client)
+        except FirmenbuchCompanyNotFound:
+            logger.info(
+                "Firmenbuch record %s not available when resolving '%s'", fnr, search_query
+            )
+            continue
+        except FirmenbuchFetchError as exc:
+            logger.warning(
+                "Firmenbuch fetch failed for candidate %s (%s): %s",
+                fnr,
+                search_query,
+                exc,
+            )
+            continue
+
+        logger.info(
+            "Resolved Firmenbuch search for '%s' to company %s",
+            search_query,
+            fetched_company.get("fnr"),
+        )
+        return fetched_company
+
+    raise FirmenbuchCompanyNotFound(
+        f"No Firmenbuch match with a valid register number for query '{search_query}'"
+    )
+
+
 def _normalise_company_payload(
     payload: Dict[str, Any], fnr: str
 ) -> Tuple[Dict[str, Any], List[Dict[str, Any]], List[Dict[str, Any]], List[Dict[str, Any]]]:
@@ -201,9 +279,18 @@ def _clean_string(value: Any) -> Optional[str]:
     return value_str or None
 
 
+def _extract_candidate_fnr(candidate: Dict[str, Any]) -> Optional[str]:
+    for key in ("fnr", "registerId", "register_id", "registerNumber", "register_number"):
+        value = candidate.get(key)
+        if value:
+            return normalize_fn_number(str(value))
+    return None
+
+
 __all__ = [
     "FirmenbuchCompanyNotFound",
     "FirmenbuchFetchError",
+    "fetch_company_profile_by_name_if_missing",
     "fetch_company_profile_if_missing",
 ]
 

@@ -12,16 +12,32 @@ from services.ingest import api_fetch
 class DummyClient:
     """Test helper implementing the Firmenbuch API client interface."""
 
-    def __init__(self, payload: Any = None, *, error: Exception | None = None):
+    def __init__(
+        self,
+        payload: Any = None,
+        *,
+        error: Exception | None = None,
+        search_results: List[Dict[str, Any]] | None = None,
+        search_error: Exception | None = None,
+    ) -> None:
         self.payload = payload
         self.error = error
+        self.search_results = search_results or []
+        self.search_error = search_error
         self.calls: List[str] = []
+        self.search_calls: List[tuple[str, int]] = []
 
     def get_company_profile(self, register_id: str) -> Any:
         self.calls.append(register_id)
         if self.error:
             raise self.error
         return self.payload
+
+    def search_companies(self, query: str, *, limit: int = 5) -> List[Dict[str, Any]]:
+        self.search_calls.append((query, limit))
+        if self.search_error:
+            raise self.search_error
+        return list(self.search_results)
 
 
 def test_fetch_returns_existing_record(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -148,3 +164,76 @@ def test_wraps_api_errors(monkeypatch: pytest.MonkeyPatch) -> None:
 
     with pytest.raises(api_fetch.FirmenbuchFetchError):
         api_fetch.fetch_company_profile_if_missing("123456A", client=dummy_client)
+
+
+def test_fetch_by_name_prefers_exact_match(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Searching by name should return the best matching candidate."""
+
+    dummy_client = DummyClient(
+        search_results=[
+            {"fnr": "654321z", "name": "Other Company"},
+            {"fnr": "123456A", "name": "Example GmbH"},
+            {"registerId": "111111b", "name": "Example GmbH"},
+        ]
+    )
+
+    captured: Dict[str, Any] = {}
+
+    def fake_fetch(fnr: str, *, client: Any = None) -> Dict[str, Any]:
+        captured["fnr"] = fnr
+        assert client is dummy_client
+        return {"fnr": fnr, "name": "Example GmbH"}
+
+    monkeypatch.setattr(api_fetch, "fetch_company_profile_if_missing", fake_fetch)
+
+    result = api_fetch.fetch_company_profile_by_name_if_missing(
+        "Example GmbH", client=dummy_client
+    )
+
+    assert result == {"fnr": "123456A", "name": "Example GmbH"}
+    assert captured["fnr"] == "123456A"
+    assert dummy_client.search_calls == [("Example GmbH", 5)]
+
+
+def test_fetch_by_name_skips_candidates_without_fnr(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Candidates missing an FNR are ignored until a valid one is found."""
+
+    dummy_client = DummyClient(
+        search_results=[
+            {"name": "No Number"},
+            {"registerNumber": "654321x", "name": "Some Company"},
+        ]
+    )
+
+    def fake_fetch(fnr: str, *, client: Any = None) -> Dict[str, Any]:
+        return {"fnr": fnr}
+
+    monkeypatch.setattr(api_fetch, "fetch_company_profile_if_missing", fake_fetch)
+
+    result = api_fetch.fetch_company_profile_by_name_if_missing(
+        "Some Company", client=dummy_client
+    )
+
+    assert result == {"fnr": "654321X"}
+
+
+def test_fetch_by_name_handles_no_results(monkeypatch: pytest.MonkeyPatch) -> None:
+    """An empty search result raises FirmenbuchCompanyNotFound."""
+
+    dummy_client = DummyClient(search_results=[])
+
+    with pytest.raises(api_fetch.FirmenbuchCompanyNotFound):
+        api_fetch.fetch_company_profile_by_name_if_missing("Missing GmbH", client=dummy_client)
+
+
+def test_fetch_by_name_wraps_search_errors(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Errors from the search endpoint are wrapped consistently."""
+
+    dummy_client = DummyClient(
+        search_error=api_fetch.FirmenbuchAPIError("Boom"),
+    )
+
+    with pytest.raises(api_fetch.FirmenbuchFetchError):
+        api_fetch.fetch_company_profile_by_name_if_missing("Example GmbH", client=dummy_client)

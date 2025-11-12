@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import logging
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 import requests
 
@@ -76,6 +76,63 @@ class FirmenbuchAPIClient:
             response.status_code,
         )
         return payload
+
+    def search_companies(
+        self,
+        query: str,
+        *,
+        limit: int = 5,
+    ) -> List[Dict[str, Any]]:
+        """Return Firmenbuch search matches for the provided query string."""
+
+        query = (query or "").strip()
+        if not query:
+            raise ValueError("query must be provided")
+
+        url = f"{self.base_url}/api/v1/search/company"
+        headers = self._build_headers()
+        params = {"q": query, "limit": limit}
+
+        logger.debug("Searching Firmenbuch for '%s' via %s", query, url)
+
+        try:
+            response = self.session.get(
+                url,
+                headers=headers,
+                params=params,
+                timeout=self.timeout,
+            )
+        except requests.RequestException as exc:  # pragma: no cover - network errors are rare in tests
+            raise FirmenbuchAPIError(f"Connection to Firmenbuch API failed: {exc}") from exc
+
+        if response.status_code >= 400:
+            raise FirmenbuchAPIError(
+                f"Firmenbuch API returned HTTP {response.status_code}: {response.text}"
+            )
+
+        try:
+            payload = response.json()
+        except ValueError as exc:  # pragma: no cover - depends on remote API behaviour
+            raise FirmenbuchAPIError("Firmenbuch API returned invalid JSON") from exc
+
+        if isinstance(payload, dict):
+            results = payload.get("results") or payload.get("data") or []
+        elif isinstance(payload, list):
+            results = payload
+        else:
+            raise FirmenbuchAPIError(
+                "Firmenbuch API search payload has unexpected format"
+            )
+
+        if not isinstance(results, list):
+            raise FirmenbuchAPIError(
+                "Firmenbuch API search results must be a list"
+            )
+
+        logger.debug(
+            "Received %d Firmenbuch matches for query '%s'", len(results), query
+        )
+        return results
 
     # -- Internal helpers -----------------------------------------------
     def _build_headers(self) -> Dict[str, str]:
