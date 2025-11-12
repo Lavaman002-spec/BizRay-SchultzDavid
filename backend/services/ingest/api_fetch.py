@@ -7,7 +7,10 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
 
 from backend.database import queries as db_queries
-from backend.services.ingest.api_client import FirmenbuchAPIClient, FirmenbuchAPIError
+from backend.services.ingest.api_client import (
+    FirmenbuchAPIClient,
+    FirmenbuchAPIError,
+)
 from backend.shared.utils import normalize_fn_number
 
 logger = logging.getLogger(__name__)

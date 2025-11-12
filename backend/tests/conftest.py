@@ -2,9 +2,10 @@
 import sys
 from pathlib import Path
 
-# Add the backend directory to Python path
-backend_dir = Path(__file__).parent.parent
-sys.path.insert(0, str(backend_dir))
+backend_dir = Path(__file__).resolve().parent.parent
+repo_root = backend_dir.parent
+if str(repo_root) not in sys.path:
+    sys.path.insert(0, str(repo_root))
 
 import pytest
 from fastapi.testclient import TestClient
@@ -19,5 +20,5 @@ def backend_root():
 @pytest.fixture(scope="module")
 def test_client():
     """Create a test client for the FastAPI app."""
-    from services.api.main import app
+    from backend.services.api.main import app
     return TestClient(app)

@@ -2,12 +2,12 @@
 import sys
 from pathlib import Path
 
-# Add backend to path
-backend_dir = Path(__file__).parent.parent
-sys.path.insert(0, str(backend_dir))
+backend_dir = Path(__file__).resolve().parent.parent
+repo_root = backend_dir.parent
+if str(repo_root) not in sys.path:
+    sys.path.insert(0, str(repo_root))
 
-from ..database.client import get_supabase_client
-
+from backend.database.client import get_supabase_client
 
 def inspect_database():
     """Inspect and display current database schema."""

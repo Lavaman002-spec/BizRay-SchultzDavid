@@ -1,13 +1,14 @@
-from fastapi import FastAPI, status
-from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime
 import sys
-import os
+from pathlib import Path
 
-# Add parent directories to path for imports
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+from fastapi import FastAPI, status
+from fastapi.middleware.cors import CORSMiddleware
 
-
+BACKEND_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = BACKEND_ROOT.parent
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
 
 from backend.shared.models import HealthCheck
 from backend.database.client import get_db

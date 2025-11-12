@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from services.api.routers import search as search_router
+from backend.services.api.routers import search as search_router
 
 
 def test_search_fallback_fetches_missing_company(monkeypatch, test_client):

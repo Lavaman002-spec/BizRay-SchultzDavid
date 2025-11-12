@@ -1,22 +1,23 @@
 """API routes for search functionality."""
-from typing import List, Optional
 import logging
+from typing import List, Optional
+
 from fastapi import APIRouter, HTTPException, Query
 
-from ....shared.models import (
-    SearchQuery,
-    SearchResponse,
-    SearchSuggestionsResponse,
-)
-from ....database import queries as db_queries
-from ...ingest.api_fetch import (
+from backend.database import queries as db_queries
+from backend.services.ingest.api_fetch import (
     FirmenbuchCompanyNotFound,
     FirmenbuchFetchError,
     fetch_company_suggestions_from_firmenbuch,
     fetch_company_profile_by_name_if_missing,
     fetch_company_profile_if_missing,
 )
-from ....shared.utils import normalize_fn_number, validate_fn_number
+from backend.shared.models import (
+    SearchQuery,
+    SearchResponse,
+    SearchSuggestionsResponse,
+)
+from backend.shared.utils import normalize_fn_number, validate_fn_number
 
 
 logger = logging.getLogger(__name__)

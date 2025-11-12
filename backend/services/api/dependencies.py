@@ -1,15 +1,17 @@
 """FastAPI dependencies."""
+import sys
+from pathlib import Path
 from typing import Annotated
+
 from fastapi import Depends
 from supabase import Client
-import sys
-import os
 
-# Add parent directories to path for imports
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+BACKEND_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = BACKEND_ROOT.parent
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
 
-from ...database.client import get_db
-
+from backend.database.client import get_db
 
 
 # Type alias for database dependency

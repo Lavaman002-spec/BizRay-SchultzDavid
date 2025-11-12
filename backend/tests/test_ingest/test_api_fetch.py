@@ -6,7 +6,7 @@ from typing import Any, Dict, List
 
 import pytest
 
-from services.ingest import api_fetch
+from backend.services.ingest import api_fetch
 
 
 class DummyClient:
