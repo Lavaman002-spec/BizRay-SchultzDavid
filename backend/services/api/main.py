@@ -2,15 +2,9 @@ from datetime import datetime
 import sys
 from pathlib import Path
 
-from fastapi import FastAPI, status
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-<<<<<<< HEAD
-from shared.models import HealthCheck
-from database.client import get_db
-from database.queries import health_check
-from services.api.routers import companies, officers, search, locations, exports
-=======
 BACKEND_ROOT = Path(__file__).resolve().parents[2]
 REPO_ROOT = BACKEND_ROOT.parent
 if str(REPO_ROOT) not in sys.path:
@@ -19,8 +13,13 @@ if str(REPO_ROOT) not in sys.path:
 from backend.shared.models import HealthCheck
 from backend.database.client import get_db
 from backend.database.queries import health_check
-from backend.services.api.routers import companies, officers, search, locations
->>>>>>> origin/feature/BZR-40-fetch-companies-if-not-in-db
+from backend.services.api.routers import (
+    companies,
+    officers,
+    search,
+    locations,
+    exports,
+)
 
 
 # Initialize FastAPI app
@@ -84,7 +83,8 @@ async def api_info():
             "companies": "/api/companies",
             "officers": "/api/officers",
             "search": "/api/search",
-            "exprots": "/api/exports"
+            "exports": "/api/exports",
+            "locations": "/api/locations",
         }
     }
 

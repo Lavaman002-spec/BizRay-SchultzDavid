@@ -263,15 +263,16 @@ def _normalise_company_payload(
             or company_payload.get("state")
             or company_payload.get("companyStatus")
         ),
-        "city": None,
         "last_fetched_at": datetime.utcnow().isoformat(),
     }
 
     addresses = _extract_addresses(company_payload)
     if addresses:
-        company_data["city"] = addresses[0].get("city")
+        # Update state from address if not already set
         if not company_data.get("state"):
-            company_data["state"] = addresses[0].get("state")
+            state = addresses[0].get("state")
+            if state:
+                company_data["state"] = state
 
     officers = _extract_officers(company_payload)
     activities = _extract_activities(company_payload)

@@ -37,7 +37,14 @@ async def search_companies(
     Optionally filter by city.
     """
     try:
-        companies, total = db_queries.search_companies(query.strip(), limit=limit, offset=offset)
+        if city is None:
+            companies, total = db_queries.search_companies(
+                query.strip(), limit=limit, offset=offset
+            )
+        else:
+            companies, total = db_queries.search_companies(
+                query.strip(), limit=limit, offset=offset, city=city
+            )
 
         if not companies and offset == 0:
             fetched_company = None
@@ -159,4 +166,3 @@ async def search_suggestions(
         return SearchSuggestionsResponse(query=query, suggestions=suggestions)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Suggestion lookup failed: {str(e)}")
-

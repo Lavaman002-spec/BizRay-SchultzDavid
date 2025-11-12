@@ -242,17 +242,29 @@ def _attach_company_relations(
     return companies
 
 
-def search_companies(query: str, limit: int = 50, offset: int = 0) -> Tuple[List[dict], int]:
-    """Search companies by name or FNR with pagination."""
+def search_companies(
+    query: str,
+    limit: int = 50,
+    offset: int = 0,
+    city: Optional[str] = None,
+) -> Tuple[List[dict], int]:
+    """Search companies by name or FNR with pagination.
+
+    If ``city`` is provided, restrict results to companies whose primary
+    city (stored on the ``companies`` table) matches exactly.
+    """
 
     client = get_supabase_client()
-    response = (
+    query_builder = (
         client.table("companies")
         .select("*", count="exact")
         .or_(f"name.ilike.%{query}%,fnr.ilike.%{query}%")
-        .range(offset, offset + limit - 1)
-        .execute()
     )
+
+    if city:
+        query_builder = query_builder.eq("city", city)
+
+    response = query_builder.range(offset, offset + limit - 1).execute()
 
     companies = response.data or []
     for company in companies:

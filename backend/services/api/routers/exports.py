@@ -4,7 +4,7 @@ from datetime import datetime
 import json
 import os
 
-from database import queries as db_queries
+from backend.database import queries as db_queries
 
 router = APIRouter(prefix="/exports", tags=["exports"])
 
