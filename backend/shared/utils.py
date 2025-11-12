@@ -4,13 +4,24 @@ import re
 
 
 def normalize_fn_number(fn_number: str) -> str:
-    # Remove whitespace and convert to uppercase
-    normalized = fn_number.strip().upper()
-    
-    # Remove 'FN' prefix if present
-    if normalized.startswith('FN'):
+    # Remove whitespace
+    normalized = fn_number.strip()
+
+    # Remove 'FN' prefix if present (case-insensitive)
+    if normalized.upper().startswith('FN'):
         normalized = normalized[2:].strip()
-    
+
+    # Remove leading zeros from numeric part
+    # Austrian FNR format: up to 6 digits + lowercase check character
+    match = re.match(r'^0*(\d+)([a-zA-Z])$', normalized)
+    if match:
+        digits = match.group(1)
+        check_char = match.group(2).lower()  # Check character should be lowercase
+        normalized = f"{digits}{check_char}"
+    else:
+        # If no check character, just keep as is
+        normalized = normalized.lstrip('0')
+
     return normalized
 
 

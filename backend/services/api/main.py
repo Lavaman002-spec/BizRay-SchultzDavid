@@ -1,16 +1,25 @@
-from fastapi import FastAPI, status
-from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime
 import sys
-import os
+from pathlib import Path
 
-# Add parent directories to path for imports
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
-from shared.models import HealthCheck
-from database.client import get_db
-from database.queries import health_check
-from services.api.routers import companies, officers, search, locations
+BACKEND_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = BACKEND_ROOT.parent
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from backend.shared.models import HealthCheck
+from backend.database.client import get_db
+from backend.database.queries import health_check
+from backend.services.api.routers import (
+    companies,
+    officers,
+    search,
+    locations,
+    exports,
+)
 
 
 # Initialize FastAPI app
@@ -37,7 +46,7 @@ app.include_router(companies.router, prefix="/api")
 app.include_router(officers.router, prefix="/api")
 app.include_router(search.router, prefix="/api")
 app.include_router(locations.router, prefix="/api")
-
+app.include_router(exports.router, prefix="/api")
 
 @app.get("/", tags=["root"])
 async def root():
@@ -73,7 +82,9 @@ async def api_info():
         "endpoints": {
             "companies": "/api/companies",
             "officers": "/api/officers",
-            "search": "/api/search"
+            "search": "/api/search",
+            "exports": "/api/exports",
+            "locations": "/api/locations",
         }
     }
 

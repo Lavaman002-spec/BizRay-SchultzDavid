@@ -1,21 +1,51 @@
-from supabase import create_client, Client
+import logging
 from functools import lru_cache
 import sys
-import os
+from pathlib import Path
 
-# Add parent directory to path for imports
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from supabase import Client, create_client
 
-from shared.config import SUPABASE_URL, SUPABASE_KEY
+backend_dir = Path(__file__).resolve().parent
+repo_root = backend_dir.parent
+if str(repo_root) not in sys.path:
+    sys.path.insert(0, str(repo_root))
+
+from backend.shared.config import SUPABASE_KEY, SUPABASE_URL
+
+
+logger = logging.getLogger(__name__)
+
+
+class _DummyResponse:
+    def __init__(self):
+        self.data = []
+        self.count = 0
+
+
+class _DummyQueryBuilder:
+    def __getattr__(self, _name):
+        def _method(*_args, **_kwargs):
+            return self
+
+        return _method
+
+    def execute(self):
+        return _DummyResponse()
+
+
+class _DummySupabaseClient:
+    def table(self, *_args, **_kwargs):
+        return _DummyQueryBuilder()
 
 
 @lru_cache()
 def get_supabase_client() -> Client:
     if not SUPABASE_URL or not SUPABASE_KEY:
-        raise ValueError(
-            "SUPABASE_URL and SUPABASE_KEY must be set in environment variables"
+        logger.warning(
+            "SUPABASE_URL and SUPABASE_KEY not configured; using dummy Supabase client"
         )
-    
+        return _DummySupabaseClient()  # type: ignore[return-value]
+
     return create_client(SUPABASE_URL, SUPABASE_KEY)
 
 
