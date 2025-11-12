@@ -21,6 +21,12 @@ async function handleResponse<T>(response: Response): Promise<T> {
   return response.json();
 }
 
+// Locations endpoints
+export async function getCities(): Promise<string[]> {
+  const response = await fetch(`${API_BASE_URL}/api/locations/cities`);
+  return handleResponse<string[]>(response);
+}
+
 // Health check endpoint
 export async function checkHealth(): Promise<HealthCheck> {
   const response = await fetch(`${API_BASE_URL}/health`);
@@ -77,6 +83,22 @@ export async function getSearchSuggestions(
 
   const response = await fetch(`${API_BASE_URL}/api/search/suggest?${params}`);
   return handleResponse<SearchSuggestionsResponse>(response);
+}
+
+/**
+ * Convenience wrapper returning just company name suggestions as strings
+ */
+export async function getCompanySuggestions(
+  query: string,
+  limit: number = 10
+): Promise<string[]> {
+  const params = new URLSearchParams({
+    query,
+    limit: limit.toString(),
+  });
+  const response = await fetch(`${API_BASE_URL}/api/search/suggest?${params}`);
+  const data = await handleResponse<SearchSuggestionsResponse>(response);
+  return data.suggestions.map((s) => s.name);
 }
 
 /**
