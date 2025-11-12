@@ -10,7 +10,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(
 from shared.models import HealthCheck
 from database.client import get_db
 from database.queries import health_check
-from services.api.routers import companies, officers, search, locations
+from services.api.routers import companies, officers, search, locations, exports
 
 
 # Initialize FastAPI app
@@ -37,7 +37,7 @@ app.include_router(companies.router, prefix="/api")
 app.include_router(officers.router, prefix="/api")
 app.include_router(search.router, prefix="/api")
 app.include_router(locations.router, prefix="/api")
-
+app.include_router(exports.router, prefix="/api")
 
 @app.get("/", tags=["root"])
 async def root():
