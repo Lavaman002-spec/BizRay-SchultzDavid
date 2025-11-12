@@ -1,5 +1,6 @@
 """API routes for search functionality."""
-from typing import Optional, List
+from typing import Optional
+import logging
 from fastapi import APIRouter, HTTPException, Query
 from shared.models import (
     SearchQuery,
@@ -7,6 +8,15 @@ from shared.models import (
     SearchSuggestionsResponse,
 )
 from database import queries as db_queries
+from services.ingest.api_fetch import (
+    FirmenbuchCompanyNotFound,
+    FirmenbuchFetchError,
+    fetch_company_profile_if_missing,
+)
+from shared.utils import normalize_fn_number, validate_fn_number
+
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/search", tags=["search"])
 
@@ -24,6 +34,20 @@ async def search_companies(
     """
     try:
         companies, total = db_queries.search_companies(query.strip(), limit=limit, offset=offset)
+
+        if not companies and offset == 0 and validate_fn_number(query):
+            fnr = normalize_fn_number(query)
+            try:
+                fetch_company_profile_if_missing(fnr)
+            except FirmenbuchCompanyNotFound:
+                logger.info("Firmenbuch record %s not found during search fallback", fnr)
+            except FirmenbuchFetchError as exc:
+                logger.warning("Firmenbuch fetch failed for %s during search: %s", fnr, exc)
+            else:
+                company = db_queries.get_company_with_details_by_fnr(fnr)
+                if company:
+                    companies = [company]
+                    total = 1
 
         has_more = offset + len(companies) < total
         next_offset = offset + len(companies) if has_more else None
