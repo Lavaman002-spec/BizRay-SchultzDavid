@@ -155,6 +155,74 @@ def fetch_company_profile_by_name_if_missing(
     )
 
 
+def fetch_company_suggestions_from_firmenbuch(
+    query: str,
+    *,
+    client: Optional[FirmenbuchAPIClient] = None,
+    limit: int = 5,
+) -> List[Dict[str, Optional[str]]]:
+    """Return Firmenbuch suggestions for the provided query and cache their profiles."""
+
+    search_query = (query or "").strip()
+    if not search_query:
+        raise ValueError("query must be provided")
+
+    client = client or FirmenbuchAPIClient()
+
+    logger.info("Resolving Firmenbuch suggestions for query '%s'", search_query)
+
+    try:
+        matches = client.search_companies(search_query, limit=limit)
+    except FirmenbuchAPIError as exc:
+        logger.exception(
+            "Firmenbuch suggestion search failed for '%s'", search_query
+        )
+        raise FirmenbuchFetchError(str(exc)) from exc
+
+    suggestions: List[Dict[str, Optional[str]]] = []
+    cached_fnrs: set[str] = set()
+
+    for candidate in matches:
+        name = _extract_company_name(candidate)
+        cleaned_name = _clean_string(name)
+        if not cleaned_name:
+            continue
+
+        fnr = None
+        if isinstance(candidate, dict):
+            fnr = _extract_candidate_fnr(candidate)
+
+        suggestions.append({"name": cleaned_name, "fnr": fnr})
+
+        if fnr and fnr not in cached_fnrs:
+            cached_fnrs.add(fnr)
+            try:
+                fetch_company_profile_if_missing(fnr, client=client)
+            except FirmenbuchCompanyNotFound:
+                logger.info(
+                    "Firmenbuch suggestion %s (%s) missing profile during caching",
+                    cleaned_name,
+                    fnr,
+                )
+            except FirmenbuchFetchError as exc:
+                logger.warning(
+                    "Failed to cache Firmenbuch suggestion %s (%s): %s",
+                    cleaned_name,
+                    fnr,
+                    exc,
+                )
+
+        if len(suggestions) >= limit:
+            break
+
+    if not suggestions:
+        raise FirmenbuchCompanyNotFound(
+            f"No Firmenbuch suggestions found for query '{search_query}'"
+        )
+
+    return suggestions
+
+
 def _normalise_company_payload(
     payload: Dict[str, Any], fnr: str
 ) -> Tuple[Dict[str, Any], List[Dict[str, Any]], List[Dict[str, Any]], List[Dict[str, Any]]]:
@@ -411,6 +479,7 @@ def _extract_candidate_fnr(candidate: Dict[str, Any]) -> Optional[str]:
 __all__ = [
     "FirmenbuchCompanyNotFound",
     "FirmenbuchFetchError",
+    "fetch_company_suggestions_from_firmenbuch",
     "fetch_company_profile_by_name_if_missing",
     "fetch_company_profile_if_missing",
 ]

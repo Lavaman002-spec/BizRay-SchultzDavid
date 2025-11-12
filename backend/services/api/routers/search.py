@@ -1,5 +1,5 @@
 """API routes for search functionality."""
-from typing import Optional
+from typing import List, Optional
 import logging
 from fastapi import APIRouter, HTTPException, Query
 from shared.models import (
@@ -11,6 +11,7 @@ from database import queries as db_queries
 from services.ingest.api_fetch import (
     FirmenbuchCompanyNotFound,
     FirmenbuchFetchError,
+    fetch_company_suggestions_from_firmenbuch,
     fetch_company_profile_by_name_if_missing,
     fetch_company_profile_if_missing,
 )
@@ -131,6 +132,28 @@ async def search_suggestions(
 
     try:
         suggestions = db_queries.get_search_suggestions(query, limit=limit)
+
+        if not suggestions:
+            remote_suggestions: List[dict] = []
+            try:
+                remote_suggestions = fetch_company_suggestions_from_firmenbuch(
+                    query, limit=limit
+                )
+            except FirmenbuchCompanyNotFound:
+                logger.info(
+                    "No Firmenbuch suggestions found for '%s'", query,
+                )
+            except FirmenbuchFetchError as exc:
+                logger.warning(
+                    "Firmenbuch suggestion lookup failed for '%s': %s", query, exc
+                )
+            else:
+                refreshed = db_queries.get_search_suggestions(query, limit=limit)
+                if refreshed:
+                    suggestions = refreshed
+                else:
+                    suggestions = remote_suggestions
+
         return SearchSuggestionsResponse(query=query, suggestions=suggestions)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Suggestion lookup failed: {str(e)}")

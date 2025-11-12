@@ -274,6 +274,51 @@ def test_extract_company_name_handles_company_list() -> None:
     assert api_fetch._extract_company_name(payload) == "List GmbH"
 
 
+def test_fetch_company_suggestions_caches_profiles(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Suggestion lookups should fetch Firmenbuch profiles for discovered FNRs."""
+
+    dummy_client = DummyClient(
+        search_results=[
+            {"registerId": "123456A", "name": "AEP-OBB GmbH"},
+            {"registerId": "987654b", "companyName": {"text": "Other Wrapper GmbH"}},
+        ]
+    )
+
+    captured_fnrs: List[str] = []
+
+    def fake_fetch_company_profile_if_missing(
+        fnr: str, *, client: Any | None = None
+    ) -> Dict[str, Any]:
+        captured_fnrs.append(fnr)
+        assert client is dummy_client
+        return {"fnr": fnr}
+
+    monkeypatch.setattr(
+        api_fetch,
+        "fetch_company_profile_if_missing",
+        fake_fetch_company_profile_if_missing,
+    )
+
+    suggestions = api_fetch.fetch_company_suggestions_from_firmenbuch(
+        "obb", client=dummy_client, limit=3
+    )
+
+    assert suggestions == [
+        {"name": "AEP-OBB GmbH", "fnr": "123456A"},
+        {"name": "Other Wrapper GmbH", "fnr": "987654B"},
+    ]
+    assert captured_fnrs == ["123456A", "987654B"]
+
+
+def test_fetch_company_suggestions_raises_when_empty(monkeypatch: pytest.MonkeyPatch) -> None:
+    """No Firmenbuch matches should propagate a not-found error."""
+
+    dummy_client = DummyClient(search_results=[])
+
+    with pytest.raises(api_fetch.FirmenbuchCompanyNotFound):
+        api_fetch.fetch_company_suggestions_from_firmenbuch("missing", client=dummy_client)
+
+
 def test_raises_when_not_found(monkeypatch: pytest.MonkeyPatch) -> None:
     """A missing record raises a descriptive error."""
 

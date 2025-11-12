@@ -1,5 +1,7 @@
 """Tests for the search API router."""
 
+from __future__ import annotations
+
 from services.api.routers import search as search_router
 
 
@@ -136,3 +138,99 @@ def test_search_name_fallback_handles_missing_remote_record(monkeypatch, test_cl
     assert payload["total"] == 0
     assert payload["count"] == 0
     assert payload["results"] == []
+
+
+def test_search_suggestions_fetches_remote_when_cache_empty(monkeypatch, test_client):
+    """Autocomplete should query Firmenbuch when no cached suggestions exist."""
+
+    calls: list[tuple[str, int]] = []
+
+    def fake_get_search_suggestions(query: str, limit: int):
+        calls.append((query, limit))
+        return []
+
+    remote_calls: list[tuple[str, int]] = []
+
+    def fake_fetch_company_suggestions(query: str, *, limit: int):
+        remote_calls.append((query, limit))
+        return [{"name": "AEP-OBB GmbH", "fnr": "123456A"}]
+
+    monkeypatch.setattr(
+        search_router.db_queries,
+        "get_search_suggestions",
+        fake_get_search_suggestions,
+    )
+    monkeypatch.setattr(
+        search_router,
+        "fetch_company_suggestions_from_firmenbuch",
+        fake_fetch_company_suggestions,
+    )
+
+    response = test_client.get("/api/search/suggest?query=obb")
+    assert response.status_code == 200
+
+    payload = response.json()
+    assert payload["query"] == "obb"
+    assert payload["suggestions"] == [{"name": "AEP-OBB GmbH", "fnr": "123456A"}]
+    assert calls == [("obb", 10), ("obb", 10)]
+    assert remote_calls == [("obb", 10)]
+
+
+def test_search_suggestions_prefers_cached_results(monkeypatch, test_client):
+    """If cached suggestions exist, skip remote Firmenbuch lookups."""
+
+    def fake_get_search_suggestions(query: str, limit: int):
+        return [{"name": "Cached GmbH", "fnr": "111111A"}]
+
+    fetch_calls: list[tuple[str, int]] = []
+
+    def fake_fetch_company_suggestions(query: str, *, limit: int):
+        fetch_calls.append((query, limit))
+        return []
+
+    monkeypatch.setattr(
+        search_router.db_queries, "get_search_suggestions", fake_get_search_suggestions
+    )
+    monkeypatch.setattr(
+        search_router,
+        "fetch_company_suggestions_from_firmenbuch",
+        fake_fetch_company_suggestions,
+    )
+
+    response = test_client.get("/api/search/suggest?query=cached")
+    assert response.status_code == 200
+
+    payload = response.json()
+    assert payload["suggestions"] == [{"name": "Cached GmbH", "fnr": "111111A"}]
+    assert fetch_calls == []
+
+
+def test_search_suggestions_handles_remote_errors(monkeypatch, test_client):
+    """Remote suggestion errors should not bubble up to the client."""
+
+    calls: list[tuple[str, int]] = []
+
+    def fake_get_search_suggestions(query: str, limit: int):
+        calls.append((query, limit))
+        return []
+
+    def fake_fetch_company_suggestions(query: str, *, limit: int):
+        raise search_router.FirmenbuchFetchError("Boom")
+
+    monkeypatch.setattr(
+        search_router.db_queries,
+        "get_search_suggestions",
+        fake_get_search_suggestions,
+    )
+    monkeypatch.setattr(
+        search_router,
+        "fetch_company_suggestions_from_firmenbuch",
+        fake_fetch_company_suggestions,
+    )
+
+    response = test_client.get("/api/search/suggest?query=fail")
+    assert response.status_code == 200
+
+    payload = response.json()
+    assert payload["suggestions"] == []
+    assert calls == [("fail", 10)]
