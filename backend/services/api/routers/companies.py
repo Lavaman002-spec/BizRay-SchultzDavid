@@ -7,7 +7,7 @@ from database import queries as db_queries
 router = APIRouter(prefix="/companies", tags=["companies"])
 
 
-@router.get("/", response_model=List[Company])
+@router.get("/", response_model=List[CompanyWithDetails])
 async def get_companies(
     limit: int = Query(100, ge=1, le=1000),
     offset: int = Query(0, ge=0)

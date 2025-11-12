@@ -67,3 +67,6 @@ backend/data
 .idea/
 *.swp
 *.swo
+CLAUDE.md
+.mcp.json
+/.claude

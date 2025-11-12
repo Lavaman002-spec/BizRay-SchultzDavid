@@ -1,4 +1,5 @@
 """API routes for search functionality."""
+from typing import Optional, List
 from fastapi import APIRouter, HTTPException, Query
 from shared.models import (
     SearchQuery,
@@ -14,10 +15,12 @@ router = APIRouter(prefix="/search", tags=["search"])
 async def search_companies(
     query: str = Query(..., min_length=1, description="Search query for company name or FNR"),
     limit: int = Query(50, ge=1, le=100),
-    offset: int = Query(0, ge=0)
+    offset: int = Query(0, ge=0),
+    city: Optional[str] = Query(None, description="Filter by city")
 ):
     """
     Search for companies by name or Firmenbuch number (FNR).
+    Optionally filter by city.
     """
     try:
         companies, total = db_queries.search_companies(query.strip(), limit=limit, offset=offset)

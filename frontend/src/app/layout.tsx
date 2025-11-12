@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
-import './globals.css';
 import { Toaster } from 'sonner';
+import AppNav from '@/components/layout/AppNav';
+import './globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -17,8 +18,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>
-        <div>{children}</div>
+      <body className={`${inter.className} bg-zinc-100`}>
+        <AppNav />
+        <div className="pt-24">{children}</div>
         <Toaster position="top-right" richColors />
       </body>
     </html>

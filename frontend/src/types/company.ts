@@ -9,6 +9,8 @@ export interface Company {
   created_at: string | null;
   updated_at: string | null;
   last_fetched_at: string | null;
+  // Optional address for search results
+  address?: Address;
 }
 
 export interface Officer {
@@ -34,8 +36,18 @@ export interface Address {
   door_number: string | null;
   postal_code: string | null;
   city: string | null;
+  state: string | null;
   country: string | null;
   is_deliverable: boolean;
+  is_active: boolean;
+  vnr: string | null;
+  created_at: string | null;
+}
+
+export interface Activities {
+  id: number;
+  company_id: number;
+  description: string;
   is_active: boolean;
   vnr: string | null;
   created_at: string | null;
@@ -44,6 +56,7 @@ export interface Address {
 export interface CompanyWithDetails extends Company {
   officers: Officer[];
   addresses: Address[];
+  activities: Activities[];
 }
 
 export interface SearchFilters {

@@ -1,0 +1,510 @@
+{
+    'ERGEBNIS': [
+        {
+            'KEY': '353435_8180501102572_000___000_30_3827413_PDF',
+            'FNR': '353435 h',
+            'AZ': '818 050 Fr 2572/11 d',
+            'DOKUMENTART': {
+                'CODE': '48',
+                'TEXT': 'Jahresabschluss'
+            },
+            'DOKUMENTENDATUM': None,
+            'CONTENTTYPE': 'application/pdf',
+            'DATEIENDUNG': 'pdf',
+            'GROESSE': 1947899,
+            'BEMERKUNG': 'zum 31.12.2010',
+            'STICHTAG': datetime.date(2010, 12, 31),
+            'GKL': 'K',
+            'VNR': '007',
+            'EINGEREICHT': datetime.date(2011, 7, 12)
+        },
+        {
+            'KEY': '353435_8180501202554_000___000_30_5311754_PDF',
+            'FNR': '353435 h',
+            'AZ': '818 050 Fr 2554/12 k',
+            'DOKUMENTART': {
+                'CODE': '48',
+                'TEXT': 'Jahresabschluss'
+            },
+            'DOKUMENTENDATUM': None,
+            'CONTENTTYPE': 'application/pdf',
+            'DATEIENDUNG': 'pdf',
+            'GROESSE': 1008115,
+            'BEMERKUNG': 'zum 31.12.2011',
+            'STICHTAG': datetime.date(2011, 12, 31),
+            'GKL': 'K',
+            'VNR': '011',
+            'EINGEREICHT': datetime.date(2012, 8, 20)
+        },
+        {
+            'KEY': '353435_8180501303102_000___000_30_7212080_PDF',
+            'FNR': '353435 h',
+            'AZ': '818 050 Fr 3102/13 a',
+            'DOKUMENTART': {
+                'CODE': '48',
+                'TEXT': 'Jahresabschluss'
+            },
+            'DOKUMENTENDATUM': None,
+            'CONTENTTYPE': 'application/pdf',
+            'DATEIENDUNG': 'pdf',
+            'GROESSE': 4952196,
+            'BEMERKUNG': 'zum 31.12.2012, samt Beilagen',
+            'STICHTAG': datetime.date(2012, 12, 31),
+            'GKL': 'K',
+            'VNR': '020',
+            'EINGEREICHT': datetime.date(2013, 9, 11)
+        },
+        {
+            'KEY': '353435_8180501404025_000___000_30_9244308_PDF',
+            'FNR': '353435 h',
+            'AZ': '818 050 Fr 4025/14 t',
+            'DOKUMENTART': {
+                'CODE': '48',
+                'TEXT': 'Jahresabschluss'
+            },
+            'DOKUMENTENDATUM': None,
+            'CONTENTTYPE': 'application/pdf',
+            'DATEIENDUNG': 'pdf',
+            'GROESSE': 2627567,
+            'BEMERKUNG': 'zum 31.12.2013',
+            'STICHTAG': datetime.date(2013, 12, 31),
+            'GKL': 'K',
+            'VNR': '025',
+            'EINGEREICHT': datetime.date(2014, 9, 30)
+        },
+        {
+            'KEY': '353435_8180501404431_000___000_32_9339062_PDF',
+            'FNR': '353435 h',
+            'AZ': '818 050 Fr 4431/14 p',
+            'DOKUMENTART': {
+                'CODE': '49',
+                'TEXT': 'Konzernabschluss'
+            },
+            'DOKUMENTENDATUM': None,
+            'CONTENTTYPE': 'application/pdf',
+            'DATEIENDUNG': 'pdf',
+            'GROESSE': 1586792,
+            'BEMERKUNG': 'zum 31.12.2013',
+            'STICHTAG': datetime.date(2013, 12, 31),
+            'GKL': 'K',
+            'VNR': '027',
+            'EINGEREICHT': datetime.date(2014, 10, 8)
+        },
+        {
+            'KEY': '353435_8180501404432_000___000_32_9339060_PDF',
+            'FNR': '353435 h',
+            'AZ': '818 050 Fr 4432/14 s',
+            'DOKUMENTART': {
+                'CODE': '49',
+                'TEXT': 'Konzernabschluss'
+            },
+            'DOKUMENTENDATUM': None,
+            'CONTENTTYPE': 'application/pdf',
+            'DATEIENDUNG': 'pdf',
+            'GROESSE': 5300595,
+            'BEMERKUNG': 'zum 31.12.2012',
+            'STICHTAG': datetime.date(2012, 12, 31),
+            'GKL': 'K',
+            'VNR': '026',
+            'EINGEREICHT': datetime.date(2014, 10, 8)
+        },
+        {
+            'KEY': '353435_8180501502839_000___000_30_10964921_PDF',
+            'FNR': '353435 h',
+            'AZ': '818 050 Fr 2839/15 g',
+            'DOKUMENTART': {
+                'CODE': '48',
+                'TEXT': 'Jahresabschluss'
+            },
+            'DOKUMENTENDATUM': None,
+            'CONTENTTYPE': 'application/pdf',
+            'DATEIENDUNG': 'pdf',
+            'GROESSE': 2048013,
+            'BEMERKUNG': 'zum 31.12.2014',
+            'STICHTAG': datetime.date(2014, 12, 31),
+            'GKL': 'K',
+            'VNR': '032',
+            'EINGEREICHT': datetime.date(2015, 9, 18)
+        },
+        {
+            'KEY': '353435_8180501502840_000___000_32_10964874_PDF',
+            'FNR': '353435 h',
+            'AZ': '818 050 Fr 2840/15 h',
+            'DOKUMENTART': {
+                'CODE': '49',
+                'TEXT': 'Konzernabschluss'
+            },
+            'DOKUMENTENDATUM': None,
+            'CONTENTTYPE': 'application/pdf',
+            'DATEIENDUNG': 'pdf',
+            'GROESSE': 1797223,
+            'BEMERKUNG': 'zum 31.12.2014',
+            'STICHTAG': datetime.date(2014, 12, 31),
+            'GKL': 'K',
+            'VNR': '031',
+            'EINGEREICHT': datetime.date(2015, 9, 18)
+        },
+        {
+            'KEY': '353435_8180501602562_000___000_30_12802724_PDF',
+            'FNR': '353435 h',
+            'AZ': '818 050 Fr 2562/16 h',
+            'DOKUMENTART': {
+                'CODE': '48',
+                'TEXT': 'Jahresabschluss'
+            },
+            'DOKUMENTENDATUM': None,
+            'CONTENTTYPE': 'application/pdf',
+            'DATEIENDUNG': 'pdf',
+            'GROESSE': 10612719,
+            'BEMERKUNG': 'zum 31.12.2015, samt Beilagen',
+            'STICHTAG': datetime.date(2015, 12, 31),
+            'GKL': 'M',
+            'VNR': '034',
+            'EINGEREICHT': datetime.date(2016, 9, 9)
+        },
+        {
+            'KEY': '353435_8180501602586_000___000_32_12823390_PDF',
+            'FNR': '353435 h',
+            'AZ': '818 050 Fr 2586/16 v',
+            'DOKUMENTART': {
+                'CODE': '49',
+                'TEXT': 'Konzernabschluss'
+            },
+            'DOKUMENTENDATUM': None,
+            'CONTENTTYPE': 'application/pdf',
+            'DATEIENDUNG': 'pdf',
+            'GROESSE': 2298184,
+            'BEMERKUNG': 'zum 31.12.2016, samt Beilagen',
+            'STICHTAG': datetime.date(2015, 12, 31),
+            'GKL': None,
+            'VNR': '035',
+            'EINGEREICHT': datetime.date(2016, 9, 13)
+        },
+        {
+            'KEY': '353435_8180501800215_000___000_32_16114020_PDF',
+            'FNR': '353435 h',
+            'AZ': '818 050 Fr 215/18 z',
+            'DOKUMENTART': {
+                'CODE': '49',
+                'TEXT': 'Konzernabschluss'
+            },
+            'DOKUMENTENDATUM': None,
+            'CONTENTTYPE': 'application/pdf',
+            'DATEIENDUNG': 'pdf',
+            'GROESSE': 4897636,
+            'BEMERKUNG': 'zum 31.12.2016, samt Beilagen',
+            'STICHTAG': datetime.date(2016, 12, 31),
+            'GKL': 'G',
+            'VNR': '042',
+            'EINGEREICHT': datetime.date(2018, 2, 1)
+        },
+        {
+            'KEY': '353435_8180501800216_000___000_30_16113933_PDF',
+            'FNR': '353435 h',
+            'AZ': '818 050 Fr 216/18 a',
+            'DOKUMENTART': {
+                'CODE': '48',
+                'TEXT': 'Jahresabschluss'
+            },
+            'DOKUMENTENDATUM': None,
+            'CONTENTTYPE': 'application/pdf',
+            'DATEIENDUNG': 'pdf',
+            'GROESSE': 1417249,
+            'BEMERKUNG': 'zum 31.12.2016, samt Beilagen',
+            'STICHTAG': datetime.date(2016, 12, 31),
+            'GKL': 'G',
+            'VNR': '041',
+            'EINGEREICHT': datetime.date(2018, 2, 1)
+        },
+        {
+            'KEY': '353435_8180501804867_000___000_30_18567376_PDF',
+            'FNR': '353435 h',
+            'AZ': '818 050 Fr 4867/18 s',
+            'DOKUMENTART': {
+                'CODE': '48',
+                'TEXT': 'Jahresabschluss'
+            },
+            'DOKUMENTENDATUM': None,
+            'CONTENTTYPE': 'application/pdf',
+            'DATEIENDUNG': 'pdf',
+            'GROESSE': 9915610,
+            'BEMERKUNG': 'zum 31.12.2017, samt Beilagen',
+            'STICHTAG': datetime.date(2017, 12, 31),
+            'GKL': 'G',
+            'VNR': '049',
+            'EINGEREICHT': datetime.date(2018, 12, 21)
+        },
+        {
+            'KEY': '353435_8180501902426_000_W_AM_000__19912611_PDF',
+            'FNR': '353435 h',
+            'AZ': '818 050 Fr 2426/19 i',
+            'DOKUMENTART': {
+                'CODE': '73',
+                'TEXT': 'Protokoll d. Hauptv. m. Jahresabschluss'
+            },
+            'DOKUMENTENDATUM': datetime.date(2019, 7, 18),
+            'CONTENTTYPE': 'application/pdf',
+            'DATEIENDUNG': 'pdf',
+            'GROESSE': 44698203,
+            'BEMERKUNG': 'und mit Konzernabschluss',
+            'STICHTAG': None,
+            'GKL': None,
+            'VNR': None,
+            'EINGEREICHT': None
+        },
+        {
+            'KEY': '353435_8180501902426_000_X_AM_000__19912611_PDF',
+            'FNR': '353435 h',
+            'AZ': '818 050 Fr 2426/19 i',
+            'DOKUMENTART': {
+                'CODE': '73',
+                'TEXT': 'Protokoll d. Hauptv. m. Jahresabschluss'
+            },
+            'DOKUMENTENDATUM': datetime.date(2019, 7, 18),
+            'CONTENTTYPE': 'application/pdf',
+            'DATEIENDUNG': 'pdf',
+            'GROESSE': 44698203,
+            'BEMERKUNG': 'und mit Konzernabschluss',
+            'STICHTAG': None,
+            'GKL': None,
+            'VNR': None,
+            'EINGEREICHT': None
+        },
+        {
+            'KEY': '353435_8180501902426_000_Y_AM_000__19912611_PDF',
+            'FNR': '353435 h',
+            'AZ': '818 050 Fr 2426/19 i',
+            'DOKUMENTART': {
+                'CODE': '73',
+                'TEXT': 'Protokoll d. Hauptv. m. Jahresabschluss'
+            },
+            'DOKUMENTENDATUM': datetime.date(2019, 7, 18),
+            'CONTENTTYPE': 'application/pdf',
+            'DATEIENDUNG': 'pdf',
+            'GROESSE': 44698203,
+            'BEMERKUNG': 'und mit Konzernabschluss',
+            'STICHTAG': None,
+            'GKL': None,
+            'VNR': None,
+            'EINGEREICHT': None
+        },
+        {
+            'KEY': '353435_8180502003587_000_AA_AM_000__22818694_PDF',
+            'FNR': '353435 h',
+            'AZ': '818 050 Fr 3587/20 a',
+            'DOKUMENTART': {
+                'CODE': '73',
+                'TEXT': 'Protokoll d. Hauptv. m. Jahresabschluss'
+            },
+            'DOKUMENTENDATUM': datetime.date(2020, 7, 23),
+            'CONTENTTYPE': 'application/pdf',
+            'DATEIENDUNG': 'pdf',
+            'GROESSE': 13342415,
+            'BEMERKUNG': 'und Konzernabschluss, je zum 31.12.2019 und samt Beilagen',
+            'STICHTAG': None,
+            'GKL': None,
+            'VNR': None,
+            'EINGEREICHT': None
+        },
+        {
+            'KEY': '353435_8180502202926_000___000_30_29326828_PDF',
+            'FNR': '353435 h',
+            'AZ': '818 050 Fr 2926/22 x',
+            'DOKUMENTART': {
+                'CODE': '48',
+                'TEXT': 'Jahresabschluss'
+            },
+            'DOKUMENTENDATUM': None,
+            'CONTENTTYPE': 'application/pdf',
+            'DATEIENDUNG': 'pdf',
+            'GROESSE': 1235363,
+            'BEMERKUNG': 'zum 31.12.2020, samt Lagebericht und Bestätigungsvermerk',
+            'STICHTAG': datetime.date(2020, 12, 31),
+            'GKL': 'G',
+            'VNR': '067',
+            'EINGEREICHT': datetime.date(2022, 7, 7)
+        },
+        {
+            'KEY': '353435_8180502202927_000___000_30_29326810_PDF',
+            'FNR': '353435 h',
+            'AZ': '818 050 Fr 2927/22 y',
+            'DOKUMENTART': {
+                'CODE': '48',
+                'TEXT': 'Jahresabschluss'
+            },
+            'DOKUMENTENDATUM': None,
+            'CONTENTTYPE': 'application/pdf',
+            'DATEIENDUNG': 'pdf',
+            'GROESSE': 1901535,
+            'BEMERKUNG': 'zum 31.12.2019, samt Lagebericht und Bestätigungsvermerk',
+            'STICHTAG': datetime.date(2019, 12, 31),
+            'GKL': 'G',
+            'VNR': '066',
+            'EINGEREICHT': datetime.date(2022, 7, 7)
+        },
+        {
+            'KEY': '353435_8180502202928_000___000_30_29326777_PDF',
+            'FNR': '353435 h',
+            'AZ': '818 050 Fr 2928/22 z',
+            'DOKUMENTART': {
+                'CODE': '48',
+                'TEXT': 'Jahresabschluss'
+            },
+            'DOKUMENTENDATUM': None,
+            'CONTENTTYPE': 'application/pdf',
+            'DATEIENDUNG': 'pdf',
+            'GROESSE': 1780829,
+            'BEMERKUNG': 'zum 31.12.2020, samt Lagebericht und Bestätigungsvermerk',
+            'STICHTAG': datetime.date(2018, 12, 31),
+            'GKL': 'G',
+            'VNR': '065',
+            'EINGEREICHT': datetime.date(2022, 7, 7)
+        },
+        {
+            'KEY': '353435_8180502202929_000___000_32_27573300_PDF',
+            'FNR': '353435 h',
+            'AZ': '818 050 Fr 2929/22 a',
+            'DOKUMENTART': {
+                'CODE': '49',
+                'TEXT': 'Konzernabschluss'
+            },
+            'DOKUMENTENDATUM': None,
+            'CONTENTTYPE': 'application/pdf',
+            'DATEIENDUNG': 'pdf',
+            'GROESSE': 11794825,
+            'BEMERKUNG': 'zum 31.12.2017, samt Beilagen',
+            'STICHTAG': datetime.date(2017, 12, 31),
+            'GKL': 'G',
+            'VNR': '058',
+            'EINGEREICHT': datetime.date(2022, 7, 7)
+        },
+        {
+            'KEY': '353435_8180502203021_000___000_32_27608582_PDF',
+            'FNR': '353435 h',
+            'AZ': '818 050 Fr 3021/22 k',
+            'DOKUMENTART': {
+                'CODE': '49',
+                'TEXT': 'Konzernabschluss'
+            },
+            'DOKUMENTENDATUM': None,
+            'CONTENTTYPE': 'application/pdf',
+            'DATEIENDUNG': 'pdf',
+            'GROESSE': 10729613,
+            'BEMERKUNG': 'zum 31.12.2019, samt Beilagen',
+            'STICHTAG': datetime.date(2019, 12, 31),
+            'GKL': 'G',
+            'VNR': '063',
+            'EINGEREICHT': datetime.date(2022, 7, 13)
+        },
+        {
+            'KEY': '353435_8180502203022_000___000_32_27608563_PDF',
+            'FNR': '353435 h',
+            'AZ': '818 050 Fr 3022/22 m',
+            'DOKUMENTART': {
+                'CODE': '49',
+                'TEXT': 'Konzernabschluss'
+            },
+            'DOKUMENTENDATUM': None,
+            'CONTENTTYPE': 'application/pdf',
+            'DATEIENDUNG': 'pdf',
+            'GROESSE': 10043692,
+            'BEMERKUNG': 'zum 31.12.2018, samt Beilagen',
+            'STICHTAG': datetime.date(2018, 12, 31),
+            'GKL': 'G',
+            'VNR': '062',
+            'EINGEREICHT': datetime.date(2022, 7, 13)
+        },
+        {
+            'KEY': '353435_8180502203036_000___000_32_27610672_PDF',
+            'FNR': '353435 h',
+            'AZ': '818 050 Fr 3036/22 h',
+            'DOKUMENTART': {
+                'CODE': '49',
+                'TEXT': 'Konzernabschluss'
+            },
+            'DOKUMENTENDATUM': None,
+            'CONTENTTYPE': 'application/pdf',
+            'DATEIENDUNG': 'pdf',
+            'GROESSE': 11554263,
+            'BEMERKUNG': 'zum 31.12.2020, samt Beilagen',
+            'STICHTAG': datetime.date(2020, 12, 31),
+            'GKL': 'G',
+            'VNR': '064',
+            'EINGEREICHT': datetime.date(2022, 7, 14)
+        },
+        {
+            'KEY': '353435_8180502306732_000___000_30_31435688_PDF',
+            'FNR': '353435 h',
+            'AZ': '818 050 Fr 6732/23 b',
+            'DOKUMENTART': {
+                'CODE': '48',
+                'TEXT': 'Jahresabschluss'
+            },
+            'DOKUMENTENDATUM': None,
+            'CONTENTTYPE': 'application/pdf',
+            'DATEIENDUNG': 'pdf',
+            'GROESSE': 5106329,
+            'BEMERKUNG': 'zum 31.12.2022, samt Beilagen',
+            'STICHTAG': datetime.date(2022, 12, 31),
+            'GKL': 'G',
+            'VNR': '070',
+            'EINGEREICHT': datetime.date(2023, 10, 10)
+        },
+        {
+            'KEY': '353435_8180502306755_000___000_32_31329475_PDF',
+            'FNR': '353435 h',
+            'AZ': '818 050 Fr 6755/23 k',
+            'DOKUMENTART': {
+                'CODE': '49',
+                'TEXT': 'Konzernabschluss'
+            },
+            'DOKUMENTENDATUM': None,
+            'CONTENTTYPE': 'application/pdf',
+            'DATEIENDUNG': 'pdf',
+            'GROESSE': 13918939,
+            'BEMERKUNG': 'zum 31.12.2022, samt Beilagen',
+            'STICHTAG': datetime.date(2022, 12, 31),
+            'GKL': 'G',
+            'VNR': '072',
+            'EINGEREICHT': datetime.date(2023, 10, 11)
+        },
+        {
+            'KEY': '353435_8180502306775_000___000_30_31425661_PDF',
+            'FNR': '353435 h',
+            'AZ': '818 050 Fr 6775/23 s',
+            'DOKUMENTART': {
+                'CODE': '48',
+                'TEXT': 'Jahresabschluss'
+            },
+            'DOKUMENTENDATUM': None,
+            'CONTENTTYPE': 'application/pdf',
+            'DATEIENDUNG': 'pdf',
+            'GROESSE': 4733458,
+            'BEMERKUNG': 'zum 31.12.2021, samt Beilagen',
+            'STICHTAG': datetime.date(2021, 12, 31),
+            'GKL': 'G',
+            'VNR': '069',
+            'EINGEREICHT': datetime.date(2023, 10, 13)
+        },
+        {
+            'KEY': '353435_8180502306780_000___000_32_31357325_PDF',
+            'FNR': '353435 h',
+            'AZ': '818 050 Fr 6780/23 y',
+            'DOKUMENTART': {
+                'CODE': '49',
+                'TEXT': 'Konzernabschluss'
+            },
+            'DOKUMENTENDATUM': None,
+            'CONTENTTYPE': 'application/pdf',
+            'DATEIENDUNG': 'pdf',
+            'GROESSE': 11718802,
+            'BEMERKUNG': 'zum 31.12.2021, samt Beilagen',
+            'STICHTAG': datetime.date(2021, 12, 31),
+            'GKL': 'G',
+            'VNR': '071',
+            'EINGEREICHT': datetime.date(2023, 10, 13)
+        }
+    ],
+    'REQUEST_FNR': '353435 h',
+    'REQUEST_AZ': None
+}

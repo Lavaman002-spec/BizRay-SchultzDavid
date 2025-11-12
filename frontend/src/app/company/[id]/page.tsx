@@ -1,29 +1,22 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import {
-  Building2,
-  MapPin,
-  ArrowLeft,
-  Users,
-  FileText,
-  Briefcase,
-  AlertCircle,
-} from 'lucide-react';
+import { useParams } from 'next/navigation';
+import { TrendingUp, Users2, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { getCompany } from '@/lib/api';
 import type { CompanyWithDetails } from '@/types/company';
+import CompanyHeader from '@/components/company/CompanyHeader';
+import RiskIndicators from '@/components/company/risk/RiskIndicators';
+import ReportingPanel from '@/components/company/reporting/ReportingPanel';
+import NetworkTab from '@/components/company/network/NetworkTab';
 
 export default function CompanyPage() {
   const params = useParams();
-  const router = useRouter();
   const id = params.id as string;
 
   const [company, setCompany] = useState<CompanyWithDetails | null>(null);
@@ -47,18 +40,23 @@ export default function CompanyPage() {
     fetchCompany();
   }, [id]);
 
+  if (loading) {
+    return (
+      <div className="bg-gray-100">
+        <div className="max-w-[900px] mx-auto px-16 py-8">
+          <div className="animate-pulse">
+            <div className="bg-white rounded-2xl p-8 h-64 mb-6" />
+            <div className="bg-white rounded-2xl p-8 h-96" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (error || !company) {
     return (
-      <div className="min-h-screen">
-        <header className="border-b bg-white/80 backdrop-blur-sm">
-          <div className="container mx-auto px-4 py-4">
-            <Button variant="ghost" onClick={() => router.push('/search')}>
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Search
-            </Button>
-          </div>
-        </header>
-        <div className="container mx-auto px-4 py-8 max-w-6xl">
+      <div>
+        <div className="max-w-4xl">
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>{error || 'Company not found'}</AlertDescription>
@@ -69,295 +67,147 @@ export default function CompanyPage() {
   }
 
   return (
-    <div className="min-h-screen">
-      {/* Header */}
-      <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
-          <Button variant="ghost" onClick={() => router.push('/search')}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Search
-          </Button>
-        </div>
-      </header>
+    <div className="min-h-screen bg-gray-100">
+      {/* Main Content */}
+      <div className="max-w-4xl mx-auto">
+        {/* Company Header Card */}
+        <CompanyHeader company={company} />
+        {/* Tabs Section */}
+        <Tabs defaultValue="profile" className="w-full">
+          <TabsList className="bg-white border border-gray-200 rounded-lg p-1 mb-6 h-auto">
+            <TabsTrigger
+              value="profile"
+              className="rounded-2xl px-3 py-1 text-sm font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm"
+            >
+              Profile
+            </TabsTrigger>
+            <TabsTrigger
+              value="risk"
+              className="rounded-2xl px-3 py-1 text-sm font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm"
+            >
+              Risk Indicators
+            </TabsTrigger>
+            <TabsTrigger
+              value="reporting"
+              className="rounded-2xl px-3 py-1 text-sm font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm"
+            >
+              Reporting
+            </TabsTrigger>
+            <TabsTrigger
+              value="network"
+              className="rounded-2xl px-3 py-1 text-sm font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm"
+            >
+              Network
+            </TabsTrigger>
+          </TabsList>
 
-      {/* Company Header */}
-      <section className="bg-gradient-to-r from-blue-600 to-cyan-600 text-white py-12">
-        <div className="container mx-auto px-4 max-w-6xl">
-          <div className="flex items-start gap-4">
-            <div className="p-4 bg-white/10 rounded-lg backdrop-blur-sm">
-              <Building2 className="h-12 w-12" />
+          <TabsContent value="profile" className="space-y-6">
+            {/* Stats Cards */}
+            <div className="grid grid-cols-2 gap-4">
+              {/* Revenue Card */}
+              <Card className="bg-white border border-gray-200 rounded-2xl p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <p className="text-base text-gray-600">Revenue</p>
+                  <TrendingUp className="w-5 h-5 text-green-600" />
+                </div>
+                <p className="text-3xl font-semibold text-gray-900 mb-2">
+                  €12.5M
+                </p>
+                <p className="text-sm text-green-600">+12% YoY</p>
+              </Card>
+
+              {/* Employees Card */}
+              <Card className="bg-white border border-gray-200 rounded-2xl p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <p className="text-base text-gray-600">Employees</p>
+                  <Users2 className="w-5 h-5 text-blue-600" />
+                </div>
+                <p className="text-3xl font-semibold text-gray-900 mb-2">
+                  {company.officers?.length || 85}
+                </p>
+                <p className="text-sm text-gray-600">Full-time staff</p>
+              </Card>
             </div>
-            <div className="flex-1">
-              <h1 className="text-4xl font-bold mb-2">{company.name}</h1>
-              <div className="flex items-center gap-4 text-white/80">
-                <span className="font-mono text-lg">FN {company.fnr}</span>
-                {company.legal_form && <span>{company.legal_form}</span>}
-                {company.state && (
-                  <Badge
-                    variant="secondary"
-                    className="bg-white/20 text-white border-white/30"
-                  >
-                    {company.state}
-                  </Badge>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
-      {/* Company Details */}
-      <section className="py-8">
-        <div className="container mx-auto px-4 max-w-6xl">
-          <Tabs defaultValue="overview" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 mb-8">
-              <TabsTrigger value="overview">
-                <FileText className="h-4 w-4 mr-2" />
-                Overview
-              </TabsTrigger>
-              <TabsTrigger value="officers">
-                <Users className="h-4 w-4 mr-2" />
-                Officers ({company.officers?.length || 0})
-              </TabsTrigger>
-              <TabsTrigger value="addresses">
-                <MapPin className="h-4 w-4 mr-2" />
-                Addresses ({company.addresses?.length || 0})
-              </TabsTrigger>
-            </TabsList>
+            {/* Officers & Management */}
+            <Card className="bg-white border border-gray-200 rounded-2xl p-6">
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                Officers & Management
+              </h3>
 
-            {/* Overview Tab */}
-            <TabsContent value="overview">
-              <div className="grid gap-6 md:grid-cols-2">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Company Information</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div>
-                      <div className="text-sm text-muted-foreground">Name</div>
-                      <div className="font-medium">{company.name}</div>
-                    </div>
-                    <Separator />
-                    <div>
-                      <div className="text-sm text-muted-foreground">
-                        Legal Form
-                      </div>
-                      <div className="font-medium">
-                        {company.legal_form || 'Not specified'}
-                      </div>
-                    </div>
-                    <Separator />
-                    <div>
-                      <div className="text-sm text-muted-foreground">
-                        FN Number
-                      </div>
-                      <div className="font-mono">{company.fnr}</div>
-                    </div>
-                    <Separator />
-                    <div>
-                      <div className="text-sm text-muted-foreground">
-                        Status
-                      </div>
-                      <Badge>{company.state || 'Unknown'}</Badge>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Timeline</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    {company.created_at && (
-                      <>
+              {company.officers && company.officers.length > 0 ? (
+                <div className="space-y-4">
+                  {/* CEO Section */}
+                  <div>
+                    <p className="text-xs text-gray-500 uppercase mb-3">
+                      CEO(S)
+                    </p>
+                    {company.officers.slice(0, 1).map((officer, index) => (
+                      <div key={index} className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+                          <Users2 className="w-5 h-5 text-gray-600" />
+                        </div>
                         <div>
-                          <div className="text-sm text-muted-foreground">
-                            Created
-                          </div>
-                          <div className="font-medium">
-                            {new Date(company.created_at).toLocaleDateString()}
-                          </div>
-                        </div>
-                        <Separator />
-                      </>
-                    )}
-                    {company.updated_at && (
-                      <>
-                        <div>
-                          <div className="text-sm text-muted-foreground">
-                            Last Updated
-                          </div>
-                          <div className="font-medium">
-                            {new Date(company.updated_at).toLocaleDateString()}
-                          </div>
-                        </div>
-                        <Separator />
-                      </>
-                    )}
-                    {company.last_fetched_at && (
-                      <div>
-                        <div className="text-sm text-muted-foreground">
-                          Last Fetched
-                        </div>
-                        <div className="font-medium">
-                          {new Date(
-                            company.last_fetched_at
-                          ).toLocaleDateString()}
+                          <p className="text-sm font-medium text-gray-900">
+                            {officer.full_name ||
+                              `${officer.first_name} ${officer.last_name}`.trim()}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {officer.role || 'CEO'}
+                          </p>
                         </div>
                       </div>
-                    )}
-                  </CardContent>
-                </Card>
-              </div>
-            </TabsContent>
+                    ))}
+                  </div>
 
-            {/* Officers Tab */}
-            <TabsContent value="officers">
-              {!company.officers || company.officers.length === 0 ? (
-                <Alert>
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>
-                    No officers found for this company.
-                  </AlertDescription>
-                </Alert>
-              ) : (
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                  {company.officers.map((officer, index) => (
-                    <Card key={index}>
-                      <CardHeader>
-                        <CardTitle className="text-lg flex items-center gap-2">
-                          <Users className="h-5 w-5 text-blue-600" />
-                          {officer.full_name}
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-2">
-                          {officer.role && (
-                            <div>
-                              <div className="text-sm text-muted-foreground">
-                                Role
-                              </div>
-                              <Badge variant="secondary">{officer.role}</Badge>
-                            </div>
-                          )}
-                          {officer.title && (
-                            <div>
-                              <div className="text-sm text-muted-foreground">
-                                Title
-                              </div>
-                              <div className="text-sm">{officer.title}</div>
-                            </div>
-                          )}
-                          {officer.vnr && (
-                            <div>
-                              <div className="text-sm text-muted-foreground">
-                                VNR
-                              </div>
-                              <div className="font-mono text-sm">
-                                {officer.vnr}
-                              </div>
-                            </div>
-                          )}
-                          {officer.birth_date && (
-                            <div>
-                              <div className="text-sm text-muted-foreground">
-                                Birth Date
-                              </div>
-                              <div className="text-sm">
-                                {new Date(
-                                  officer.birth_date
-                                ).toLocaleDateString()}
-                              </div>
-                            </div>
-                          )}
+                  <div className="border-t border-gray-200" />
+
+                  {/* Officers Section */}
+                  <div>
+                    <p className="text-xs text-gray-500 uppercase mb-3">
+                      Officers
+                    </p>
+                    <div className="space-y-4">
+                      {company.officers.slice(1).map((officer, index) => (
+                        <div key={index} className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                            <Users2 className="w-5 h-5 text-blue-600" />
+                          </div>
                           <div>
-                            <Badge
-                              variant={
-                                officer.is_active ? 'default' : 'secondary'
-                              }
-                            >
-                              {officer.is_active ? 'Active' : 'Inactive'}
-                            </Badge>
+                            <p className="text-sm font-medium text-gray-900">
+                              {officer.full_name ||
+                                `${officer.first_name} ${officer.last_name}`.trim()}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {officer.role || 'Officer'}
+                            </p>
                           </div>
                         </div>
-                      </CardContent>
-                    </Card>
-                  ))}
+                      ))}
+                    </div>
+                  </div>
                 </div>
-              )}
-            </TabsContent>
-
-            {/* Addresses Tab */}
-            <TabsContent value="addresses">
-              {!company.addresses || company.addresses.length === 0 ? (
-                <Alert>
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>
-                    No addresses found for this company.
-                  </AlertDescription>
-                </Alert>
               ) : (
-                <div className="grid gap-4 md:grid-cols-2">
-                  {company.addresses.map((address, index) => (
-                    <Card key={index}>
-                      <CardHeader>
-                        <CardTitle className="text-lg flex items-center gap-2">
-                          <MapPin className="h-5 w-5 text-blue-600" />
-                          Address {index + 1}
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-2">
-                          {address.street && (
-                            <div>
-                              <div className="text-sm text-muted-foreground">
-                                Street
-                              </div>
-                              <div>{address.street}</div>
-                            </div>
-                          )}
-                          {address.city && (
-                            <div>
-                              <div className="text-sm text-muted-foreground">
-                                City
-                              </div>
-                              <div>{address.city}</div>
-                            </div>
-                          )}
-                          {address.postal_code && (
-                            <div>
-                              <div className="text-sm text-muted-foreground">
-                                Postal Code
-                              </div>
-                              <div>{address.postal_code}</div>
-                            </div>
-                          )}
-                          {address.country && (
-                            <div>
-                              <div className="text-sm text-muted-foreground">
-                                Country
-                              </div>
-                              <div>{address.country}</div>
-                            </div>
-                          )}
-                          <div className="flex gap-2 pt-2">
-                            {address.is_active && (
-                              <Badge variant="default">Active</Badge>
-                            )}
-                            {address.is_deliverable && (
-                              <Badge variant="secondary">Deliverable</Badge>
-                            )}
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
+                <p className="text-gray-500 text-sm">
+                  No officers information available
+                </p>
               )}
-            </TabsContent>
-          </Tabs>
-        </div>
-      </section>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="risk">
+            <RiskIndicators company={company} />
+          </TabsContent>
+
+          <TabsContent value="reporting">
+            <ReportingPanel company={company} />
+          </TabsContent>
+
+          <TabsContent value="network">
+            <NetworkTab company={company} />
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
   );
 }

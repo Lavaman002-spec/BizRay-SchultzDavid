@@ -1,0 +1,94 @@
+{
+    'FIRMA': {
+        'FI_DKZ02': [
+            {
+                'BEZEICHNUNG': [
+                    'SIGNA Prime Capital',
+                    'Invest GmbH & Co OG'
+                ],
+                'AUSLAND': None,
+                'VNR': '010',
+                'AUFRECHT': True,
+                'MIT_FIRMA_GELOESCHT_DURCH_VNR': '010',
+                'MIT_ZWL_GELOESCHT_DURCH_VNR': None
+            }
+        ],
+        'FI_DKZ03': [],
+        'FI_DKZ04': [],
+        'FI_DKZ05': [],
+        'FI_DKZ06': [
+            {
+                'ORTNR': {
+                    'CODE': '90001',
+                    'TEXT': 'Wien'
+                },
+                'SITZ': 'Wien',
+                'VNR': '010',
+                'AUFRECHT': True,
+                'MIT_FIRMA_GELOESCHT_DURCH_VNR': '010',
+                'MIT_ZWL_GELOESCHT_DURCH_VNR': None
+            }
+        ],
+        'FI_DKZ07': [],
+        'FI_DKZ09': [],
+        'FI_DKZ14': [],
+        'FI_DKZ15': [],
+        'FI_DKZ16': [],
+        'FI_DKZ17': [],
+        'FI_DKZ20': [],
+        'FI_DKZ21': [],
+        'FI_DKZ22': [],
+        'FI_DKZ25': [],
+        'FI_DKZ30': [],
+        'FI_DKZ31': [],
+        'FI_DKZ32': [],
+        'FI_DKZ33': [],
+        'FI_DKZ34': [],
+        'FI_DKZ40': [],
+        'FI_DKZ41': [],
+        'FI_DKZ42': [],
+        'FI_DKZ43': [],
+        'FI_DKZ44': [],
+        'FI_DKZ45': [],
+        'RECHTSTATSACHE': []
+    },
+    'FUN': [],
+    'ZWL': [],
+    'PER': [],
+    'VOLLZ': [
+        {
+            'VNR': '001',
+            'VOLLZUGSDATUM': datetime.date(2011, 1, 5),
+            'HG': {
+                'CODE': '818',
+                'TEXT': 'Landesgericht Innsbruck'
+            },
+            'AZ': '818 050 Fr 3977/10 k',
+            'ANTRAGSTEXT': [
+                'Antrag auf Neueintragung einer Firma eingelangt am 27.12.2010'
+            ],
+            'EINGELANGTAM': datetime.date(2010, 12, 27)
+        },
+        {
+            'VNR': '010',
+            'VOLLZUGSDATUM': datetime.date(2023, 9, 30),
+            'HG': {
+                'CODE': '007',
+                'TEXT': 'Handelsgericht Wien'
+            },
+            'AZ': '007 073 Fr 48695/23 x',
+            'ANTRAGSTEXT': [
+                'Antrag auf Löschung eingelangt am 28.09.2023'
+            ],
+            'EINGELANGTAM': datetime.date(2023, 9, 28)
+        }
+    ],
+    'IDENT': [],
+    'KUR': None,
+    'EUID': [],
+    'FNR': '356633 k',
+    'STICHTAG': datetime.date(2025, 11, 5),
+    'UMFANG': 'Kurzinformation',
+    'PRUEFSUMME': 'B09B6C1FDBEAD6DE47BC3CB2AA6A4E19',
+    'ABFRAGEZEITPUNKT': datetime.datetime(2025, 11, 5, 12, 13, 32, 355000, tzinfo=<FixedOffset '+01:00'>)
+}

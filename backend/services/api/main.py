@@ -1,7 +1,3 @@
-"""
-FastAPI main application for BizRay backend.
-Austrian Business Register (Firmenbuch) API.
-"""
 from fastapi import FastAPI, status
 from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime
@@ -14,7 +10,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(
 from shared.models import HealthCheck
 from database.client import get_db
 from database.queries import health_check
-from services.api.routers import companies, officers, search
+from services.api.routers import companies, officers, search, locations
 
 
 # Initialize FastAPI app
@@ -40,6 +36,7 @@ app.add_middleware(
 app.include_router(companies.router, prefix="/api")
 app.include_router(officers.router, prefix="/api")
 app.include_router(search.router, prefix="/api")
+app.include_router(locations.router, prefix="/api")
 
 
 @app.get("/", tags=["root"])
