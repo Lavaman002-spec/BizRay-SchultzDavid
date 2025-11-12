@@ -1,13 +1,9 @@
-"""Pydantic models for API request/response validation."""
 from typing import Optional, List
 from datetime import datetime
 from pydantic import BaseModel, Field, ConfigDict
 
 
-# ============================================================================
 # Company Models
-# ============================================================================
-
 class CompanyBase(BaseModel):
     """Base model for company data."""
     fnr: str = Field(..., description="Firmenbuch number (FN)")
@@ -22,7 +18,6 @@ class CompanyCreate(CompanyBase):
 
 
 class CompanyUpdate(BaseModel):
-    """Model for updating company data."""
     fnr: Optional[str] = None
     name: Optional[str] = None
     legal_form: Optional[str] = None
@@ -30,7 +25,6 @@ class CompanyUpdate(BaseModel):
 
 
 class Company(CompanyBase):
-    """Complete company model with ID and timestamps."""
     id: int
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
@@ -39,10 +33,7 @@ class Company(CompanyBase):
     model_config = ConfigDict(from_attributes=True)
 
 
-# ============================================================================
 # Officer Models (from company_officers table)
-# ============================================================================
-
 class OfficerBase(BaseModel):
     """Base model for officer data."""
     company_id: int = Field(..., description="Company ID this officer belongs to")
@@ -62,7 +53,6 @@ class OfficerCreate(OfficerBase):
 
 
 class OfficerUpdate(BaseModel):
-    """Model for updating officer data."""
     title: Optional[str] = None
     first_name: Optional[str] = None
     last_name: Optional[str] = None
@@ -81,10 +71,7 @@ class Officer(OfficerBase):
     model_config = ConfigDict(from_attributes=True)
 
 
-# ============================================================================
 # Address Models (from company_addresses table)
-# ============================================================================
-
 class AddressBase(BaseModel):
     """Base model for address data."""
     company_id: int = Field(..., description="Company ID this address belongs to")
@@ -94,6 +81,7 @@ class AddressBase(BaseModel):
     door_number: Optional[str] = None
     postal_code: Optional[str] = None
     city: Optional[str] = None
+    state: Optional[str] = Field(None, description="Austrian federal state (Bundesland)")
     country: Optional[str] = Field(default="Austria")
     is_deliverable: bool = Field(default=True)
     is_active: bool = Field(default=True)
@@ -113,22 +101,34 @@ class Address(AddressBase):
     model_config = ConfigDict(from_attributes=True)
 
 
-# ============================================================================
-# Combined Response Models
-# ============================================================================
+# Activity Models (from company_activities table)
+class ActivitiesBase(BaseModel):
+    """Base model for activities data."""
+    company_id: int
+    description: str
+    is_active: bool = Field(default=True)
+    vnr: Optional[str] = None
 
-class CompanyWithDetails(Company):
-    """Company model with associated officers and addresses."""
-    officers: List[Officer] = []
-    addresses: List[Address] = []
+class Activities(ActivitiesBase):
+    """Complete activities model with ID."""
+    id: int
+    created_at: Optional[datetime] = None
 
     model_config = ConfigDict(from_attributes=True)
 
 
-# ============================================================================
-# Search Models
-# ============================================================================
+# Combined Response Models
+class CompanyWithDetails(Company):
+    """Company model with associated officers and addresses."""
+    officers: List[Officer] = []
+    addresses: List[Address] = []
+    activities: List[Activities] = []
 
+    model_config = ConfigDict(from_attributes=True)
+
+
+
+# Search Models
 class SearchQuery(BaseModel):
     """Model for search requests."""
     query: str = Field(..., min_length=1, description="Search query string")
@@ -144,12 +144,8 @@ class SearchResponse(BaseModel):
     offset: int
 
 
-# ============================================================================
 # Health Check Model
-# ============================================================================
-
 class HealthCheck(BaseModel):
-    """Health check response model."""
     status: str
     timestamp: datetime
     database: str

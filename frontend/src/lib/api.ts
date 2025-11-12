@@ -1,8 +1,3 @@
-/**
- * BizRay API Client
- * Client for interacting with the FastAPI backend
- */
-
 import type {
   Company,
   CompanyWithDetails,
@@ -13,9 +8,7 @@ import type {
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
-/**
- * Handle API responses and errors
- */
+// Helper function to handle API responses
 async function handleResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
     const error = await response
@@ -26,21 +19,18 @@ async function handleResponse<T>(response: Response): Promise<T> {
   return response.json();
 }
 
-/**
- * Health check endpoint
- */
+// Health check endpoint
 export async function checkHealth(): Promise<HealthCheck> {
   const response = await fetch(`${API_BASE_URL}/health`);
   return handleResponse<HealthCheck>(response);
 }
 
-/**
- * Search companies by name or FNR
- */
+// Search companies by name or FNR
 export async function searchCompanies(
   query: string,
   limit: number = 50,
-  offset: number = 0
+  offset: number = 0,
+  city?: string
 ): Promise<SearchResponse> {
   const params = new URLSearchParams({
     query,
@@ -48,45 +38,64 @@ export async function searchCompanies(
     offset: offset.toString(),
   });
 
+  // Add city parameter if provided
+  if (city) {
+    params.append('city', city);
+  }
+
   const response = await fetch(`${API_BASE_URL}/api/search/?${params}`);
   return handleResponse<SearchResponse>(response);
 }
 
-/**
- * Get all companies with pagination
- */
+// Get all unique cities from the database
+export async function getCities(): Promise<string[]> {
+  const response = await fetch(`${API_BASE_URL}/api/locations/cities`);
+  return handleResponse<string[]>(response);
+}
+
+// Get company name suggestions for autocomplete
+export async function getCompanySuggestions(
+  query: string,
+  limit: number = 10
+): Promise<string[]> {
+  const params = new URLSearchParams({
+    query,
+    limit: limit.toString(),
+  });
+
+  const response = await fetch(
+    `${API_BASE_URL}/api/search/suggestions?${params}`
+  );
+  return handleResponse<string[]>(response);
+}
+
+// Get all companies with pagination
 export async function listCompanies(
   limit: number = 100,
   offset: number = 0
-): Promise<Company[]> {
+): Promise<CompanyWithDetails[]> {
   const params = new URLSearchParams({
     limit: limit.toString(),
     offset: offset.toString(),
   });
 
   const response = await fetch(`${API_BASE_URL}/api/companies/?${params}`);
-  return handleResponse<Company[]>(response);
+  return handleResponse<CompanyWithDetails[]>(response);
 }
 
-/**
- * Get a specific company by ID with officers and addresses
- */
+// Get a specific company by ID with officers and addresses
 export async function getCompany(id: number): Promise<CompanyWithDetails> {
   const response = await fetch(`${API_BASE_URL}/api/companies/${id}`);
   return handleResponse<CompanyWithDetails>(response);
 }
 
-/**
- * Get a company by Firmenbuch number (FNR)
- */
+// Get a company by Firmenbuch number (FNR)
 export async function getCompanyByFnr(fnr: string): Promise<Company> {
   const response = await fetch(`${API_BASE_URL}/api/companies/fnr/${fnr}`);
   return handleResponse<Company>(response);
 }
 
-/**
- * Create a new company
- */
+// Create a new company
 export async function createCompany(data: {
   fnr: string;
   name: string;
@@ -101,9 +110,7 @@ export async function createCompany(data: {
   return handleResponse<Company>(response);
 }
 
-/**
- * Update a company
- */
+// Update a company
 export async function updateCompany(
   id: number,
   data: Partial<{
@@ -121,9 +128,7 @@ export async function updateCompany(
   return handleResponse<Company>(response);
 }
 
-/**
- * Delete a company
- */
+//Delete a company
 export async function deleteCompany(id: number): Promise<void> {
   const response = await fetch(`${API_BASE_URL}/api/companies/${id}`, {
     method: 'DELETE',
@@ -133,9 +138,7 @@ export async function deleteCompany(id: number): Promise<void> {
   }
 }
 
-/**
- * Get all officers with pagination
- */
+//Get all officers with pagination
 export async function listOfficers(
   limit: number = 100,
   offset: number = 0
@@ -149,9 +152,7 @@ export async function listOfficers(
   return handleResponse<Officer[]>(response);
 }
 
-/**
- * Get officers by company ID
- */
+//Get officers by company ID
 export async function getOfficersByCompany(
   companyId: number
 ): Promise<Officer[]> {
@@ -161,17 +162,13 @@ export async function getOfficersByCompany(
   return handleResponse<Officer[]>(response);
 }
 
-/**
- * Get a specific officer by ID
- */
+//Get a specific officer by ID
 export async function getOfficer(id: number): Promise<Officer> {
   const response = await fetch(`${API_BASE_URL}/api/officers/${id}`);
   return handleResponse<Officer>(response);
 }
 
-/**
- * Create a new officer
- */
+//Create a new officer
 export async function createOfficer(data: {
   company_id: number;
   title?: string;
@@ -190,3 +187,11 @@ export async function createOfficer(data: {
   });
   return handleResponse<Officer>(response);
 }
+
+export type {
+  Company,
+  CompanyWithDetails,
+  SearchResponse,
+  HealthCheck,
+  Officer,
+};
