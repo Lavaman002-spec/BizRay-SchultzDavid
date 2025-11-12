@@ -3,9 +3,9 @@ import logging
 from datetime import datetime
 from typing import Any, Optional, List, Tuple, Dict
 
-from database.client import get_supabase_client
+from .client import get_supabase_client
 from supabase import Client
-from shared.models import SearchQuery
+from ..shared.models import SearchQuery
 
 
 logger = logging.getLogger(__name__)
