@@ -206,6 +206,44 @@ def test_fetch_extracts_name_from_firmenwortlaut(monkeypatch: pytest.MonkeyPatch
     assert captured_company["name"] == "Wrapper GmbH"
 
 
+def test_fetch_handles_company_list_wrapper(monkeypatch: pytest.MonkeyPatch) -> None:
+    """A list-wrapped company payload should still resolve the Firmenbuch name."""
+
+    monkeypatch.setattr(
+        api_fetch.db_queries,
+        "get_company_with_details_by_fnr",
+        lambda _: None,
+    )
+
+    captured_company: Dict[str, Any] = {}
+
+    def fake_create_company_with_relations(company_data: Dict[str, Any], **_: Any) -> Dict[str, Any]:
+        captured_company.update(company_data)
+        return {"id": 11, **company_data}
+
+    monkeypatch.setattr(
+        api_fetch.db_queries,
+        "create_company_with_relations",
+        fake_create_company_with_relations,
+    )
+
+    api_payload = {
+        "company": [
+            {
+                "registerId": "135790D",
+                "firmenwortlaut": {"#text": "List Wrapper GmbH"},
+            }
+        ]
+    }
+
+    dummy_client = DummyClient(payload=api_payload)
+
+    result = api_fetch.fetch_company_profile_if_missing("135790d", client=dummy_client)
+
+    assert result["name"] == "List Wrapper GmbH"
+    assert captured_company["name"] == "List Wrapper GmbH"
+
+
 @pytest.mark.parametrize(
     "value",
     [
@@ -213,6 +251,10 @@ def test_fetch_extracts_name_from_firmenwortlaut(monkeypatch: pytest.MonkeyPatch
         {"text": "Case GmbH"},
         {"value": {"text": "Case GmbH"}},
         [{"name": "Case GmbH"}],
+        {"#text": "Case GmbH"},
+        {"@text": "Case GmbH"},
+        {"$": "Case GmbH"},
+        {"valueText": "Case GmbH"},
     ],
 )
 def test_extract_company_name_handles_wrappers(value: Any) -> None:
@@ -221,6 +263,15 @@ def test_extract_company_name_handles_wrappers(value: Any) -> None:
     payload = {"firmenWortlaut": value}
 
     assert api_fetch._extract_company_name(payload) == "Case GmbH"
+
+
+def test_extract_company_name_handles_company_list() -> None:
+    """The company payload may be wrapped in a list before containing the name."""
+
+    payload = {"company": [{"firmenwortlaut": {"#text": "List GmbH"}}]}
+
+    assert api_fetch._extract_company_name(payload["company"]) == "List GmbH"
+    assert api_fetch._extract_company_name(payload) == "List GmbH"
 
 
 def test_raises_when_not_found(monkeypatch: pytest.MonkeyPatch) -> None:
