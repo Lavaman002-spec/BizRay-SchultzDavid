@@ -1,6 +1,8 @@
 """
 Script to populate Supabase companies table from companies.csv
 """
+"""Script to populate Supabase companies table from companies.csv"""
+
 import csv
 import os
 import sys
@@ -9,8 +11,10 @@ from pathlib import Path
 # Add parent directory to path for imports
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from database.client import get_supabase_client
-from shared.models import CompanyCreate
+from ..database.client import get_supabase_client
+from ..shared.models import CompanyCreate
+
+
 
 
 def normalize_fnr(fnr: str) -> str:

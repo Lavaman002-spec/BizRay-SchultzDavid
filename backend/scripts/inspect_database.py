@@ -6,7 +6,8 @@ from pathlib import Path
 backend_dir = Path(__file__).parent.parent
 sys.path.insert(0, str(backend_dir))
 
-from database.client import get_supabase_client
+from ..database.client import get_supabase_client
+
 
 def inspect_database():
     """Inspect and display current database schema."""

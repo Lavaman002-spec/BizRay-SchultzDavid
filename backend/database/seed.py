@@ -1,9 +1,9 @@
 import csv
 import os
 from supabase import create_client, Client
-from config import SUPABASE_URL, SUPABASE_KEY
-from utils import normalize_fn_number, format_company_name, sanitize_input
-from models import CompanyCreate
+from ..shared.config import SUPABASE_URL, SUPABASE_KEY
+from ..shared.utils import normalize_fn_number, format_company_name, sanitize_input
+from ..shared.models import CompanyCreate
 
 # --- Supabase client ---
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
