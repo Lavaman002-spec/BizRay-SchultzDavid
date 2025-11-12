@@ -192,10 +192,61 @@ def _normalise_company_payload(
 
 
 def _extract_company_name(company_payload: Dict[str, Any]) -> Optional[str]:
-    for key in ("name", "companyName", "company_name", "firmenwortlaut"):
-        cleaned = _clean_string(company_payload.get(key))
+    if not isinstance(company_payload, dict):
+        return None
+
+    candidate_keys = ("name", "companyName", "company_name", "firmenwortlaut")
+    lower_key_map = {str(key).lower(): value for key, value in company_payload.items()}
+
+    for key in candidate_keys:
+        value = lower_key_map.get(key.lower())
+        if value is None:
+            continue
+        cleaned = _extract_string_value(value)
         if cleaned:
             return cleaned
+
+    return None
+
+
+def _extract_string_value(value: Any) -> Optional[str]:
+    """Return the first usable string contained within value."""
+
+    if isinstance(value, str) or not isinstance(value, (dict, list, tuple, set)):
+        return _clean_string(value)
+
+    if isinstance(value, dict):
+        value_map = {str(key).lower(): inner for key, inner in value.items()}
+        candidate_keys = (
+            "text",
+            "value",
+            "name",
+            "companyname",
+            "company_name",
+            "label",
+            "title",
+            "description",
+        )
+        for key in candidate_keys:
+            inner_value = value_map.get(key)
+            if inner_value is None:
+                continue
+            cleaned = _extract_string_value(inner_value)
+            if cleaned:
+                return cleaned
+
+        for inner_value in value.values():
+            cleaned = _extract_string_value(inner_value)
+            if cleaned:
+                return cleaned
+
+        return None
+
+    for item in value:
+        cleaned = _extract_string_value(item)
+        if cleaned:
+            return cleaned
+
     return None
 
 
