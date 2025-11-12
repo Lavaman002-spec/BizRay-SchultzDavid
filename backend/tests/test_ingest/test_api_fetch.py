@@ -319,6 +319,20 @@ def test_fetch_company_suggestions_raises_when_empty(monkeypatch: pytest.MonkeyP
         api_fetch.fetch_company_suggestions_from_firmenbuch("missing", client=dummy_client)
 
 
+def test_fetch_company_suggestions_wraps_client_configuration(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Client configuration issues should surface as fetch errors."""
+
+    def failing_client() -> None:
+        raise ValueError("missing base url")
+
+    monkeypatch.setattr(api_fetch, "FirmenbuchAPIClient", failing_client)
+
+    with pytest.raises(api_fetch.FirmenbuchFetchError) as excinfo:
+        api_fetch.fetch_company_suggestions_from_firmenbuch("obb")
+
+    assert "missing base url" in str(excinfo.value).lower()
+
+
 def test_raises_when_not_found(monkeypatch: pytest.MonkeyPatch) -> None:
     """A missing record raises a descriptive error."""
 
@@ -347,6 +361,26 @@ def test_wraps_api_errors(monkeypatch: pytest.MonkeyPatch) -> None:
 
     with pytest.raises(api_fetch.FirmenbuchFetchError):
         api_fetch.fetch_company_profile_if_missing("123456A", client=dummy_client)
+
+
+def test_fetch_profile_wraps_client_configuration(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Missing Firmenbuch client configuration bubbles up as a fetch error."""
+
+    monkeypatch.setattr(
+        api_fetch.db_queries,
+        "get_company_with_details_by_fnr",
+        lambda _: None,
+    )
+
+    def failing_client() -> None:
+        raise ValueError("configure base url")
+
+    monkeypatch.setattr(api_fetch, "FirmenbuchAPIClient", failing_client)
+
+    with pytest.raises(api_fetch.FirmenbuchFetchError) as excinfo:
+        api_fetch.fetch_company_profile_if_missing("123456a")
+
+    assert "base url" in str(excinfo.value).lower()
 
 
 def test_fetch_by_name_prefers_exact_match(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -420,3 +454,17 @@ def test_fetch_by_name_wraps_search_errors(monkeypatch: pytest.MonkeyPatch) -> N
 
     with pytest.raises(api_fetch.FirmenbuchFetchError):
         api_fetch.fetch_company_profile_by_name_if_missing("Example GmbH", client=dummy_client)
+
+
+def test_fetch_by_name_wraps_client_configuration(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Misconfigured clients should raise consistent fetch errors for name lookups."""
+
+    def failing_client() -> None:
+        raise ValueError("set firmenbuch base url")
+
+    monkeypatch.setattr(api_fetch, "FirmenbuchAPIClient", failing_client)
+
+    with pytest.raises(api_fetch.FirmenbuchFetchError) as excinfo:
+        api_fetch.fetch_company_profile_by_name_if_missing("Example GmbH")
+
+    assert "firmenbuch" in str(excinfo.value).lower()

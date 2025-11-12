@@ -21,6 +21,20 @@ class FirmenbuchFetchError(Exception):
     """Raised when fetching or persisting Firmenbuch data fails."""
 
 
+def _resolve_client(
+    client: Optional[FirmenbuchAPIClient],
+) -> FirmenbuchAPIClient:
+    """Return a Firmenbuch API client, wrapping configuration errors consistently."""
+
+    if client is not None:
+        return client
+
+    try:
+        return FirmenbuchAPIClient()
+    except ValueError as exc:
+        raise FirmenbuchFetchError(str(exc)) from exc
+
+
 def fetch_company_profile_if_missing(
     fnr: str,
     *,
@@ -34,7 +48,7 @@ def fetch_company_profile_if_missing(
         logger.debug("Company %s returned from local cache", normalized_fnr)
         return existing
 
-    client = client or FirmenbuchAPIClient()
+    client = _resolve_client(client)
     logger.info("Fetching company %s from Firmenbuch API", normalized_fnr)
 
     try:
@@ -89,7 +103,7 @@ def fetch_company_profile_by_name_if_missing(
     if not search_query:
         raise ValueError("name must be provided")
 
-    client = client or FirmenbuchAPIClient()
+    client = _resolve_client(client)
 
     logger.info("Searching Firmenbuch for company name '%s'", search_query)
 
@@ -167,7 +181,7 @@ def fetch_company_suggestions_from_firmenbuch(
     if not search_query:
         raise ValueError("query must be provided")
 
-    client = client or FirmenbuchAPIClient()
+    client = _resolve_client(client)
 
     logger.info("Resolving Firmenbuch suggestions for query '%s'", search_query)
 
