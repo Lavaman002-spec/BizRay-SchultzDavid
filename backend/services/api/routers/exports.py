@@ -1,66 +1,47 @@
 from fastapi import APIRouter, HTTPException
-from fastapi.responses import FileResponse
 from datetime import datetime
-import json
-import os
 
 from backend.database import queries as db_queries
+from backend.shared.models import ExportCreate, Export
 
 router = APIRouter(prefix="/exports", tags=["exports"])
 
 
-@router.post("/{id}")
-async def export_data(id: int):
+@router.post("/", response_model=Export)
+async def create_export(export_data: ExportCreate):
     """
-    Generate an export file for the given export ID.
-    The file includes a timestamp, data versions, a parameter block,
-    and the export data retrieved from the database.
+    Create a new export record for a company.
+    This endpoint is called when a user exports a company report.
     """
-    # 1. Get export record from database
-    export_record = db_queries.get_export_by_id(id)
+    # Verify the company exists
+    company = db_queries.get_company_by_id(export_data.company_id)
+    if not company:
+        raise HTTPException(status_code=404, detail=f"Company with ID {export_data.company_id} not found")
+
+    # Create the export record
+    export_record = db_queries.create_export(export_data.model_dump())
     if not export_record:
-        raise HTTPException(status_code=404, detail=f"Export with ID {id} not found")
+        raise HTTPException(status_code=500, detail="Failed to create export record")
 
-    # 2. Prepare metadata
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    data_versions = {
-        "schema_version": "1.0.0",
-        "data_version": datetime.now().strftime("%Y.%m.%d"),
-    }
-    param_block = {
-        "requested_id": id,
-        "export_type": "standard",
-        "generated_by": "BizRay API",
-        "generated_at": timestamp,
-    }
+    return export_record
 
-    # 3. Build export content
-    export_content = {
-        "timestamp": timestamp,
-        "data_versions": data_versions,
-        "param_block": param_block,
-        "data": export_record,  # directly from DB
-    }
 
-    # 4. Create output directory (if needed)
-    output_dir = "/tmp/exports"
-    os.makedirs(output_dir, exist_ok=True)
+@router.get("/{export_id}", response_model=Export)
+async def get_export(export_id: int):
+    """
+    Get an export record by ID.
+    """
+    export_record = db_queries.get_export_by_id(export_id)
+    if not export_record:
+        raise HTTPException(status_code=404, detail=f"Export with ID {export_id} not found")
 
-    # 5. Generate file name and path
-    filename = f"export_{id}_{timestamp}.json"
-    file_path = os.path.join(output_dir, filename)
+    return export_record
 
-    # 6. Write file to disk
-    try:
-        with open(file_path, "w", encoding="utf-8") as f:
-            json.dump(export_content, f, indent=2, ensure_ascii=False)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to write export file: {str(e)}")
 
-    # 7. Return the file to the client
-    return FileResponse(
-        path=file_path,
-        filename=filename,
-        media_type="application/json",
-        headers={"X-Export-Generated": timestamp},
-    )
+@router.get("/company/{company_id}")
+async def get_company_exports(company_id: int, limit: int = 50):
+    """
+    Get all export records for a company.
+    """
+    exports = db_queries.get_exports_by_company(company_id, limit)
+    return exports

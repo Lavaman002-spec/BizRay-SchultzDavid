@@ -3,9 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { TrendingUp, Users2, AlertCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { getCompany } from '@/lib/api';
@@ -77,25 +75,25 @@ export default function CompanyPage() {
           <TabsList className="bg-white border border-gray-200 rounded-lg p-1 mb-6 h-auto">
             <TabsTrigger
               value="profile"
-              className="rounded-2xl px-3 py-1 text-sm font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm"
+              className="rounded-xs text-gray-700 px-3 py-1 text-sm data-[state=active]:font-medium data-[state=active]:bg-gray-100 data-[state=active]:text-gray-950"
             >
               Profile
             </TabsTrigger>
             <TabsTrigger
               value="risk"
-              className="rounded-2xl px-3 py-1 text-sm font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm"
+              className="rounded-xs text-gray-700 px-3 py-1 text-sm data-[state=active]:font-medium data-[state=active]:bg-gray-100 data-[state=active]:text-gray-950"
             >
               Risk Indicators
             </TabsTrigger>
             <TabsTrigger
               value="reporting"
-              className="rounded-2xl px-3 py-1 text-sm font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm"
+              className="rounded-xs text-gray-700 px-3 py-1 text-sm data-[state=active]:font-medium data-[state=active]:bg-gray-100 data-[state=active]:text-gray-950"
             >
               Reporting
             </TabsTrigger>
             <TabsTrigger
               value="network"
-              className="rounded-2xl px-3 py-1 text-sm font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm"
+              className="rounded-xs text-gray-700 px-3 py-1 text-sm data-[state=active]:font-medium data-[state=active]:bg-gray-100 data-[state=active]:text-gray-950"
             >
               Network
             </TabsTrigger>

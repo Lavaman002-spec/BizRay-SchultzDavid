@@ -458,3 +458,25 @@ def health_check(db: Client) -> bool:
         return True
     except Exception:
         return False
+
+
+# Export queries
+def create_export(export_data: dict) -> dict:
+    """Create a new export record."""
+    client = get_supabase_client()
+    response = client.table('exports').insert(export_data).execute()
+    return response.data[0] if response.data else None
+
+
+def get_export_by_id(export_id: int) -> Optional[dict]:
+    """Get an export by ID."""
+    client = get_supabase_client()
+    response = client.table('exports').select('*').eq('id', export_id).execute()
+    return response.data[0] if response.data else None
+
+
+def get_exports_by_company(company_id: int, limit: int = 50) -> List[dict]:
+    """Get all exports for a company."""
+    client = get_supabase_client()
+    response = client.table('exports').select('*').eq('company_id', company_id).order('exported_at', desc=True).limit(limit).execute()
+    return response.data or []

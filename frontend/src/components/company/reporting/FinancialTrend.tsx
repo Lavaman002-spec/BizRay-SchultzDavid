@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { TrendingUp } from "lucide-react";
-import type { CompanyWithDetails } from "@/types/company";
+import { TrendingUp } from 'lucide-react';
+import type { CompanyWithDetails } from '@/types/company';
 
 interface FinancialTrendProps {
   company: CompanyWithDetails;
@@ -24,12 +24,23 @@ function generateSeries(seed: number) {
   return series;
 }
 
-function Sparkline({ data, width = 260, height = 80 }: { data: number[]; width?: number; height?: number }) {
+function Sparkline({
+  data,
+  width = 260,
+  height = 80,
+}: {
+  data: number[];
+  width?: number;
+  height?: number;
+}) {
   const max = Math.max(...data);
   const min = Math.min(...data);
   const px = (i: number) => (i / (data.length - 1)) * (width - 8) + 4;
-  const py = (v: number) => height - 4 - ((v - min) / (max - min || 1)) * (height - 8);
-  const d = data.map((v, i) => `${i === 0 ? "M" : "L"}${px(i)},${py(v)}`).join(" ");
+  const py = (v: number) =>
+    height - 4 - ((v - min) / (max - min || 1)) * (height - 8);
+  const d = data
+    .map((v, i) => `${i === 0 ? 'M' : 'L'}${px(i)},${py(v)}`)
+    .join(' ');
   return (
     <svg width={width} height={height} aria-label="Revenue trend">
       <polyline
@@ -51,12 +62,17 @@ export default function FinancialTrend({ company }: FinancialTrendProps) {
   const yoy = ((last - prev) / (prev || 1)) * 100;
 
   const currentYear = new Date().getFullYear();
-  const years = Array.from({ length: series.length }, (_, i) => currentYear - series.length + 1 + i);
+  const years = Array.from(
+    { length: series.length },
+    (_, i) => currentYear - series.length + 1 + i
+  );
 
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <h4 className="text-base font-semibold text-gray-900">Financial Trend</h4>
+        <h4 className="text-base font-semibold text-gray-900">
+          Financial Trend
+        </h4>
         <div className="flex items-center gap-1 text-xs text-gray-500">
           <TrendingUp className="w-3.5 h-3.5" /> Revenue (est.)
         </div>
@@ -64,11 +80,20 @@ export default function FinancialTrend({ company }: FinancialTrendProps) {
 
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-2xl font-semibold text-gray-900">€{last.toFixed(1)}M</p>
-          <p className="text-xs text-gray-500">{years[0]}–{years[years.length - 1]}</p>
+          <p className="text-2xl font-semibold text-gray-900">
+            €{last.toFixed(1)}M
+          </p>
+          <p className="text-xs text-gray-500">
+            {years[0]}–{years[years.length - 1]}
+          </p>
         </div>
-        <div className={`text-sm font-medium ${yoy >= 0 ? "text-emerald-600" : "text-red-600"}`}>
-          {yoy >= 0 ? "+" : ""}{yoy.toFixed(1)}% YoY
+        <div
+          className={`text-sm font-medium  ${
+            yoy >= 0 ? 'text-emerald-600' : 'text-red-600'
+          }`}
+        >
+          {yoy >= 0 ? '+' : ''}
+          {yoy.toFixed(1)}% YoY
         </div>
       </div>
 
@@ -78,4 +103,3 @@ export default function FinancialTrend({ company }: FinancialTrendProps) {
     </div>
   );
 }
-
