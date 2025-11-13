@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import { Card } from "@/components/ui/card";
-import type { CompanyWithDetails } from "@/types/company";
-import ReportingKpis from "./ReportingKpis";
-import FilingsTimeline from "./FilingsTimeline";
-import FinancialTrend from "./FinancialTrend";
-import ComplianceAlerts from "./ComplianceAlerts";
+import { Card } from '@/components/ui/card';
+import type { CompanyWithDetails } from '@/types/company';
+import ReportingKpis from './ReportingKpis';
+import FilingsTimeline from './FilingsTimeline';
+import FinancialTrend from './FinancialTrend';
+import ComplianceAlerts from './ComplianceAlerts';
 
 interface ReportingPanelProps {
   company: CompanyWithDetails;
@@ -31,4 +31,3 @@ export default function ReportingPanel({ company }: ReportingPanelProps) {
     </div>
   );
 }
-

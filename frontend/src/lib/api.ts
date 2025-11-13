@@ -224,6 +224,28 @@ export async function createOfficer(data: {
   return handleResponse<Officer>(response);
 }
 
+// Export API Types
+export interface Export {
+  id: number;
+  company_id: number;
+  export_type: string;
+  exported_at: string;
+  created_at: string;
+}
+
+// Create an export record
+export async function createExport(data: {
+  company_id: number;
+  export_type?: string;
+}): Promise<Export> {
+  const response = await fetch(`${API_BASE_URL}/api/exports/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  return handleResponse<Export>(response);
+}
+
 export type {
   Company,
   CompanyWithDetails,

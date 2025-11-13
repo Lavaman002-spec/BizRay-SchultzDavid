@@ -214,6 +214,27 @@ class SearchSuggestionsResponse(BaseModel):
     suggestions: List[SearchSuggestion] = Field(default_factory=list)
 
 
+# Export Models
+class ExportBase(BaseModel):
+    """Base model for export data."""
+    company_id: int = Field(..., description="Company ID for the export")
+    export_type: str = Field(default="pdf", description="Type of export (pdf, json, etc.)")
+
+
+class ExportCreate(ExportBase):
+    """Model for creating a new export record."""
+    pass
+
+
+class Export(ExportBase):
+    """Complete export model with ID."""
+    id: int
+    exported_at: Optional[datetime] = None
+    created_at: Optional[datetime] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
 # Health Check Model
 class HealthCheck(BaseModel):
     status: str

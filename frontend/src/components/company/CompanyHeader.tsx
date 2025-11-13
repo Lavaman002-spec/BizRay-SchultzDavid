@@ -1,3 +1,6 @@
+'use client';
+
+import { useState } from 'react';
 import {
   Building2,
   MapPin,
@@ -11,6 +14,8 @@ import BrandButton from '@/components/commons/BrandButton';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import type { CompanyWithDetails } from '@/types/company';
+import { generateCompanyPDF } from '@/lib/pdfExport';
+import { createExport } from '@/lib/api';
 
 // Define the props interface
 interface CompanyHeaderProps {
@@ -18,6 +23,29 @@ interface CompanyHeaderProps {
 }
 
 export default function CompanyHeader({ company }: CompanyHeaderProps) {
+  const [isExporting, setIsExporting] = useState(false);
+
+  const handleExport = async () => {
+    try {
+      setIsExporting(true);
+
+      // Generate and download the PDF
+      generateCompanyPDF(company);
+
+      // Create export record in database
+      await createExport({
+        company_id: company.id,
+        export_type: 'pdf',
+      });
+
+      console.log('Export completed successfully');
+    } catch (error) {
+      console.error('Failed to export company data:', error);
+      alert('Failed to export company data. Please try again.');
+    } finally {
+      setIsExporting(false);
+    }
+  };
   const primaryAddress = company.addresses?.[0];
   const addressString = primaryAddress
     ? [primaryAddress.street, primaryAddress.house_number, primaryAddress.city]
@@ -54,7 +82,13 @@ export default function CompanyHeader({ company }: CompanyHeaderProps) {
         {/* Right: Action Buttons */}
         <div className="flex gap-3">
           <BrandButton variant="secondary" text="Share" leftIcon={Share2} />
-          <BrandButton variant="primary" text="Export" leftIcon={Download} />
+          <BrandButton
+            variant="primary"
+            text={isExporting ? 'Exporting...' : 'Export'}
+            leftIcon={Download}
+            onClick={handleExport}
+            disabled={isExporting}
+          />
         </div>
       </div>
 
@@ -93,7 +127,7 @@ export default function CompanyHeader({ company }: CompanyHeaderProps) {
           </div>
         </div>
 
-        {/* Website */}
+        {/* Website 
         <div className="flex gap-3">
           <Globe className="w-5 h-5 text-gray-600 mt-0.5" />
           <div>
@@ -102,7 +136,7 @@ export default function CompanyHeader({ company }: CompanyHeaderProps) {
               www.example.com
             </a>
           </div>
-        </div>
+        </div> */}
 
         {/* Industry */}
         <div className="flex gap-3">
