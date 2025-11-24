@@ -240,3 +240,9 @@ class HealthCheck(BaseModel):
     status: str
     timestamp: datetime
     database: str
+    
+    
+class DashboardStats(BaseModel):
+    total_companies: int
+    active_companies: int
+    total_officers: int

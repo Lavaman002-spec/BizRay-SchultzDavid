@@ -7,11 +7,13 @@ interface CompanyCardProps {
   company: Company | CompanyWithDetails;
   riskScore?: number;
   riskLevel?: 'Low Risk' | 'Medium Risk' | 'High Risk';
+  address?: string;
 }
 export default function CompanyCard({
   // riskScore,
   // riskLevel,
   company,
+  address,
 }: CompanyCardProps) {
   const {
     id: companyId,
@@ -32,9 +34,9 @@ export default function CompanyCard({
   const primaryAddress = (company as CompanyWithDetails).addresses?.find(
     (addr) => addr.is_active
   );
-  const displayAddress = primaryAddress
+  const displayAddress = address || (primaryAddress
     ? `${primaryAddress.street} ${primaryAddress.house_number}, ${primaryAddress.postal_code} ${primaryAddress.city}`
-    : undefined;
+    : undefined);
 
   return (
     <Link key={companyId} href={`/company/${companyId}`}>

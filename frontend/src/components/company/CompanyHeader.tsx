@@ -5,11 +5,14 @@ import {
   Building2,
   MapPin,
   Calendar,
-  Globe,
   TrendingUp,
   Share2,
   Download,
+  Bell,
 } from 'lucide-react';
+import { toast } from 'sonner';
+import { useAuth } from '@/context/AuthContext';
+import { useEffect } from 'react';
 import BrandButton from '@/components/commons/BrandButton';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -24,6 +27,65 @@ interface CompanyHeaderProps {
 
 export default function CompanyHeader({ company }: CompanyHeaderProps) {
   const [isExporting, setIsExporting] = useState(false);
+  const [isWatched, setIsWatched] = useState(false);
+  const [isLoadingWatch, setIsLoadingWatch] = useState(true);
+  const { session } = useAuth();
+
+  useEffect(() => {
+    const checkWatchlist = async () => {
+      if (!session?.access_token) return;
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/watchlist/check/${company.id}`, {
+          headers: { Authorization: `Bearer ${session.access_token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setIsWatched(data.is_watched);
+        }
+      } catch (error) {
+        console.error('Failed to check watchlist', error);
+      } finally {
+        setIsLoadingWatch(false);
+      }
+    };
+    checkWatchlist();
+  }, [company.id, session]);
+
+  const handleWatchToggle = async () => {
+    if (!session) {
+      toast.error("Please login to watch companies");
+      return;
+    }
+
+    const originalState = isWatched;
+    setIsWatched(!isWatched); // Optimistic update
+
+    try {
+      const method = originalState ? 'DELETE' : 'POST';
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/watchlist/${company.id}`, {
+        method,
+        headers: { Authorization: `Bearer ${session.access_token}` }
+      });
+
+      if (!res.ok) throw new Error('Failed to update watchlist');
+
+      toast.success(originalState ? "Removed from watchlist" : "Added to watchlist");
+    } catch (error) {
+      console.error(error);
+      setIsWatched(originalState); // Revert
+      toast.error("Failed to update watchlist");
+    }
+  };
+
+  const handleShare = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      toast.success("Link copied to clipboard!");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to copy link");
+    }
+  };
 
   const handleExport = async () => {
     try {
@@ -49,8 +111,8 @@ export default function CompanyHeader({ company }: CompanyHeaderProps) {
   const primaryAddress = company.addresses?.[0];
   const addressString = primaryAddress
     ? [primaryAddress.street, primaryAddress.house_number, primaryAddress.city]
-        .filter(Boolean)
-        .join(' ')
+      .filter(Boolean)
+      .join(' ')
     : null;
 
   return (
@@ -81,7 +143,14 @@ export default function CompanyHeader({ company }: CompanyHeaderProps) {
 
         {/* Right: Action Buttons */}
         <div className="flex gap-3">
-          <BrandButton variant="secondary" text="Share" leftIcon={Share2} />
+          <BrandButton
+            variant="secondary"
+            text={isWatched ? "Watching" : "Watch"}
+            leftIcon={Bell}
+            onClick={handleWatchToggle}
+            className={isWatched ? "bg-blue-50 text-blue-600 border-blue-200" : ""}
+          />
+          <BrandButton variant="secondary" text="Share" leftIcon={Share2} onClick={handleShare} />
           <BrandButton
             variant="primary"
             text={isExporting ? 'Exporting...' : 'Export'}

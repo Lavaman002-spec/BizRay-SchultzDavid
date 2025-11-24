@@ -19,6 +19,10 @@ from backend.services.api.routers import (
     search,
     locations,
     exports,
+    auth,
+    graph,
+    watchlist,
+    stats,
 )
 
 
@@ -47,6 +51,10 @@ app.include_router(officers.router, prefix="/api")
 app.include_router(search.router, prefix="/api")
 app.include_router(locations.router, prefix="/api")
 app.include_router(exports.router, prefix="/api")
+app.include_router(auth.router, prefix="/api")
+app.include_router(graph.router, prefix="/api")
+app.include_router(watchlist.router, prefix="/api")
+app.include_router(stats.router, prefix="/api")
 
 @app.get("/", tags=["root"])
 async def root():

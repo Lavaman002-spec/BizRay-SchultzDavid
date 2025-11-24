@@ -373,6 +373,26 @@ def get_search_stats() -> dict:
     return {"total_companies": total_companies}
 
 
+def get_dashboard_stats() -> dict:
+    """Return stats for the dashboard."""
+    client = get_supabase_client()
+    
+    # Total companies
+    total_companies = client.table("companies").select("id", count="exact").limit(1).execute().count or 0
+    
+    # Active companies
+    active_companies = client.table("companies").select("id", count="exact").eq("state", "active").limit(1).execute().count or 0
+    
+    # Total officers
+    total_officers = client.table("company_officers").select("id", count="exact").limit(1).execute().count or 0
+    
+    return {
+        "total_companies": total_companies,
+        "active_companies": active_companies,
+        "total_officers": total_officers,
+    }
+
+
 def get_company_with_details(company_id: int) -> Optional[dict]:
     """Get a company with its officers, addresses, and activities."""
     client = get_supabase_client()

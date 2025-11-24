@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Building2, Users, TrendingUp } from 'lucide-react';
-import { checkHealth, listCompanies, listOfficers } from '@/lib/api';
+import { checkHealth, getStats } from '@/lib/api';
 
 interface StatsCardsProps {
   className?: string;
@@ -20,20 +20,15 @@ export default function StatsCards({ className = '' }: StatsCardsProps) {
   useEffect(() => {
     async function loadStats() {
       try {
-        const [health, companiesData, officersData] = await Promise.all([
+        const [health, statsData] = await Promise.all([
           checkHealth(),
-          listCompanies(1000, 0),
-          listOfficers(1000, 0),
+          getStats(),
         ]);
 
-        const activeCount = companiesData.filter(
-          (c) => c.state === 'active'
-        ).length;
-
         setStats({
-          totalCompanies: companiesData.length,
-          totalOfficers: officersData.length,
-          activeCompanies: activeCount,
+          totalCompanies: statsData.total_companies,
+          totalOfficers: statsData.total_officers,
+          activeCompanies: statsData.active_companies,
           dbStatus: health.database,
           loading: false,
         });

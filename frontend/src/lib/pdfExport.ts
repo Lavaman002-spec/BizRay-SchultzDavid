@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import type { CompanyWithDetails } from '@/types/company';
@@ -13,7 +14,7 @@ export function generateCompanyPDF(company: CompanyWithDetails): void {
   let yPosition = 20;
 
   // Color palette matching the design language
-  const colors = {
+  const colors: Record<string, [number, number, number]> = {
     primary: [37, 99, 235], // blue-600
     secondary: [107, 114, 128], // gray-500
     lightGray: [243, 244, 246], // gray-100
@@ -144,8 +145,8 @@ export function generateCompanyPDF(company: CompanyWithDetails): void {
 
     const officersData = company.officers.map((officer) => [
       officer.full_name ||
-        `${officer.first_name || ''} ${officer.last_name || ''}`.trim() ||
-        'N/A',
+      `${officer.first_name || ''} ${officer.last_name || ''}`.trim() ||
+      'N/A',
       officer.role || 'Officer',
       officer.birth_date
         ? new Date(officer.birth_date).toLocaleDateString()

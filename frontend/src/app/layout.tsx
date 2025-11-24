@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { Toaster } from 'sonner';
+import { AuthProvider } from '@/context/AuthContext';
 import AppNav from '@/components/layout/AppNav';
 import './globals.css';
 
@@ -19,9 +20,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.className} bg-zinc-100`}>
-        <AppNav />
-        <div className="pt-24">{children}</div>
-        <Toaster position="top-right" richColors />
+        <AuthProvider>
+          <AppNav />
+          <div className="pt-24">{children}</div>
+          <Toaster position="top-right" richColors />
+        </AuthProvider>
       </body>
     </html>
   );

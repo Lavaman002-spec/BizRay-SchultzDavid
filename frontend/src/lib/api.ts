@@ -233,6 +233,12 @@ export interface Export {
   created_at: string;
 }
 
+export interface DashboardStats {
+  total_companies: number;
+  active_companies: number;
+  total_officers: number;
+}
+
 // Create an export record
 export async function createExport(data: {
   company_id: number;
@@ -244,6 +250,12 @@ export async function createExport(data: {
     body: JSON.stringify(data),
   });
   return handleResponse<Export>(response);
+}
+
+// Get dashboard stats
+export async function getStats(): Promise<DashboardStats> {
+  const response = await fetch(`${API_BASE_URL}/api/stats/`);
+  return handleResponse<DashboardStats>(response);
 }
 
 export type {

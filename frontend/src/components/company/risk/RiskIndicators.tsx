@@ -35,11 +35,11 @@ function computeRisk(company: CompanyWithDetails) {
   const base = computeDeterministicScore(company.id);
 
   const breakdown: RiskBreakdownItem[] = [
-    { category: "Financial", score: (base * 0.7 + 20) % 100, hint: "Liquidity & payment behavior" },
-    { category: "Compliance", score: (base * 0.5 + 40) % 100, hint: "Filings, status, disclosures" },
-    { category: "Legal", score: (base * 0.9 + 10) % 100, hint: "Litigation & insolvency signals" },
-    { category: "Operational", score: (base * 0.6 + 30) % 100, hint: "Continuity & key people" },
-    { category: "Network", score: (base * 0.8 + 15) % 100, hint: "Associations & adverse links" },
+    { category: "Financial" as Category, score: (base * 0.7 + 20) % 100, hint: "Liquidity & payment behavior" },
+    { category: "Compliance" as Category, score: (base * 0.5 + 40) % 100, hint: "Filings, status, disclosures" },
+    { category: "Legal" as Category, score: (base * 0.9 + 10) % 100, hint: "Litigation & insolvency signals" },
+    { category: "Operational" as Category, score: (base * 0.6 + 30) % 100, hint: "Continuity & key people" },
+    { category: "Network" as Category, score: (base * 0.8 + 15) % 100, hint: "Associations & adverse links" },
   ].map((b) => ({ ...b, score: Math.round(b.score) }));
 
   const score = Math.round(breakdown.reduce((acc, b) => acc + b.score, 0) / breakdown.length);
