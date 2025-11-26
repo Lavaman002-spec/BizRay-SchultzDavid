@@ -51,6 +51,11 @@ export default function AppNav() {
               </NavigationMenuItem>
               <NavigationMenuItem>
                 <NavigationMenuLink asChild>
+                  <Link href="/watchlist">Watchlist</Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+              <NavigationMenuItem>
+                <NavigationMenuLink asChild>
                   <Link href="/settings">Settings</Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
@@ -63,10 +68,8 @@ export default function AppNav() {
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-200">
-                    <UserIcon className="h-4 w-4" />
-                  </div>
+                <Button variant="outline" size="icon">
+                  <UserIcon />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56" align="end" forceMount>

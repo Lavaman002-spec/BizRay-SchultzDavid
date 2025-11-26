@@ -23,9 +23,13 @@ import { createExport } from '@/lib/api';
 // Define the props interface
 interface CompanyHeaderProps {
   company: CompanyWithDetails;
+  isRefreshing?: boolean;
 }
 
-export default function CompanyHeader({ company }: CompanyHeaderProps) {
+export default function CompanyHeader({
+  company,
+  isRefreshing = false,
+}: CompanyHeaderProps) {
   const [isExporting, setIsExporting] = useState(false);
   const [isWatched, setIsWatched] = useState(false);
   const [isLoadingWatch, setIsLoadingWatch] = useState(true);
@@ -35,9 +39,12 @@ export default function CompanyHeader({ company }: CompanyHeaderProps) {
     const checkWatchlist = async () => {
       if (!session?.access_token) return;
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/watchlist/check/${company.id}`, {
-          headers: { Authorization: `Bearer ${session.access_token}` }
-        });
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/watchlist/check/${company.id}`,
+          {
+            headers: { Authorization: `Bearer ${session.access_token}` },
+          }
+        );
         if (res.ok) {
           const data = await res.json();
           setIsWatched(data.is_watched);
@@ -53,7 +60,7 @@ export default function CompanyHeader({ company }: CompanyHeaderProps) {
 
   const handleWatchToggle = async () => {
     if (!session) {
-      toast.error("Please login to watch companies");
+      toast.error('Please login to watch companies');
       return;
     }
 
@@ -62,28 +69,33 @@ export default function CompanyHeader({ company }: CompanyHeaderProps) {
 
     try {
       const method = originalState ? 'DELETE' : 'POST';
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/watchlist/${company.id}`, {
-        method,
-        headers: { Authorization: `Bearer ${session.access_token}` }
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/watchlist/${company.id}`,
+        {
+          method,
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        }
+      );
 
       if (!res.ok) throw new Error('Failed to update watchlist');
 
-      toast.success(originalState ? "Removed from watchlist" : "Added to watchlist");
+      toast.success(
+        originalState ? 'Removed from watchlist' : 'Added to watchlist'
+      );
     } catch (error) {
       console.error(error);
       setIsWatched(originalState); // Revert
-      toast.error("Failed to update watchlist");
+      toast.error('Failed to update watchlist');
     }
   };
 
   const handleShare = async () => {
     try {
       await navigator.clipboard.writeText(window.location.href);
-      toast.success("Link copied to clipboard!");
+      toast.success('Link copied to clipboard!');
     } catch (err) {
       console.error(err);
-      toast.error("Failed to copy link");
+      toast.error('Failed to copy link');
     }
   };
 
@@ -111,13 +123,18 @@ export default function CompanyHeader({ company }: CompanyHeaderProps) {
   const primaryAddress = company.addresses?.[0];
   const addressString = primaryAddress
     ? [primaryAddress.street, primaryAddress.house_number, primaryAddress.city]
-      .filter(Boolean)
-      .join(' ')
+        .filter(Boolean)
+        .join(' ')
     : null;
 
   return (
     <Card className="bg-white border border-gray-200 rounded-2xl p-8 mb-6">
-      <div className="flex items-start justify-between mb-6">
+      {isRefreshing && (
+        <span className="text-xs text-gray-500 animate-pulse">
+          Refreshing data…
+        </span>
+      )}
+      <div className="flex flex-col items-start gap-4 mb-6">
         {/* Left: Company Info */}
         <div className="flex gap-4">
           {/* Company Icon */}
@@ -142,15 +159,22 @@ export default function CompanyHeader({ company }: CompanyHeaderProps) {
         </div>
 
         {/* Right: Action Buttons */}
-        <div className="flex gap-3">
+        <div className="flex gap-3 items-center">
           <BrandButton
             variant="secondary"
-            text={isWatched ? "Watching" : "Watch"}
+            text={isWatched ? 'Watching' : 'Watch'}
             leftIcon={Bell}
             onClick={handleWatchToggle}
-            className={isWatched ? "bg-blue-50 text-blue-600 border-blue-200" : ""}
+            className={
+              isWatched ? 'bg-blue-50 text-blue-600 border-blue-200' : ''
+            }
           />
-          <BrandButton variant="secondary" text="Share" leftIcon={Share2} onClick={handleShare} />
+          <BrandButton
+            variant="secondary"
+            text="Share"
+            leftIcon={Share2}
+            onClick={handleShare}
+          />
           <BrandButton
             variant="primary"
             text={isExporting ? 'Exporting...' : 'Export'}
@@ -162,9 +186,9 @@ export default function CompanyHeader({ company }: CompanyHeaderProps) {
       </div>
 
       {/* Company Info Grid */}
-      <div className="grid grid-cols-4 gap-6">
+      <div className="flex gap-6 w-full">
         {/* Address */}
-        <div className="flex gap-3">
+        <div className="flex gap-3 w-full">
           <MapPin className="w-5 h-5 text-gray-600 mt-0.5" />
           <div>
             <p className="text-sm text-gray-600 mb-1">Address</p>
@@ -183,36 +207,25 @@ export default function CompanyHeader({ company }: CompanyHeaderProps) {
           </div>
         </div>
 
-        {/* Founded */}
-        <div className="flex gap-3">
+        {/* Industry */}
+        <div className="flex gap-3 w-full">
+          <TrendingUp className="w-5 h-5 text-gray-600 mt-0.5" />
+          <div>
+            <p className="text-sm text-gray-600 mb-1">Industry</p>
+            <p className="text-base text-gray-900">Technology</p>
+          </div>
+        </div>
+
+        {/* Last Updates */}
+        <div className="flex gap-3 w-full">
           <Calendar className="w-5 h-5 text-gray-600 mt-0.5" />
           <div>
-            <p className="text-sm text-gray-600 mb-1">Founded</p>
+            <p className="text-sm text-gray-600 mb-1">Last Updated</p>
             <p className="text-base text-gray-900">
               {company.created_at
                 ? new Date(company.created_at).getFullYear()
                 : '2015'}
             </p>
-          </div>
-        </div>
-
-        {/* Website 
-        <div className="flex gap-3">
-          <Globe className="w-5 h-5 text-gray-600 mt-0.5" />
-          <div>
-            <p className="text-sm text-gray-600 mb-1">Website</p>
-            <a href="#" className="text-base text-blue-600 hover:underline">
-              www.example.com
-            </a>
-          </div>
-        </div> */}
-
-        {/* Industry */}
-        <div className="flex gap-3">
-          <TrendingUp className="w-5 h-5 text-gray-600 mt-0.5" />
-          <div>
-            <p className="text-sm text-gray-600 mb-1">Industry</p>
-            <p className="text-base text-gray-900">Technology</p>
           </div>
         </div>
       </div>

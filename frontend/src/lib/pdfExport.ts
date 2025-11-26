@@ -2,6 +2,8 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import type { CompanyWithDetails } from '@/types/company';
+import { computeRiskInsights } from '@/lib/riskInsights';
+import { getReportingStats } from '@/lib/reportingStats';
 
 /**
  * Generate a PDF report for a company with all available information
@@ -12,6 +14,8 @@ export function generateCompanyPDF(company: CompanyWithDetails): void {
   const pageWidth = doc.internal.pageSize.getWidth();
   const margin = 20;
   let yPosition = 20;
+  const riskInsights = computeRiskInsights(company);
+  const reportingStats = getReportingStats(company);
 
   // Color palette matching the design language
   const colors: Record<string, [number, number, number]> = {
@@ -20,6 +24,13 @@ export function generateCompanyPDF(company: CompanyWithDetails): void {
     lightGray: [243, 244, 246], // gray-100
     darkGray: [31, 41, 55], // gray-800
     text: [17, 24, 39], // gray-900
+  };
+
+  const formatDate = (value?: Date | string | null) => {
+    if (!value) return 'Not available';
+    const date = value instanceof Date ? value : new Date(value);
+    if (Number.isNaN(date.getTime())) return 'Not available';
+    return date.toLocaleDateString();
   };
 
   // Helper function to add section headers
@@ -110,7 +121,9 @@ export function generateCompanyPDF(company: CompanyWithDetails): void {
         address.street && address.house_number
           ? `${address.street} ${address.house_number}`
           : address.street || 'N/A',
-        address.city ? `${address.postal_code || ''} ${address.city}`.trim() : 'N/A',
+        address.city
+          ? `${address.postal_code || ''} ${address.city}`.trim()
+          : 'N/A',
         address.country || 'Austria',
       ];
 
@@ -145,8 +158,8 @@ export function generateCompanyPDF(company: CompanyWithDetails): void {
 
     const officersData = company.officers.map((officer) => [
       officer.full_name ||
-      `${officer.first_name || ''} ${officer.last_name || ''}`.trim() ||
-      'N/A',
+        `${officer.first_name || ''} ${officer.last_name || ''}`.trim() ||
+        'N/A',
       officer.role || 'Officer',
       officer.birth_date
         ? new Date(officer.birth_date).toLocaleDateString()
@@ -214,6 +227,162 @@ export function generateCompanyPDF(company: CompanyWithDetails): void {
     yPosition += 5;
   }
 
+  // Risk Overview Section
+  if (yPosition > 240) {
+    doc.addPage();
+    yPosition = 20;
+  }
+
+  yPosition = addSectionHeader('Risk Overview', yPosition);
+
+  doc.setFontSize(11);
+  doc.setTextColor(...colors.text);
+  doc.setFont('helvetica', 'bold');
+  doc.text(
+    `Overall Score: ${riskInsights.score}/100 (${riskInsights.level} risk)`,
+    margin + 2,
+    yPosition
+  );
+  yPosition += 6;
+
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(...colors.secondary);
+  doc.text(
+    `Signals derived from revenue, profitability, compliance, legal, operational, and network indicators.`,
+    margin + 2,
+    yPosition
+  );
+  yPosition += 10;
+
+  autoTable(doc, {
+    startY: yPosition,
+    head: [['Category', 'Score', 'Insight']],
+    body: riskInsights.breakdown.map((item) => [
+      item.category,
+      `${item.score}`,
+      item.hint || '—',
+    ]),
+    theme: 'grid',
+    headStyles: {
+      fillColor: colors.primary,
+      textColor: [255, 255, 255],
+      fontSize: 10,
+    },
+    styles: {
+      fontSize: 9,
+      cellPadding: 3,
+      textColor: colors.text,
+    },
+    alternateRowStyles: {
+      fillColor: [248, 250, 252],
+    },
+    margin: { left: margin, right: margin },
+  });
+
+  yPosition = (doc as any).lastAutoTable.finalY + 8;
+
+  if (riskInsights.alerts.length > 0) {
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(...colors.darkGray);
+    doc.text('Alerts & Notes', margin + 2, yPosition);
+    yPosition += 6;
+
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(...colors.text);
+
+    riskInsights.alerts.forEach((alert) => {
+      const line = `${alert.severity.toUpperCase()} • ${alert.title} (${
+        alert.timestamp
+      })${alert.description ? ` – ${alert.description}` : ''}`;
+      const rows = doc.splitTextToSize(line, pageWidth - margin * 2 - 4);
+
+      rows.forEach((row) => {
+        if (yPosition > 280) {
+          doc.addPage();
+          yPosition = 20;
+        }
+        doc.text(`• ${row}`, margin + 4, yPosition);
+        yPosition += 5;
+      });
+
+      yPosition += 3;
+    });
+  }
+
+  // Reporting & Compliance Section
+  if (yPosition > 240) {
+    doc.addPage();
+    yPosition = 20;
+  }
+
+  yPosition = addSectionHeader('Reporting & Compliance', yPosition);
+
+  const reportingLines = [
+    `Last filing: ${formatDate(reportingStats.lastFiling.date)} (${
+      reportingStats.lastFiling.type
+    }, status: ${reportingStats.lastFiling.status})`,
+    `Next due: ${formatDate(reportingStats.nextDue.date)} (${
+      reportingStats.nextDue.isOverdue
+        ? 'Overdue'
+        : reportingStats.nextDue.dueInDays !== null
+        ? `in ${reportingStats.nextDue.dueInDays} days`
+        : 'On track'
+    })`,
+    `Compliance: ${reportingStats.compliance.statusLabel} • ${reportingStats.compliance.badgeLabel}`,
+    `Documents on record: ${reportingStats.documents.count} (${reportingStats.documents.issuesText})`,
+  ];
+
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(...colors.text);
+  reportingLines.forEach((line) => {
+    doc.text(line, margin + 2, yPosition);
+    yPosition += 6;
+  });
+
+  yPosition += 4;
+
+  if (company.filings && company.filings.length > 0) {
+    const filingsData = company.filings
+      .slice()
+      .sort((a, b) => {
+        const aDate = a.date ? new Date(a.date).getTime() : 0;
+        const bDate = b.date ? new Date(b.date).getTime() : 0;
+        return bDate - aDate;
+      })
+      .map((filing) => [
+        filing.date ? new Date(filing.date).toLocaleDateString() : 'N/A',
+        filing.filing_type || 'Filing',
+        filing.status || 'Unknown',
+        filing.description || '—',
+      ]);
+
+    autoTable(doc, {
+      startY: yPosition,
+      head: [['Date', 'Type', 'Status', 'Description']],
+      body: filingsData,
+      theme: 'grid',
+      headStyles: {
+        fillColor: colors.primary,
+        textColor: [255, 255, 255],
+        fontSize: 9,
+      },
+      styles: {
+        fontSize: 8,
+        cellPadding: 3,
+        textColor: colors.text,
+      },
+      columnStyles: {
+        0: { cellWidth: 25 },
+        1: { cellWidth: 35 },
+        2: { cellWidth: 28 },
+        3: { cellWidth: pageWidth - margin * 2 - 88 },
+      },
+      margin: { left: margin, right: margin },
+    });
+
+    yPosition = (doc as any).lastAutoTable.finalY + 10;
+  }
+
   // Footer
   const pageCount = doc.getNumberOfPages();
   for (let i = 1; i <= pageCount; i++) {
@@ -234,6 +403,8 @@ export function generateCompanyPDF(company: CompanyWithDetails): void {
   }
 
   // Save the PDF
-  const fileName = `${company.name.replace(/[^a-zA-Z0-9]/g, '_')}_Report_${new Date().toISOString().split('T')[0]}.pdf`;
+  const fileName = `${company.name.replace(/[^a-zA-Z0-9]/g, '_')}_Report_${
+    new Date().toISOString().split('T')[0]
+  }.pdf`;
   doc.save(fileName);
 }

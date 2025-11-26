@@ -6,6 +6,7 @@ import type {
   SearchSuggestionsResponse,
   HealthCheck,
   Officer,
+  WatchlistEntry,
 } from '@/types/company';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
@@ -123,6 +124,14 @@ export async function getCompany(id: number): Promise<CompanyWithDetails> {
   return handleResponse<CompanyWithDetails>(response);
 }
 
+// Force refresh a company's data from the remote source
+export async function refreshCompany(id: number): Promise<CompanyWithDetails> {
+  const response = await fetch(`${API_BASE_URL}/api/companies/${id}/refresh`, {
+    method: 'POST',
+  });
+  return handleResponse<CompanyWithDetails>(response);
+}
+
 // Get a company by Firmenbuch number (FNR)
 export async function getCompanyByFnr(fnr: string): Promise<Company> {
   const response = await fetch(`${API_BASE_URL}/api/companies/fnr/${fnr}`);
@@ -172,6 +181,52 @@ export async function deleteCompany(id: number): Promise<void> {
   if (!response.ok) {
     throw new Error('Failed to delete company');
   }
+}
+
+// Watchlist endpoints (require auth token)
+export async function getWatchlistEntries(
+  token: string
+): Promise<WatchlistEntry[]> {
+  const response = await fetch(`${API_BASE_URL}/api/watchlist/`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return handleResponse<WatchlistEntry[]>(response);
+}
+
+export async function removeFromWatchlist(
+  companyId: number,
+  token: string
+): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/api/watchlist/${companyId}`, {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  if (!response.ok) {
+    const error = await response
+      .json()
+      .catch(() => ({ detail: response.statusText }));
+    throw new Error(error.detail || 'Failed to remove from watchlist');
+  }
+}
+
+export async function updateWatchlistPreferences(
+  companyId: number,
+  token: string,
+  payload: { notify_via_email?: boolean }
+): Promise<WatchlistEntry> {
+  const response = await fetch(`${API_BASE_URL}/api/watchlist/${companyId}`, {
+    method: 'PATCH',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  });
+  return handleResponse<WatchlistEntry>(response);
 }
 
 //Get all officers with pagination
@@ -264,4 +319,5 @@ export type {
   SearchResponse,
   HealthCheck,
   Officer,
+  WatchlistEntry,
 };
