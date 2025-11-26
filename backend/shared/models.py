@@ -33,6 +33,10 @@ class Company(CompanyBase):
     updated_at: Optional[datetime] = None
     last_fetched_at: Optional[datetime] = None
     city: Optional[str] = Field(default=None, description="Derived primary city from addresses")
+    revenue: Optional[float] = Field(default=None, description="Latest known annual revenue")
+    profit: Optional[float] = Field(default=None, description="Latest known annual profit")
+    latest_financial_year: Optional[int] = Field(default=None, description="Year associated with the latest financial figures")
+    revenue_currency: Optional[str] = Field(default=None, description="Currency code for the revenue/profit figures")
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -181,7 +185,7 @@ class RawExtract(BaseModel):
     fnr: str
     extract_date: date_type
     extract_type: Optional[str] = None
-    raw_data: Optional[dict] = None
+    raw_data: Optional[dict | str] = None
     created_at: Optional[datetime] = None
 
     model_config = ConfigDict(from_attributes=True)
