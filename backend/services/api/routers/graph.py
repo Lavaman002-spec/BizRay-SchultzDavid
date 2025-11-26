@@ -68,7 +68,8 @@ async def get_company_graph(
             "data": {
                 "source": f"c_{seed_company['id']}",
                 "target": officer_id,
-                "label": role
+                "label": role,
+                "edge_type": "management",
             }
         })
         
@@ -107,7 +108,8 @@ async def get_company_graph(
                         "data": {
                             "source": officer_id,
                             "target": rel_node_id,
-                            "label": rel_role
+                            "label": rel_role,
+                            "edge_type": "affiliation",
                         }
                     })
 

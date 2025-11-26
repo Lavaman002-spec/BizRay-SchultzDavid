@@ -1,7 +1,8 @@
 """Database queries for companies."""
 import logging
+from collections import defaultdict
 from datetime import datetime
-from typing import Any, Optional, List, Tuple, Dict
+from typing import Any, Optional, List, Tuple, Dict, Iterable
 
 from backend.database.client import get_supabase_client
 from supabase import Client
@@ -10,60 +11,165 @@ from backend.shared.models import SearchQuery
 
 logger = logging.getLogger(__name__)
 
+
+def _group_rows_by_key(rows: Optional[List[dict]], key: str) -> Dict[int, List[dict]]:
+    mapping: Dict[int, List[dict]] = defaultdict(list)
+    if not rows:
+        return mapping
+    for row in rows:
+        value = row.get(key)
+        if value is None:
+            continue
+        try:
+            mapping[int(value)].append(row)
+        except (TypeError, ValueError):
+            continue
+    return mapping
+
+
+def _fetch_related_by_company(
+    client: Client,
+    table: str,
+    company_ids: List[int],
+    *,
+    order: Optional[Tuple[str, bool]] = None,
+) -> Dict[int, List[dict]]:
+    if not company_ids:
+        return {}
+
+    query = client.table(table).select("*")
+    query = query.in_("company_id", company_ids)
+    if order:
+        column, desc = order
+        query = query.order(column, desc=desc)
+
+    response = query.execute()
+    return _group_rows_by_key(response.data, "company_id")
+
+
+def _fetch_links_map(client: Client, company_ids: List[int]) -> Dict[int, List[dict]]:
+    if not company_ids:
+        return {}
+
+    mapping: Dict[int, List[dict]] = defaultdict(list)
+    collected: Dict[int, dict] = {}
+
+    for column in ("source_company_id", "target_company_id"):
+        response = (
+            client.table("links")
+            .select("*")
+            .in_(column, company_ids)
+            .execute()
+        )
+        for row in response.data or []:
+            row_id = row.get("id")
+            if row_id in collected:
+                continue
+            collected[row_id] = row
+
+    for row in collected.values():
+        for column in ("source_company_id", "target_company_id"):
+            company_id = row.get(column)
+            if company_id in company_ids:
+                mapping[int(company_id)].append(row)
+
+    return mapping
+
+
+def _resolve_company_ids_by_cities(
+    client: Client, cities: Iterable[str]
+) -> List[int]:
+    city_list = [city.strip() for city in cities if city and city.strip()]
+    if not city_list:
+        return []
+
+    response = (
+        client.table("company_addresses")
+        .select("company_id")
+        .in_("city", city_list)
+        .eq("is_active", True)
+        .execute()
+    )
+
+    company_ids: List[int] = []
+    seen: set[int] = set()
+    for row in response.data or []:
+        company_id = row.get("company_id")
+        if company_id is None:
+            continue
+        try:
+            cid = int(company_id)
+        except (TypeError, ValueError):
+            continue
+        if cid not in seen:
+            seen.add(cid)
+            company_ids.append(cid)
+    return company_ids
+
 def get_all_companies(limit: int = 100, offset: int = 0) -> List[dict]:
     """Get all companies with pagination. Includes primary address for each company."""
     client = get_supabase_client()
-    response = client.table('companies').select('*').range(offset, offset + limit - 1).execute()
-    companies = response.data
+    response = (
+        client.table('companies')
+        .select('*')
+        .order('name')
+        .range(offset, offset + limit - 1)
+        .execute()
+    )
+    companies = response.data or []
 
     if not companies:
         return []
 
-    # Fetch all addresses in one query - more efficient than looping
-    company_ids = [c['id'] for c in companies]
-    addresses_response = client.table('company_addresses').select('*').in_(
-        'company_id', company_ids
-    ).eq('is_active', True).execute()
+    company_ids: List[int] = []
+    for record in companies:
+        company_id = record.get('id')
+        if company_id is None:
+            continue
+        try:
+            company_ids.append(int(company_id))
+        except (TypeError, ValueError):
+            continue
 
-    # Create a map of company_id to address (first address for each company)
-    address_map = {}
-    for addr in addresses_response.data:
-        company_id = addr['company_id']
-        if company_id not in address_map:
-            address_map[company_id] = addr
+    addresses_map = _fetch_related_by_company(client, 'company_addresses', company_ids)
+    officers_map = _fetch_related_by_company(client, 'company_officers', company_ids)
+    activities_map = _fetch_related_by_company(
+        client, 'company_activities', company_ids, order=('created_at', True)
+    )
+    financials_map = _fetch_related_by_company(
+        client, 'company_financials', company_ids, order=('year', True)
+    )
+    filings_map = _fetch_related_by_company(
+        client, 'company_filings', company_ids, order=('date', True)
+    )
+    risks_map = _fetch_related_by_company(
+        client, 'company_risks', company_ids, order=('date', True)
+    )
+    links_map = _fetch_links_map(client, company_ids)
 
-    officers_response = client.table('company_officers').select('*').in_('company_id', company_ids).execute()
-    
-    officers_map = {}
-    for officer in officers_response.data:
-        company_id = officer['company_id']
-        if company_id not in officers_map:
-            officers_map[company_id] = []
-        officers_map[company_id].append(officer)
-
-
-    activities_response = client.table('company_activities').select('*').in_('company_id', company_ids).execute()
-    
-    activity_map = {}
-    for activity in activities_response.data:
-        company_id = activity['company_id']
-        if company_id not in activity_map:
-            activity_map[company_id] = []
-        activity_map[company_id].append(activity)
-
-    # Attach everything to companies
     for company in companies:
-        company_id = company['id']
-        company['address'] = address_map.get(company_id)
-        company['officers'] = officers_map.get(company_id, [])
-        company['activities'] = activity_map.get(company_id, [])
+        company_id = company.get('id')
+        if company_id is None:
+            continue
+        try:
+            cid = int(company_id)
+        except (TypeError, ValueError):
+            continue
 
-        # Get *all* active addresses for the 'addresses' array
-        all_addresses = [addr for addr in addresses_response.data if addr['company_id'] == company_id]
-        company['addresses'] = all_addresses
-        
-        # And keep the single 'address' field for the basic 'Company' type
-        company['address'] = address_map.get(company_id)
+        addresses = [addr for addr in addresses_map.get(cid, []) if addr.get('is_active', True)]
+        company['addresses'] = addresses
+        company['address'] = addresses[0] if addresses else None
+        if addresses:
+            company_city = addresses[0].get('city')
+            if company_city:
+                company['city'] = company_city
+
+        company['officers'] = officers_map.get(cid, [])
+        company['activities'] = activities_map.get(cid, [])
+        company['financials'] = financials_map.get(cid, [])
+        company['filings'] = filings_map.get(cid, [])
+        company['risks'] = risks_map.get(cid, [])
+        company['links'] = links_map.get(cid, [])
 
     return companies
 
@@ -203,41 +309,58 @@ def _attach_company_relations(
     if not companies:
         return []
 
-    company_ids = [company.get("id") for company in companies if company.get("id") is not None]
+    company_ids: List[int] = []
+    for company in companies:
+        company_id = company.get("id")
+        if company_id is None:
+            continue
+        try:
+            company_ids.append(int(company_id))
+        except (TypeError, ValueError):
+            continue
+
     if not company_ids:
         return companies
 
-    officers_response = (
-        client.table("company_officers")
-        .select("*")
-        .in_("company_id", company_ids)
-        .execute()
+    addresses_map = _fetch_related_by_company(client, "company_addresses", company_ids)
+    officers_map = _fetch_related_by_company(client, "company_officers", company_ids)
+    activities_map = _fetch_related_by_company(
+        client, "company_activities", company_ids, order=("created_at", True)
     )
-    addresses_response = (
-        client.table("company_addresses")
-        .select("*")
-        .in_("company_id", company_ids)
-        .execute()
+    financials_map = _fetch_related_by_company(
+        client, "company_financials", company_ids, order=("year", True)
     )
-
-    officers_by_company: Dict[int, List[dict]] = {company_id: [] for company_id in company_ids}
-    for officer in officers_response.data or []:
-        company_id = officer.get("company_id")
-        if company_id in officers_by_company:
-            officers_by_company[company_id].append(officer)
-
-    addresses_by_company: Dict[int, List[dict]] = {company_id: [] for company_id in company_ids}
-    for address in addresses_response.data or []:
-        company_id = address.get("company_id")
-        if company_id in addresses_by_company:
-            addresses_by_company[company_id].append(address)
+    filings_map = _fetch_related_by_company(
+        client, "company_filings", company_ids, order=("date", True)
+    )
+    risks_map = _fetch_related_by_company(
+        client, "company_risks", company_ids, order=("date", True)
+    )
+    links_map = _fetch_links_map(client, company_ids)
 
     for company in companies:
         company_id = company.get("id")
         if company_id is None:
             continue
-        company["officers"] = officers_by_company.get(company_id, [])
-        company["addresses"] = addresses_by_company.get(company_id, [])
+        try:
+            cid = int(company_id)
+        except (TypeError, ValueError):
+            continue
+
+        addresses = [addr for addr in addresses_map.get(cid, []) if addr.get("is_active", True)]
+        company["addresses"] = addresses
+        company["address"] = addresses[0] if addresses else None
+        if addresses:
+            city = addresses[0].get("city")
+            if city:
+                company["city"] = city
+
+        company["officers"] = officers_map.get(cid, [])
+        company["activities"] = activities_map.get(cid, [])
+        company["financials"] = financials_map.get(cid, [])
+        company["filings"] = filings_map.get(cid, [])
+        company["risks"] = risks_map.get(cid, [])
+        company["links"] = links_map.get(cid, [])
 
     return companies
 
@@ -255,35 +378,28 @@ def search_companies(
     """
 
     client = get_supabase_client()
+    city_filtered_ids: Optional[List[int]] = None
+    if city:
+        city_filtered_ids = _resolve_company_ids_by_cities(client, [city])
+        if not city_filtered_ids:
+            return [], 0
+
     query_builder = (
         client.table("companies")
         .select("*", count="exact")
         .or_(f"name.ilike.%{query}%,fnr.ilike.%{query}%")
     )
 
-    if city:
-        query_builder = query_builder.eq("city", city)
+    if city_filtered_ids is not None:
+        query_builder = query_builder.in_("id", city_filtered_ids)
 
     response = query_builder.range(offset, offset + limit - 1).execute()
 
     companies = response.data or []
 
-    # Attach related officers, addresses, and activities to each company
+    # Attach related data
     if companies:
         companies = _attach_company_relations(companies, client)
-        # Also fetch activities for each company
-        company_ids = [c['id'] for c in companies if c.get('id')]
-        if company_ids:
-            activities_response = client.table('company_activities').select('*').in_('company_id', company_ids).execute()
-            activities_by_company = {}
-            for activity in activities_response.data or []:
-                company_id = activity.get('company_id')
-                if company_id not in activities_by_company:
-                    activities_by_company[company_id] = []
-                activities_by_company[company_id].append(activity)
-
-            for company in companies:
-                company['activities'] = activities_by_company.get(company['id'], [])
 
     total = response.count or 0
     return companies, total

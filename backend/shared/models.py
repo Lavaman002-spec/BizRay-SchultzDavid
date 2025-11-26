@@ -1,6 +1,8 @@
 """Pydantic models for API request/response validation."""
+from __future__ import annotations
+
 from typing import Optional, List, Literal
-from datetime import datetime
+from datetime import datetime, date as date_type
 from pydantic import BaseModel, Field, ConfigDict
 
 
@@ -11,7 +13,6 @@ class CompanyBase(BaseModel):
     name: str = Field(..., description="Company name")
     legal_form: Optional[str] = None
     state: Optional[str] = Field(None, description="Company state (active, inactive, etc.)")
-    city: Optional[str] = Field(None, description="Primary city associated with the company")
 
 
 class CompanyCreate(CompanyBase):
@@ -31,6 +32,7 @@ class Company(CompanyBase):
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
     last_fetched_at: Optional[datetime] = None
+    city: Optional[str] = Field(default=None, description="Derived primary city from addresses")
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -119,12 +121,104 @@ class Activities(ActivitiesBase):
     model_config = ConfigDict(from_attributes=True)
 
 
+class FinancialBase(BaseModel):
+    company_id: int
+    year: Optional[int] = None
+    revenue: Optional[float] = None
+    profit: Optional[float] = None
+    currency: Optional[str] = Field(default="EUR")
+
+
+class Financial(FinancialBase):
+    id: int
+    created_at: Optional[datetime] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class FilingBase(BaseModel):
+    company_id: int
+    filing_type: Optional[str] = None
+    description: Optional[str] = None
+    date: Optional[date_type] = None
+    status: Optional[str] = None
+
+
+class Filing(FilingBase):
+    id: int
+    created_at: Optional[datetime] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class RiskBase(BaseModel):
+    company_id: int
+    risk_type: Optional[str] = None
+    description: Optional[str] = None
+    date: Optional[date_type] = None
+    severity: Optional[str] = None
+
+
+class Risk(RiskBase):
+    id: int
+    created_at: Optional[datetime] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class CompanyLink(BaseModel):
+    id: int
+    source_company_id: int
+    target_company_id: int
+    relationship_type: Optional[str] = None
+    created_at: Optional[datetime] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class RawExtract(BaseModel):
+    id: int
+    fnr: str
+    extract_date: date_type
+    extract_type: Optional[str] = None
+    raw_data: Optional[dict] = None
+    created_at: Optional[datetime] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class Alert(BaseModel):
+    id: int
+    user_id: str
+    company_id: int
+    type: str
+    message: str
+    is_read: bool = False
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class WatchlistEntry(BaseModel):
+    id: int
+    user_id: str
+    company_id: int
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
 # Combined Response Models
 class CompanyWithDetails(Company):
     """Company model with associated officers and addresses."""
     officers: List[Officer] = []
     addresses: List[Address] = []
     activities: List[Activities] = []
+    financials: List[Financial] = []
+    filings: List[Filing] = []
+    risks: List[Risk] = []
+    links: List[CompanyLink] = []
+    raw_extracts: List[RawExtract] = []
 
     model_config = ConfigDict(from_attributes=True)
 
