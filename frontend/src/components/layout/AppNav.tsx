@@ -39,26 +39,30 @@ export default function AppNav() {
           {/* Nav Menu */}
           <div className="flex gap-2">
             <NavigationMenu className="list-none">
-              <NavigationMenuItem>
+              {/* <NavigationMenuItem>
                 <NavigationMenuLink asChild>
                   <Link href="/dashboard">Dashboard</Link>
                 </NavigationMenuLink>
-              </NavigationMenuItem>
-              <NavigationMenuItem>
+              </NavigationMenuItem> */}
+              {/* <NavigationMenuItem>
                 <NavigationMenuLink asChild>
                   <Link href="/explore">Explore</Link>
                 </NavigationMenuLink>
-              </NavigationMenuItem>
-              <NavigationMenuItem>
-                <NavigationMenuLink asChild>
-                  <Link href="/watchlist">Watchlist</Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-              <NavigationMenuItem>
-                <NavigationMenuLink asChild>
-                  <Link href="/settings">Settings</Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
+              </NavigationMenuItem> */}
+              {user && (
+                <>
+                  <NavigationMenuItem>
+                    <NavigationMenuLink asChild>
+                      <Link href="/watchlist">Watchlist</Link>
+                    </NavigationMenuLink>
+                  </NavigationMenuItem>
+                  <NavigationMenuItem>
+                    <NavigationMenuLink asChild>
+                      <Link href="/settings">Settings</Link>
+                    </NavigationMenuLink>
+                  </NavigationMenuItem>
+                </>
+              )}
             </NavigationMenu>
           </div>
         </div>

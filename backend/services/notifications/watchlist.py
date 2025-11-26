@@ -4,13 +4,38 @@ from __future__ import annotations
 
 import logging
 from datetime import datetime
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from backend.database.client import get_supabase_client
 from backend.services.notifications.email import send_email
 from backend.shared.config import APP_BASE_URL
 
 logger = logging.getLogger(__name__)
+
+
+def _resolve_user_email(
+    client,
+    user_id: Optional[str],
+    fallback: Optional[str],
+    cache: Dict[str, Optional[str]],
+) -> Optional[str]:
+    """Fetch the latest email for a user via Supabase Admin, cached per request."""
+    if not user_id:
+        return fallback
+
+    if user_id in cache:
+        return cache[user_id]
+
+    email = fallback
+    try:
+        response = client.auth.admin.get_user_by_id(user_id)
+        if response and getattr(response, "user", None):
+            email = response.user.email or fallback
+    except Exception as exc:  # pragma: no cover - best effort fetch
+        logger.debug("Unable to resolve email for user %s: %s", user_id, exc)
+
+    cache[user_id] = email
+    return email
 
 
 def _render_change_lines(changes: List[Dict[str, object]]) -> str:
@@ -66,12 +91,19 @@ def dispatch_watchlist_notifications(
 
     notified_ids: List[int] = []
 
+    email_cache: Dict[str, Optional[str]] = {}
+
     for watcher in watchers:
         if not watcher.get("notify_via_email", True):
             continue
         if watcher.get("last_change_digest") == digest:
             continue
-        email = watcher.get("user_email")
+        email = _resolve_user_email(
+            client,
+            watcher.get("user_id"),
+            watcher.get("user_email"),
+            email_cache,
+        )
         if not email:
             continue
         if send_email(to=email, subject=subject, html=html, text=text_body):

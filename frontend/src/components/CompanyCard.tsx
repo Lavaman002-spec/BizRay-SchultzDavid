@@ -78,14 +78,14 @@ export default function CompanyCard({ company }: CompanyCardProps) {
             </p>
           </div>
 
-          <div className="flex-1 flex flex-col gap-1 min-w-0">
+          {/* <div className="flex-1 flex flex-col gap-1 min-w-0">
             <p className="font-normal text-xs leading-4 text-[#6a7282]">
               Industry
             </p>
             <p className="font-normal text-sm leading-5 text-[#101828] tracking-[-0.1504px] truncate">
               {companyIndustry || 'N/A'}
             </p>
-          </div>
+          </div> */}
           <div className="flex-1 flex flex-col gap-1 min-w-0">
             <p className="font-normal text-xs leading-4 text-[#6a7282]">
               Revenue
