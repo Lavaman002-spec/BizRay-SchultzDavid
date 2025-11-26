@@ -1,8 +1,7 @@
-"use client";
+'use client';
 
-import { AlertTriangle, Info, Clock } from "lucide-react";
-
-export type RiskSeverity = "low" | "medium" | "high";
+import { AlertTriangle, Info, Clock } from 'lucide-react';
+import type { RiskSeverity } from '@/lib/riskInsights';
 
 interface RiskAlertItemProps {
   title: string;
@@ -11,23 +10,30 @@ interface RiskAlertItemProps {
   timestamp?: string;
 }
 
-export default function RiskAlertItem({ title, description, severity, timestamp }: RiskAlertItemProps) {
+export default function RiskAlertItem({
+  title,
+  description,
+  severity,
+  timestamp,
+}: RiskAlertItemProps) {
   const color: Record<RiskSeverity, string> = {
-    low: "text-green-600",
-    medium: "text-amber-600",
-    high: "text-red-600",
+    low: 'text-green-600',
+    medium: 'text-amber-600',
+    high: 'text-red-600',
   };
 
   const dot: Record<RiskSeverity, string> = {
-    low: "bg-green-100",
-    medium: "bg-amber-100",
-    high: "bg-red-100",
+    low: 'bg-green-100',
+    medium: 'bg-amber-100',
+    high: 'bg-red-100',
   };
 
   return (
     <div className="flex items-start gap-3 py-3 border-b border-gray-100 last:border-b-0">
-      <div className={`w-8 h-8 rounded-full ${dot[severity]} flex items-center justify-center shrink-0`}>
-        {severity === "high" ? (
+      <div
+        className={`w-8 h-8 rounded-full ${dot[severity]} flex items-center justify-center shrink-0`}
+      >
+        {severity === 'high' ? (
           <AlertTriangle className={`w-4 h-4 ${color[severity]}`} />
         ) : (
           <Info className={`w-4 h-4 ${color[severity]}`} />
@@ -42,9 +48,10 @@ export default function RiskAlertItem({ title, description, severity, timestamp 
             </div>
           )}
         </div>
-        {description && <p className="text-sm text-gray-600 mt-0.5">{description}</p>}
+        {description && (
+          <p className="text-sm text-gray-600 mt-0.5">{description}</p>
+        )}
       </div>
     </div>
   );
 }
-

@@ -198,65 +198,131 @@ class FirmenbuchAPIClient:
                 else:
                     logger.warning("No FI_DKZ02 found for %s", fnr)
 
-                # Location/registered office from FI_DKZ06
-                fi_dkz06 = getattr(firma, 'FI_DKZ06', None)
-                if fi_dkz06:
-                    for zeep_entry in fi_dkz06:
-                        # Convert Zeep object to dictionary
+                # Detailed addresses from FI_DKZ03
+                fi_dkz03 = getattr(firma, 'FI_DKZ03', None)
+                if fi_dkz03:
+                    for zeep_entry in fi_dkz03:
                         entry = serialize_object(zeep_entry) if hasattr(zeep_entry, '__dict__') else zeep_entry
-                        if isinstance(entry, dict):
-                            if entry.get('AUFRECHT') and 'SITZ' in entry:
+                        if not isinstance(entry, dict):
+                            continue
+                        if entry.get('AUFRECHT') is False:
+                            continue
+
+                        def _value(key: str) -> Optional[str]:
+                            value = entry.get(key)
+                            if isinstance(value, list) and value:
+                                value = value[0]
+                            return str(value).strip() if value else None
+
+                        country_code = _value('STAAT')
+                        country = 'Austria'
+                        if country_code and country_code.upper() != 'AUT':
+                            country = country_code
+
+                        payload["company"]["addresses"].append(
+                            {
+                                "street": _value('STRASSE'),
+                                "house_number": _value('HAUSNUMMER'),
+                                "stairway": _value('STIEGE'),
+                                "door_number": _value('TUERNUMMER'),
+                                "postal_code": _value('PLZ'),
+                                "city": _value('ORT'),
+                                "state": None,
+                                "country": country,
+                                "isDeliverable": entry.get('ZUSTELLBAR', True),
+                                "isActive": entry.get('AUFRECHT', True),
+                                "vnr": _value('VNR'),
+                            }
+                        )
+
+                # Fallback: Location/registered office from FI_DKZ06 when no street info exists
+                if not payload["company"]["addresses"]:
+                    fi_dkz06 = getattr(firma, 'FI_DKZ06', None)
+                    if fi_dkz06:
+                        for zeep_entry in fi_dkz06:
+                            entry = serialize_object(zeep_entry) if hasattr(zeep_entry, '__dict__') else zeep_entry
+                            if isinstance(entry, dict) and entry.get('AUFRECHT') and entry.get('SITZ'):
                                 city = str(entry['SITZ']) if entry['SITZ'] else None
                                 if city:
-                                    payload["company"]["addresses"].append({
-                                        "city": city,
-                                        "country": "Austria"
-                                    })
+                                    payload["company"]["addresses"].append(
+                                        {
+                                            "city": city,
+                                            "country": "Austria",
+                                        }
+                                    )
                                 break
+
+            fun_lookup: Dict[str, str] = {}
+            if hasattr(response, 'FUN') and response.FUN:
+                for fun_entry in response.FUN:
+                    data = serialize_object(fun_entry) if hasattr(fun_entry, '__dict__') else fun_entry
+                    if not isinstance(data, dict):
+                        continue
+                    pnr = str(data.get('PNR') or '').strip()
+                    role = data.get('FKENTEXT') or data.get('FKEN')
+                    if isinstance(role, list) and role:
+                        role = role[0]
+                    fun_lookup[pnr] = str(role).strip() if role else None
 
             # Extract persons from PER (officers/directors)
             if hasattr(response, 'PER') and response.PER:
+                seen_vnrs: set[str] = set()
                 for person_entry in response.PER:
-                    if isinstance(person_entry, dict):
-                        # Extract name from various possible fields
+                    entry = (
+                        serialize_object(person_entry)
+                        if hasattr(person_entry, '__dict__')
+                        else person_entry
+                    )
+                    if not isinstance(entry, dict):
+                        continue
+
+                    pnr = str(entry.get('PNR') or '').strip()
+                    role = fun_lookup.get(pnr) or 'Officer'
+
+                    for detail in entry.get('PE_DKZ02', []) or []:
+                        persona = (
+                            serialize_object(detail)
+                            if hasattr(detail, '__dict__')
+                            else detail
+                        )
+                        if not isinstance(persona, dict):
+                            continue
+
+                        vnr = str(persona.get('VNR') or '').strip()
+                        if vnr and vnr in seen_vnrs:
+                            continue
+
                         full_name = None
-                        role = None
+                        formatted = persona.get('NAME_FORMATIERT')
+                        if isinstance(formatted, list) and formatted:
+                            full_name = str(formatted[0]).strip()
+                        elif formatted:
+                            full_name = str(formatted).strip()
+                        else:
+                            names = [persona.get('TITELVOR'), persona.get('VORNAME'), persona.get('NACHNAME'), persona.get('TITELNACH')]
+                            full_name = " ".join(filter(None, (str(part).strip() for part in names if part))).strip() or None
 
-                        # Try to get person details from nested structure
-                        if 'PE_PERS' in person_entry:
-                            pe_pers = person_entry['PE_PERS']
-                            if isinstance(pe_pers, list) and pe_pers:
-                                pe_pers = pe_pers[0]
-                            if isinstance(pe_pers, dict):
-                                # Name might be in NACHNAME/VORNAME or BEZEICHNUNG
-                                vorname = pe_pers.get('VORNAME', '')
-                                nachname = pe_pers.get('NACHNAME', '')
-                                if vorname or nachname:
-                                    full_name = f"{vorname} {nachname}".strip()
-                                elif 'BEZEICHNUNG' in pe_pers and pe_pers['BEZEICHNUNG']:
-                                    bezeichnung = pe_pers['BEZEICHNUNG']
-                                    if isinstance(bezeichnung, list) and bezeichnung:
-                                        full_name = str(bezeichnung[0])
-                                    else:
-                                        full_name = str(bezeichnung)
-
-                        # Try to get role from PE_FUN (function)
-                        if 'PE_FUN' in person_entry and person_entry['PE_FUN']:
-                            pe_fun = person_entry['PE_FUN']
-                            if isinstance(pe_fun, list) and pe_fun:
-                                pe_fun = pe_fun[0]
-                            if isinstance(pe_fun, dict) and 'FUNTXT' in pe_fun:
-                                funtxt = pe_fun['FUNTXT']
-                                if isinstance(funtxt, list) and funtxt:
-                                    role = str(funtxt[0])
-                                else:
-                                    role = str(funtxt) if funtxt else None
+                        first_name = persona.get('VORNAME')
+                        last_name = persona.get('NACHNAME')
+                        title = persona.get('TITELVOR')
+                        birth_date = persona.get('GEBURTSDATUM')
+                        is_active = bool(persona.get('AUFRECHT', True))
 
                         if full_name:
-                            payload["company"]["officers"].append({
-                                "fullName": full_name,
-                                "role": role
-                            })
+                            payload["company"]["officers"].append(
+                                {
+                                    "title": title,
+                                    "firstName": first_name,
+                                    "lastName": last_name,
+                                    "fullName": full_name,
+                                    "role": role,
+                                    "birthDate": birth_date,
+                                    "isActive": is_active,
+                                    "vnr": vnr or None,
+                                }
+                            )
+                            if vnr:
+                                seen_vnrs.add(vnr)
 
             # Try to determine legal form from company name
             if payload["company"]["name"]:

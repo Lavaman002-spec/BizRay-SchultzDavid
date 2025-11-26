@@ -103,3 +103,27 @@ async def delete_company(company_id: int):
         return None
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Failed to delete company: {str(e)}")
+
+
+@router.post("/{company_id}/refresh", response_model=CompanyWithDetails)
+async def refresh_company(company_id: int):
+    """Force refresh a company's data from the Firmenbuch API."""
+
+    company = db_queries.get_company_by_id(company_id)
+    if not company:
+        raise HTTPException(status_code=404, detail="Company not found")
+
+    fnr = company.get("fnr")
+    if not fnr:
+        raise HTTPException(status_code=400, detail="Company record missing FNR")
+
+    try:
+        refreshed = fetch_company_profile_if_missing(fnr, force_refresh=True)
+    except FirmenbuchCompanyNotFound:
+        raise HTTPException(status_code=404, detail=f"Company with FNR {fnr} not found in Firmenbuch")
+    except FirmenbuchFetchError as exc:
+        raise HTTPException(status_code=502, detail=str(exc))
+    except Exception as exc:  # pragma: no cover - defensive
+        raise HTTPException(status_code=500, detail=f"Failed to refresh company: {exc}")
+
+    return refreshed

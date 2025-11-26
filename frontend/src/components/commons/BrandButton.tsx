@@ -33,8 +33,8 @@ export default function BrandButton({
     primary: `
       bg-[#010101]
       text-white
-      rounded-xl
-      px-4 py-2.5
+      rounded-md
+      px-4 py-1.5
       border-2 border-[rgba(255,255,255,0.12)]
       hover:bg-[#141414]
       active:bg-[#010101]
@@ -42,8 +42,8 @@ export default function BrandButton({
     secondary: `
       bg-white
       text-[#414651]
-      rounded-xl
-      px-4 py-2.5
+      rounded-md
+      px-4 py-1.5
       border border-[#d5d7da]
       hover:bg-neutral-100
       active:bg-white

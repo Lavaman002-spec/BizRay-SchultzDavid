@@ -2,16 +2,16 @@
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { TrendingUp, Users2, AlertCircle } from 'lucide-react';
-import { Card } from '@/components/ui/card';
+import { AlertCircle } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { getCompany } from '@/lib/api';
+import { getCompany, refreshCompany } from '@/lib/api';
 import type { CompanyWithDetails } from '@/types/company';
 import CompanyHeader from '@/components/company/CompanyHeader';
 import RiskIndicators from '@/components/company/risk/RiskIndicators';
 import ReportingPanel from '@/components/company/reporting/ReportingPanel';
 import NetworkTab from '@/components/company/network/NetworkTab';
+import RevenueCard from '@/components/company/overview/overviewCard';
 
 export default function CompanyPage() {
   const params = useParams();
@@ -20,22 +20,81 @@ export default function CompanyPage() {
   const [company, setCompany] = useState<CompanyWithDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
-    async function fetchCompany() {
-      try {
-        setLoading(true);
-        const data = await getCompany(parseInt(id));
-        setCompany(data);
-      } catch (err) {
-        setError('Failed to load company data');
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
+    if (!id) {
+      return;
     }
 
-    fetchCompany();
+    const storageKey = `company-cache-${id}`;
+    let isMounted = true;
+
+    const loadFromCache = () => {
+      if (typeof window === 'undefined') return null;
+      try {
+        const cached = window.sessionStorage.getItem(storageKey);
+        return cached ? (JSON.parse(cached) as CompanyWithDetails) : null;
+      } catch (err) {
+        console.warn('Failed to parse cached company data', err);
+        return null;
+      }
+    };
+
+    const persistToCache = (data: CompanyWithDetails) => {
+      if (typeof window === 'undefined') return;
+      try {
+        window.sessionStorage.setItem(storageKey, JSON.stringify(data));
+      } catch (err) {
+        console.warn('Failed to cache company data', err);
+      }
+    };
+
+    const fetchCompany = async (showSkeleton: boolean, hasPreview: boolean) => {
+      try {
+        setError(null);
+        if (showSkeleton) {
+          setLoading(true);
+        }
+
+        setIsRefreshing(true);
+        const refreshed = await refreshCompany(parseInt(id));
+        if (!isMounted) return;
+        setCompany(refreshed);
+        persistToCache(refreshed);
+      } catch (refreshError) {
+        console.error('Failed to refresh company data', refreshError);
+        try {
+          const fallback = await getCompany(parseInt(id));
+          if (!isMounted) return;
+          setCompany(fallback);
+          persistToCache(fallback);
+        } catch (err) {
+          console.error(err);
+          if (showSkeleton || !hasPreview) {
+            setError('Failed to load company data');
+          }
+        }
+      } finally {
+        if (!isMounted) return;
+        setLoading(false);
+        setIsRefreshing(false);
+      }
+    };
+
+    const cachedCompany = loadFromCache();
+
+    if (cachedCompany) {
+      setCompany(cachedCompany);
+      setLoading(false);
+      fetchCompany(false, true);
+    } else {
+      fetchCompany(true, false);
+    }
+
+    return () => {
+      isMounted = false;
+    };
   }, [id]);
 
   if (loading) {
@@ -65,146 +124,36 @@ export default function CompanyPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      {/* Main Content */}
-      <div className="max-w-4xl mx-auto">
-        {/* Company Header Card */}
-        <CompanyHeader company={company} />
-        {/* Tabs Section */}
-        <Tabs defaultValue="profile" className="w-full">
-          <TabsList className="bg-white border border-gray-200 rounded-lg p-1 mb-6 h-auto">
-            <TabsTrigger
-              value="profile"
-              className="rounded-xs text-gray-700 px-3 py-1 text-sm data-[state=active]:font-medium data-[state=active]:bg-gray-100 data-[state=active]:text-gray-950"
-            >
-              Profile
-            </TabsTrigger>
-            <TabsTrigger
-              value="risk"
-              className="rounded-xs text-gray-700 px-3 py-1 text-sm data-[state=active]:font-medium data-[state=active]:bg-gray-100 data-[state=active]:text-gray-950"
-            >
-              Risk Indicators
-            </TabsTrigger>
-            <TabsTrigger
-              value="reporting"
-              className="rounded-xs text-gray-700 px-3 py-1 text-sm data-[state=active]:font-medium data-[state=active]:bg-gray-100 data-[state=active]:text-gray-950"
-            >
-              Reporting
-            </TabsTrigger>
-            <TabsTrigger
-              value="network"
-              className="rounded-xs text-gray-700 px-3 py-1 text-sm data-[state=active]:font-medium data-[state=active]:bg-gray-100 data-[state=active]:text-gray-950"
-            >
-              Network
-            </TabsTrigger>
-          </TabsList>
+    <div className="flex flex-col align-middle items-center">
+      <div className="w-[900px] bg-gray-100">
+        <CompanyHeader company={company} isRefreshing={isRefreshing} />
 
-          <TabsContent value="profile" className="space-y-6">
-            {/* Stats Cards */}
-            <div className="grid grid-cols-2 gap-4">
-              {/* Revenue Card */}
-              <Card className="bg-white border border-gray-200 rounded-2xl p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <p className="text-base text-gray-600">Revenue</p>
-                  <TrendingUp className="w-5 h-5 text-green-600" />
-                </div>
-                <p className="text-3xl font-semibold text-gray-900 mb-2">
-                  €12.5M
-                </p>
-                <p className="text-sm text-green-600">+12% YoY</p>
-              </Card>
+        <div>
+          <Tabs defaultValue="overview" className="w-full">
+            <TabsList className="grid w-full grid-cols-4 mb-6 bg-zinc-200">
+              <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="risk">Risk</TabsTrigger>
+              <TabsTrigger value="reporting">Reporting</TabsTrigger>
+              <TabsTrigger value="network">Network</TabsTrigger>
+            </TabsList>
 
-              {/* Employees Card */}
-              <Card className="bg-white border border-gray-200 rounded-2xl p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <p className="text-base text-gray-600">Employees</p>
-                  <Users2 className="w-5 h-5 text-blue-600" />
-                </div>
-                <p className="text-3xl font-semibold text-gray-900 mb-2">
-                  {company.officers?.length || 85}
-                </p>
-                <p className="text-sm text-gray-600">Full-time staff</p>
-              </Card>
-            </div>
+            <TabsContent value="overview">
+              <RevenueCard company={company} />
+            </TabsContent>
 
-            {/* Officers & Management */}
-            <Card className="bg-white border border-gray-200 rounded-2xl p-6">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">
-                Officers & Management
-              </h3>
+            <TabsContent value="risk">
+              <RiskIndicators company={company} />
+            </TabsContent>
 
-              {company.officers && company.officers.length > 0 ? (
-                <div className="space-y-4">
-                  {/* CEO Section */}
-                  <div>
-                    <p className="text-xs text-gray-500 uppercase mb-3">
-                      CEO(S)
-                    </p>
-                    {company.officers.slice(0, 1).map((officer, index) => (
-                      <div key={index} className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
-                          <Users2 className="w-5 h-5 text-gray-600" />
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-gray-900">
-                            {officer.full_name ||
-                              `${officer.first_name} ${officer.last_name}`.trim()}
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            {officer.role || 'CEO'}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+            <TabsContent value="reporting">
+              <ReportingPanel company={company} />
+            </TabsContent>
 
-                  <div className="border-t border-gray-200" />
-
-                  {/* Officers Section */}
-                  <div>
-                    <p className="text-xs text-gray-500 uppercase mb-3">
-                      Officers
-                    </p>
-                    <div className="space-y-4">
-                      {company.officers.slice(1).map((officer, index) => (
-                        <div key={index} className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-                            <Users2 className="w-5 h-5 text-blue-600" />
-                          </div>
-                          <div>
-                            <p className="text-sm font-medium text-gray-900">
-                              {officer.full_name ||
-                                `${officer.first_name} ${officer.last_name}`.trim()}
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              {officer.role || 'Officer'}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <p className="text-gray-500 text-sm">
-                  No officers information available
-                </p>
-              )}
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="risk">
-            <RiskIndicators company={company} />
-          </TabsContent>
-
-          <TabsContent value="reporting">
-            <ReportingPanel company={company} />
-          </TabsContent>
-
-          <TabsContent value="network">
-            <NetworkTab company={company} />
-          </TabsContent>
-        </Tabs>
+            <TabsContent value="network">
+              <NetworkTab company={company} />
+            </TabsContent>
+          </Tabs>
+        </div>
       </div>
     </div>
   );

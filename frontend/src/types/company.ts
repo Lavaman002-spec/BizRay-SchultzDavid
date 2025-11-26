@@ -9,6 +9,10 @@ export interface Company {
   created_at: string | null;
   updated_at: string | null;
   last_fetched_at: string | null;
+  revenue?: number | null;
+  profit?: number | null;
+  latest_financial_year?: number | null;
+  revenue_currency?: string | null;
   // Optional address for search results
   address?: Address;
 }
@@ -53,10 +57,73 @@ export interface Activities {
   created_at: string | null;
 }
 
+export interface Financials {
+  id: number;
+  company_id: number;
+  year: number;
+  revenue: number | null;
+  profit: number | null;
+  currency: string | null;
+  created_at: string | null;
+}
+
+export interface Filing {
+  id: number;
+  company_id: number;
+  filing_type: string | null;
+  description: string | null;
+  date: string | null;
+  status: string | null;
+  created_at: string | null;
+}
+
+export interface Risk {
+  id: number;
+  company_id: number;
+  risk_type: string | null;
+  description: string | null;
+  date: string | null;
+  severity: string | null;
+  created_at: string | null;
+}
+
+export interface CompanyLink {
+  id: number;
+  source_company_id: number;
+  target_company_id: number;
+  relationship_type: string | null;
+  created_at: string | null;
+}
+
+export interface RawExtract {
+  id: number;
+  fnr: string;
+  extract_date: string;
+  extract_type: string | null;
+  raw_data: Record<string, unknown> | string | null;
+  created_at: string | null;
+}
+
 export interface CompanyWithDetails extends Company {
   officers: Officer[];
   addresses: Address[];
   activities: Activities[];
+  financials: Financials[];
+  filings: Filing[];
+  risks: Risk[];
+  links?: CompanyLink[];
+  raw_extracts?: RawExtract[];
+}
+
+export interface WatchlistEntry {
+  id: number;
+  user_id: string;
+  company_id: number;
+  created_at: string | null;
+  notify_via_email?: boolean | null;
+  last_notified_at?: string | null;
+  last_change_digest?: string | null;
+  company?: CompanyWithDetails | null;
 }
 
 export interface SearchFilters {
