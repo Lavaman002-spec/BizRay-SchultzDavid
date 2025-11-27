@@ -2,6 +2,50 @@
 
 FastAPI backend for Austrian Business Register (Firmenbuch) data management.
 
+Description:
+BizRay is a full-stack web application developed as part of the Software Engineering & Project Management course at IMC Krems. The platform provides a modern interface for visualizing and managing business-related data through interactive dashboards and analytics tools.
+
+Tech Stack:
+
+Frontend: React (with Tailwind CSS / shadcn UI)
+
+Backend: Python (FastAPI)
+
+Database: PostgreSQL / Supabase
+
+Other tools: GitHub, PyCharm, Docker (optional for local deployment), and pytest for testing
+
+Key Features:
+
+- Interactive data visualization and filtering
+
+- RESTful API for dynamic data exchange between frontend and backend
+
+- Secure authentication and session handling
+
+- Modular architecture for scalability and maintainability
+
+- Team-based development using Agile/Scrum methodology
+
+Team Role (Schultz David):
+
+Developed backend routes and API integration in Python (FastAPI)
+
+Integrated frontend communication with backend endpoints
+
+Assisted in UI/UX design and documentation
+
+Maintained version control and project structure on GitHub
+
+Purpose:
+The project demonstrates the integration of frontend, backend, and database layers in a single web-based analytics platform. It simulates a real-world software development workflow, emphasizing teamwork, code quality, and documentation.
+
+![img.png](img.png)
+![img_3.png](img_3.png)
+![img_2.png](img_2.png)
+![img_1.png](img_1.png)
+![img_4.png](img_4.png)
+
 ## Setup
 
 ### Prerequisites
@@ -126,16 +170,6 @@ backend/
 │       └── init.sql             # Database schema
 └── requirements.txt             # Python dependencies
 ```
-
-## Environment Variables
-
-| Variable       | Description                        | Required |
-| -------------- | ---------------------------------- | -------- |
-| `SUPABASE_URL` | Supabase project URL               | Yes      |
-| `SUPABASE_KEY` | Supabase anon/public key           | Yes      |
-| `FIRMENBUCH_BASE_URL` | Base URL for Firmenbuch proxy/REST API (used for fetch-on-miss and suggestions) | For remote fetch |
-| `API_KEY`      | Firmenbuch API token (if required by your endpoint) | No       |
-| `WSDL_URL`     | WSDL endpoint URL (examples/legacy) | No       |
 
 Notes:
 - When `FIRMENBUCH_BASE_URL` is not set, search endpoints operate in DB-only mode and will not fetch from the remote API on cache miss.
